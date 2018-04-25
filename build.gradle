@@ -1,0 +1,78 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.40'
+    id 'com.github.johnrengelman.shadow' version '2.0.3'
+}
+
+group 'br.com.devsrsouza'
+version '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        name = 'spigot'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+}
+
+dependencies {
+    compileOnly 'br.com.devsrsouza:kotlinbukkitapi:0.0.1-SNAPSHOT'
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+    compile("org.jetbrains.kotlin:kotlin-compiler-embeddable")
+    compile("org.jetbrains.kotlin:kotlin-script-runtime")
+
+    compileOnly('org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT')
+}
+
+shadowJar {
+    baseName = 'Bukkript'
+    classifier = null
+
+    dependencies {
+        // kotlin-compiler-embeddable
+        include(dependency("org.jetbrains.kotlin:kotlin-compiler-embeddable"))
+        include(dependency("org.jetbrains.kotlin:kotlin-reflect"))
+        include(dependency("org.jetbrains.kotlin:kotlin-script-runtime"))
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        MavenBuild(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.group
+            artifactId 'bukkript'
+            version project.version
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'A lightweight, simple FTP server. Pure Java, no libraries.')
+                root.appendNode('name', project.name)
+                root.appendNode('url', 'https://github.com/Guichaguri/MinimalFTP')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
