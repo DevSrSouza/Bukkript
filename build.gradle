@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.40'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.60'
     id 'com.github.johnrengelman.shadow' version '2.0.3'
 }
 
@@ -22,11 +22,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'br.com.devsrsouza:kotlinbukkitapi:0.0.1-SNAPSHOT'
+    compileOnly 'br.com.devsrsouza:kotlinbukkitapi:0.1.0-SNAPSHOT'
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     compile("org.jetbrains.kotlin:kotlin-compiler-embeddable")
     compile("org.jetbrains.kotlin:kotlin-script-runtime")
+    compile("org.jetbrains.kotlin:kotlin-reflect")
 
     compileOnly('org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT')
 }
@@ -68,9 +69,9 @@ publishing {
             version project.version
             pom.withXml {
                 def root = asNode()
-                root.appendNode('description', 'A lightweight, simple FTP server. Pure Java, no libraries.')
+                root.appendNode('description', 'Bukkript is a Bukkit plugin that allows server admins to customize their server easily with the power of Kotlin language and KotlinBukkitAPI.')
                 root.appendNode('name', project.name)
-                root.appendNode('url', 'https://github.com/Guichaguri/MinimalFTP')
+                root.appendNode('url', 'https://github.com/DevSrSouza/Bukkript')
                 root.children().last() + pomConfig
             }
         }
