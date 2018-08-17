@@ -50,11 +50,17 @@ val kotlinBukkitAPIImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.*",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.config.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.text.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.bungeecord.*",
     "br.com.devsrsouza.kotlinbukkitapi.plugins.placeholderapi.*",
     "br.com.devsrsouza.kotlinbukkitapi.plugins.vault.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.text.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.time.*"
+    "br.com.devsrsouza.kotlinbukkitapi.plugins.bossbarapi.*",
+    "br.com.devsrsouza.kotlinbukkitapi.plugins.hologramapi.*",
+    "br.com.devsrsouza.kotlinbukkitapi.plugins.dvdwplaceholderapi.*",
+    "br.com.devsrsouza.kotlinbukkitapi.plugins.worldedit.*",
+    "br.com.devsrsouza.kotlinbukkitapi.plugins.viaversion.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utils.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utils.time.*"
 )
 
 val bukkriptImports = listOf(
