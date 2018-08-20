@@ -66,5 +66,6 @@ val kotlinBukkitAPIImports = listOf(
 val bukkriptImports = listOf(
     "br.com.devsrsouza.bukkript.Bukkript",
     "br.com.devsrsouza.bukkript.script.Depend",
-    "br.com.devsrsouza.bukkript.script.SoftDepend"
+    "br.com.devsrsouza.bukkript.script.SoftDepend",
+    "br.com.devsrsouza.bukkript.script.Lib"
 )

@@ -7,6 +7,7 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.logging.Level
 
+
 object ScriptController {
     val scripts: MutableList<Script> = mutableListOf()
 
@@ -16,28 +17,29 @@ object ScriptController {
     fun loadScripts(plugin: Bukkript, folder: File) {
 
         scripts += compileScripts(folder)
-            .filter { it.value.superclass.name.equals(BukkriptScriptTemplate::class.java.name) }
-            .map { Script(it.key, it.value) } as ArrayList
 
-        scripts.forEach { script ->
+        val iterator = scripts.listIterator()
+        loop@ for (script in iterator) {
             val annotations = scriptAnnotations.get(script.name)
-            annotations?.filter { it is Depend || it is SoftDepend }?.forEach {
-                when (it) {
-                    is Depend -> {
-                        it.script.removeSuffix(".kts").capitalize().also {
-                            if(it.isNotBlank()) script.depend.add(it)
+            if(annotations != null) {
+                for (ant in annotations.filter { it is Depend || it is SoftDepend || it is Lib }) {
+                    when (ant) {
+                        is Depend -> {
+                            ant.script.removeSuffix(".kts").capitalize().also {
+                                if (it.isNotBlank()) script.depend.add(it)
+                            }
                         }
-                    }
-                    is SoftDepend -> {
-                        it.script.removeSuffix(".kts").capitalize().also {
-                            if(it.isNotBlank()) script.softdepend.add(it)
+                        is SoftDepend -> {
+                            ant.script.removeSuffix(".kts").capitalize().also {
+                                if (it.isNotBlank()) script.softdepend.add(it)
+                            }
                         }
                     }
                 }
             }
         }
 
-        val sorted = sortForRun(plugin, ArrayList(scripts))
+        val sorted = sortForRun(plugin, scripts)
 
         sorted.forEach {
             try {
@@ -51,7 +53,7 @@ object ScriptController {
 
     }
 
-    fun sortForRun(plugin: Bukkript, scripts: ArrayList<Script>) : List<Script> {
+    fun sortForRun(plugin: Bukkript, scripts: MutableList<Script>) : List<Script> {
 
         val loadedScripts = mutableListOf<Script>()
         val dependencies = scripts.associate { it.name to it.depend.toMutableList() }
@@ -161,11 +163,14 @@ object ScriptController {
 
 
 class Script(val name: String,
-             val clazz: Class<*>) {
+             val clazz: Class<*>,
+             val urlClassLoader: URLClassLoader) {
     var enable = false
     var depend = mutableListOf<String>()
     var softdepend = mutableListOf<String>()
     lateinit var instance: BukkriptScriptTemplate
+
+    override fun toString() = name
 }
 
 
@@ -180,6 +185,10 @@ annotation class Depend(val script: String)
 @Repeatable
 annotation class SoftDepend(val script: String)
 
+@Target(AnnotationTarget.FILE)
+@Retention(AnnotationRetention.SOURCE)
+@Repeatable
+annotation class Lib(val lib: String)
 
 fun classpathFromBukkit(): List<File> =
     (Bukkit.getServer().pluginManager.plugins

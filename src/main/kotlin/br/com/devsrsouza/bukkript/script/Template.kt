@@ -2,15 +2,10 @@ package br.com.devsrsouza.bukkript.script
 
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.NameUtils
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.script.InvalidScriptResolverAnnotation
 import org.jetbrains.kotlin.script.KotlinScriptDefinition
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
-import java.util.function.Predicate
 import kotlin.reflect.KClass
-import kotlin.reflect.jvm.jvmName
 import kotlin.script.dependencies.Environment
 import kotlin.script.dependencies.ScriptContents
 import kotlin.script.experimental.dependencies.DependenciesResolver
@@ -46,11 +41,11 @@ internal val scriptAnnotations: MutableMap<String, List<Annotation>> = mutableMa
 
 interface BukkriptScriptResolver : DependenciesResolver {
 
-    @AcceptedAnnotations(Depend::class, SoftDepend::class)
+    @AcceptedAnnotations(Depend::class, SoftDepend::class, Lib::class)
     override fun resolve(scriptContents: ScriptContents
                          ,environment: Environment) : DependenciesResolver.ResolveResult {
         if(scriptContents.file != null) {
-            scriptContents.annotations.filter { it is Depend || it is SoftDepend }.toList().ifNotEmpty {
+            scriptContents.annotations.filter { it is Depend || it is SoftDepend || it is Lib }.toList().ifNotEmpty {
                 scriptAnnotations.put(NameUtils.getScriptNameForFile(scriptContents.file!!.name).asString(), this)
             }
         }

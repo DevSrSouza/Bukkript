@@ -1,4 +1,0 @@
-name: Bukkript
-version: 0.0.1-SNAPSHOT
-main: br.com.devsrsouza.bukkript.Bukkript
-depend: [KotlinBukkitAPI]

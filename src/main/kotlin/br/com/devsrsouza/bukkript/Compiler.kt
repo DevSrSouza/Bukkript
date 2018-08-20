@@ -2,6 +2,8 @@ package br.com.devsrsouza.bukkript.compiler
 
 import br.com.devsrsouza.bukkript.Bukkript
 import br.com.devsrsouza.bukkript.script.BukkriptScriptDefinition
+import br.com.devsrsouza.bukkript.script.BukkriptScriptTemplate
+import br.com.devsrsouza.bukkript.script.Script
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
 import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector
@@ -18,9 +20,8 @@ import org.jetbrains.kotlin.config.addKotlinSourceRoot
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.resolve.BindingContext
 import java.io.File
-import kotlin.reflect.jvm.jvmName
 
-fun compileScripts(folder: File) : Map<String, Class<*>> {
+fun compileScripts(folder: File) : List<Script> {
 
     val disposal = Disposer.newDisposable()
     val configuration = CompilerConfiguration().apply {
@@ -39,15 +40,16 @@ fun compileScripts(folder: File) : Map<String, Class<*>> {
 
     val finalState = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(environment)
     if (finalState === null) {
-        return emptyMap()
+        return emptyList()
     }
 
     val compilerClassLoader = GeneratedClassLoader(finalState.factory, Bukkript::class.java.classLoader)
 
     return finalState.factory.getClassFiles().toList()
-        .map { it.relativePath.removeSuffix(".class").replace("/", ".") }
-        .mapNotNull { finalState.bindingContext.get(BindingContext.FQNAME_TO_CLASS_DESCRIPTOR, FqNameUnsafe(it.replace("$", "."))) }
-        .associateBy { finalState.typeMapper.mapClass(it).className }
-        .map { compilerClassLoader.loadClass(it.key) }
-        .associate { it.simpleName to it }
+            .map { it.relativePath.removeSuffix(".class").replace("/", ".") }
+            .mapNotNull { finalState.bindingContext.get(BindingContext.FQNAME_TO_CLASS_DESCRIPTOR, FqNameUnsafe(it.replace("$", "."))) }
+            .associateBy { finalState.typeMapper.mapClass(it).className }
+            .map { compilerClassLoader.loadClass(it.key) }
+            .filter { it.superclass.equals(BukkriptScriptTemplate::class.java) }
+            .map { Script(it.simpleName, it, compilerClassLoader) }
 }

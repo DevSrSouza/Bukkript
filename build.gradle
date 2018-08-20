@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '1.2.60'
     id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id 'net.minecrell.plugin-yml.bukkit' version '0.3.0'
 }
 
 group 'br.com.devsrsouza'
@@ -42,6 +43,14 @@ shadowJar {
         include(dependency("org.jetbrains.kotlin:kotlin-reflect"))
         include(dependency("org.jetbrains.kotlin:kotlin-script-runtime"))
     }
+}
+
+bukkit {
+    author = 'DevSrSouza'
+
+    main = 'br.com.devsrsouza.bukkript.Bukkript'
+
+    depend = ['KotlinBukkitAPI']
 }
 
 compileKotlin {
