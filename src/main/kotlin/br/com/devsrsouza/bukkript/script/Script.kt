@@ -7,7 +7,6 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.logging.Level
 
-
 object ScriptController {
     val scripts: MutableList<Script> = mutableListOf()
 

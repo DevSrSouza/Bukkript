@@ -52,7 +52,9 @@ interface BukkriptScriptResolver : DependenciesResolver {
 
         return ScriptDependencies(
             classpath = classpathFromBukkit(),
-            imports = bukkitImports + kotlinBukkitAPIImports + bukkriptImports
+            imports = bukkitImports + kotlinBukkitAPICoreImports
+                    + kotlinBukkitAPIAttributeStorageImports
+                    + kotlinBukkitAPIPluginsImports + bukkriptImports
         ).asSuccess()
     }
 }
