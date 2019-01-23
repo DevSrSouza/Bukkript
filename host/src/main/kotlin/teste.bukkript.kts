@@ -1,0 +1,5 @@
+println(plugin.name)
+
+onDisable {
+
+}

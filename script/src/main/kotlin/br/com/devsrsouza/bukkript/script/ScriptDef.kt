@@ -6,14 +6,15 @@ import org.jetbrains.kotlin.script.util.FilesAndMavenResolver
 import org.jetbrains.kotlin.script.util.Repository
 import java.io.File
 import kotlin.script.dependencies.ScriptContents
-import kotlin.script.dependencies.ScriptDependenciesResolver
 import kotlin.script.experimental.annotations.KotlinScript
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.JvmDependency
-import kotlin.script.experimental.jvm.compat.mapLegacyDiagnosticSeverity
-import kotlin.script.experimental.jvm.compat.mapLegacyScriptPosition
+import kotlin.script.experimental.jvm.dependenciesFromClassloader
+import kotlin.script.experimental.jvm.jvm
 
-@KotlinScript("Bukkript script", "bukkrit.kts", BukkriptScriptConfiguration::class)
+const val scriptExtension = "bukkrit.kts"
+
+@KotlinScript("Bukkript script", scriptExtension, BukkriptScriptConfiguration::class)
 abstract class BukkriptScript(val plugin: Bukkript) {
     private var disable: (() -> Unit)? = null
 
@@ -26,8 +27,46 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
     defaultImports(bukkitImports + bukkriptImports + kotlinBukkitAPICoreImports
             + kotlinBukkitAPIAttributeStorageImports + kotlinBukkitAPIPluginsImports)
 
+    jvm {
+        dependenciesFromClassloader(classLoader = Bukkript::class.java.classLoader, wholeClasspath = true)
+    }
+
     refineConfiguration {
-        //onAnnotations(Depend::class, SoftDepend::class)
+        onAnnotations<Script> { context ->
+            val annotations = context.collectedData?.get(ScriptCollectedData.foundAnnotations)?.takeIf { it.isNotEmpty() }
+                ?: return@onAnnotations context.compilationConfiguration.asSuccess()
+
+            val scriptContents = object : ScriptContents {
+                override val annotations: Iterable<Annotation> = annotations
+                override val file: File? = null
+                override val text: CharSequence? = null
+            }
+
+            val diagnostics = arrayListOf<ScriptDiagnostic>()
+
+            return@onAnnotations try {
+
+                val script = scriptContents.annotations.find { it.annotationClass == Script::class } as? Script
+
+                if(script != null) {
+                    ScriptCompilationConfiguration(context.compilationConfiguration) {
+                        script.name.takeIf { it.isNotBlank() }?.also { name(it) }
+                        script.version.takeIf { it.isNotBlank() }?.also { version(it) }
+                        script.author.takeIf { it.isNotBlank() }?.also { author(it) }
+                        script.authors.takeIf { it.isNotEmpty() }?.also { authors(it.toList()) }
+                        script.website.takeIf { it.isNotBlank() }?.also { website(it) }
+
+                        script.depend.takeIf { it.isNotEmpty() }?.also { dependScripts(it.toList()) }
+                        script.softDepend.takeIf { it.isNotEmpty() }?.also { softDependScripts(it.toList()) }
+
+                        script.pluginDepend.takeIf { it.isNotEmpty() }?.also { dependPlugins(it.toList()) }
+                        script.pluginSoftDepend.takeIf { it.isNotEmpty() }?.also { softDependPlugins(it.toList()) }
+                    }.asSuccess()
+                } else return@onAnnotations context.compilationConfiguration.asSuccess()
+            } catch (e: Throwable) {
+                ResultWithDiagnostics.Failure(*diagnostics.toTypedArray(), e.asDiagnostics())
+            }
+        }
         onAnnotations(DependsOn::class, Repository::class, handler = ::configureMavenDepsOnAnnotations)
     }
 })
@@ -47,23 +86,10 @@ fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContex
 
     val diagnostics = arrayListOf<ScriptDiagnostic>()
 
-    fun report(
-        severity: ScriptDependenciesResolver.ReportSeverity,
-        message: String,
-        position: ScriptContents.Position?
-    ) {
-        diagnostics.add(
-            ScriptDiagnostic(
-                message,
-                mapLegacyDiagnosticSeverity(severity),
-                context.script.locationId,
-                mapLegacyScriptPosition(position)
-            )
-        )
-    }
+    val report = ReportFunction(context, diagnostics)
 
     return try {
-        val newDepsFromResolver = resolver.resolve(scriptContents, emptyMap(), ::report, null).get()
+        val newDepsFromResolver = resolver.resolve(scriptContents, emptyMap(), report, null).get()
             ?: return context.compilationConfiguration.asSuccess(diagnostics)
 
         val resolvedClasspath = newDepsFromResolver.classpath.toList().takeIf { it.isNotEmpty() }

@@ -2,16 +2,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.20-eap-100"
-}
-
-group = "br.com.devsrsouza"
-version = "1.0-SNAPSHOT"
-
-subprojects {
-    plugins.apply("org.jetbrains.kotlin.jvm")
+    id("maven-publish")
 }
 
 allprojects {
+    plugins.apply("org.jetbrains.kotlin.jvm")
+
+    group = "br.com.devsrsouza.bukkript"
+    version = "1.0-SNAPSHOT"
+
     repositories {
         jcenter()
         mavenLocal()
@@ -37,5 +36,57 @@ allprojects {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
+    }
+}
+
+
+subprojects {
+    plugins.apply("maven-publish")
+
+    val sources by tasks.registering(Jar::class) {
+        baseName = "Bukkript-${project.name}"
+        classifier = "sources"
+        version = null
+        from(sourceSets.getByName("main").allSource)
+    }
+
+    publishing {
+        publications {
+            register("mavenJava", MavenPublication::class) {
+                from(components["java"])
+                artifact(sources.get())
+                groupId = project.group.toString()
+                artifactId = project.name.toLowerCase()
+                version = project.version.toString()
+                pom.withXml {
+                    asNode().apply {
+                        appendNode(
+                            "description",
+                            "Bukkript is a Bukkit plugin that allows server admins to customize their" +
+                                    " server easily with the power of Kotlin language and KotlinBukkitAPI."
+                        )
+                        appendNode("name", "Bukkript-${project.name}")
+                        appendNode("url", "https://github.com/DevSrSouza/Bukkript")
+
+                        appendNode("licenses").appendNode("license").apply {
+                            appendNode("name", "MIT License")
+                            appendNode("url", "https://github.com/DevSrSouza/Bukkript/blob/master/LICENSE")
+                            appendNode("distribution", "repo")
+                        }
+                        appendNode("developers").apply {
+                            appendNode("developer").apply {
+                                appendNode("id", "DevSrSouza")
+                                appendNode("name", "Gabriel Souza")
+                                appendNode("email", "devsrsouza@gmail.com")
+                            }
+                        }
+                        appendNode("scm").appendNode("url", "https://github.com/DevSrSouza/Bukkript/tree/master/${project.name}")
+                    }
+                    asElement().apply {
+                        getElementsByTagName("dependencies")?.item(0)?.also { removeChild(it) }
+                    }
+                }
+            }
+        }
     }
 }

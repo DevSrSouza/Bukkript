@@ -79,5 +79,5 @@ val kotlinBukkitAPIPluginsImports = listOf(
 )
 
 val bukkriptImports = listOf(
-    "" // TODO
+    "br.com.devsrsouza.bukkript.script.Script"
 )

@@ -3,9 +3,14 @@ package br.com.devsrsouza.bukkript.script
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
-annotation class Depend(val script: String)
-
-@Target(AnnotationTarget.FILE)
-@Retention(AnnotationRetention.SOURCE)
-@Repeatable
-annotation class SoftDepend(val script: String)
+annotation class Script(
+    val name: String = "",
+    val version: String = "",
+    val author: String = "",
+    val authors: Array<String> = emptyArray(),
+    val website: String = "",
+    val depend: Array<String> = emptyArray(),
+    val softDepend: Array<String> = emptyArray(),
+    val pluginDepend: Array<String> = emptyArray(),
+    val pluginSoftDepend: Array<String> = emptyArray()
+)
