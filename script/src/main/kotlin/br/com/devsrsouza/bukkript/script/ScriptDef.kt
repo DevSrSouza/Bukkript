@@ -1,105 +1,31 @@
 package br.com.devsrsouza.bukkript.script
 
 import br.com.devsrsouza.bukkript.Bukkript
-import org.jetbrains.kotlin.script.util.DependsOn
-import org.jetbrains.kotlin.script.util.FilesAndMavenResolver
-import org.jetbrains.kotlin.script.util.Repository
-import java.io.File
-import kotlin.script.dependencies.ScriptContents
+import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptLoader
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.KCommand
+import org.bukkit.event.Listener
+import org.bukkit.scheduler.BukkitTask
 import kotlin.script.experimental.annotations.KotlinScript
-import kotlin.script.experimental.api.*
-import kotlin.script.experimental.jvm.JvmDependency
-import kotlin.script.experimental.jvm.dependenciesFromClassloader
-import kotlin.script.experimental.jvm.jvm
 
-const val scriptExtension = "bukkrit.kts"
+typealias DisableBlock = () -> Unit
+
+const val scriptExtension = "bkts"
 
 @KotlinScript("Bukkript script", scriptExtension, BukkriptScriptConfiguration::class)
-abstract class BukkriptScript(val plugin: Bukkript) {
-    private var disable: (() -> Unit)? = null
+abstract class BukkriptScript(val plugin: Bukkript) : Listener {
+    private val controller = BukkriptScriptController()
 
-    fun onDisable(block: () -> Unit) {
-        disable = block
+    fun onDisable(block: DisableBlock) {
+        controller.disable = block
     }
+
+    fun BukkriptScriptLoader.getController() = controller
 }
 
-object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
-    defaultImports(bukkitImports + bukkriptImports + kotlinBukkitAPICoreImports
-            + kotlinBukkitAPIAttributeStorageImports + kotlinBukkitAPIPluginsImports)
+class BukkriptScriptController {
+    val events = mutableListOf<Listener>()
+    val commands = mutableListOf<KCommand>()
+    val tasks = mutableListOf<BukkitTask>()
 
-    jvm {
-        dependenciesFromClassloader(classLoader = Bukkript::class.java.classLoader, wholeClasspath = true)
-    }
-
-    refineConfiguration {
-        onAnnotations<Script> { context ->
-            val annotations = context.collectedData?.get(ScriptCollectedData.foundAnnotations)?.takeIf { it.isNotEmpty() }
-                ?: return@onAnnotations context.compilationConfiguration.asSuccess()
-
-            val scriptContents = object : ScriptContents {
-                override val annotations: Iterable<Annotation> = annotations
-                override val file: File? = null
-                override val text: CharSequence? = null
-            }
-
-            val diagnostics = arrayListOf<ScriptDiagnostic>()
-
-            return@onAnnotations try {
-
-                val script = scriptContents.annotations.find { it.annotationClass == Script::class } as? Script
-
-                if(script != null) {
-                    ScriptCompilationConfiguration(context.compilationConfiguration) {
-                        script.name.takeIf { it.isNotBlank() }?.also { name(it) }
-                        script.version.takeIf { it.isNotBlank() }?.also { version(it) }
-                        script.author.takeIf { it.isNotBlank() }?.also { author(it) }
-                        script.authors.takeIf { it.isNotEmpty() }?.also { authors(it.toList()) }
-                        script.website.takeIf { it.isNotBlank() }?.also { website(it) }
-
-                        script.depend.takeIf { it.isNotEmpty() }?.also { dependScripts(it.toList()) }
-                        script.softDepend.takeIf { it.isNotEmpty() }?.also { softDependScripts(it.toList()) }
-
-                        script.pluginDepend.takeIf { it.isNotEmpty() }?.also { dependPlugins(it.toList()) }
-                        script.pluginSoftDepend.takeIf { it.isNotEmpty() }?.also { softDependPlugins(it.toList()) }
-                    }.asSuccess()
-                } else return@onAnnotations context.compilationConfiguration.asSuccess()
-            } catch (e: Throwable) {
-                ResultWithDiagnostics.Failure(*diagnostics.toTypedArray(), e.asDiagnostics())
-            }
-        }
-        onAnnotations(DependsOn::class, Repository::class, handler = ::configureMavenDepsOnAnnotations)
-    }
-})
-
-private val resolver = FilesAndMavenResolver()
-
-fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContext): ResultWithDiagnostics<ScriptCompilationConfiguration> {
-
-    val annotations = context.collectedData?.get(ScriptCollectedData.foundAnnotations)?.takeIf { it.isNotEmpty() }
-        ?: return context.compilationConfiguration.asSuccess()
-
-    val scriptContents = object : ScriptContents {
-        override val annotations: Iterable<Annotation> = annotations
-        override val file: File? = null
-        override val text: CharSequence? = null
-    }
-
-    val diagnostics = arrayListOf<ScriptDiagnostic>()
-
-    val report = ReportFunction(context, diagnostics)
-
-    return try {
-        val newDepsFromResolver = resolver.resolve(scriptContents, emptyMap(), report, null).get()
-            ?: return context.compilationConfiguration.asSuccess(diagnostics)
-
-        val resolvedClasspath = newDepsFromResolver.classpath.toList().takeIf { it.isNotEmpty() }
-            ?: return context.compilationConfiguration.asSuccess(diagnostics)
-
-        ScriptCompilationConfiguration(context.compilationConfiguration) {
-            dependencies(JvmDependency(resolvedClasspath))
-            //withUpdatedClasspath(resolvedClasspath).asSuccess(diagnostics)
-        }.asSuccess()
-    } catch (e: Throwable) {
-        ResultWithDiagnostics.Failure(*diagnostics.toTypedArray(), e.asDiagnostics())
-    }
+    var disable: DisableBlock? = null
 }

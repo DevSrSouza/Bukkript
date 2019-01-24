@@ -1,6 +1,7 @@
 repositories {  }
 dependencies {
     compileOnly(project(":plugin"))
+    compileOnly(project(":host"))
 
     compile(kotlin("scripting-jvm"))
     compile(kotlin("script-util"))

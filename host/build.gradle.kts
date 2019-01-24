@@ -4,4 +4,5 @@ dependencies {
     compileOnly(project(":script"))
 
     compile(kotlin("scripting-jvm-host"))
+    compile(kotlin("reflect"))
 }

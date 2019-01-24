@@ -18,10 +18,10 @@ class Bukkript : JavaPlugin() {
         }
     }
 
-    val SCRIPT_DIR by lazy { File(dataFolder, "scripts/") }
-    val CACHE_DIR by lazy { File(dataFolder, ".cache/") }
+    val SCRIPT_DIR by lazy { File(dataFolder, "scripts/").apply { mkdirs() } }
+    val CACHE_DIR by lazy { File(dataFolder, ".cache/").apply { mkdirs() } }
 
-    val LOADER by lazy { BukkriptScriptLoader() } // TODO
+    val LOADER by lazy { BukkriptScriptLoader(this) } // TODO
 
     private val imports = mutableListOf<DependecyImport>()
 

@@ -10,7 +10,5 @@ annotation class Script(
     val authors: Array<String> = emptyArray(),
     val website: String = "",
     val depend: Array<String> = emptyArray(),
-    val softDepend: Array<String> = emptyArray(),
-    val pluginDepend: Array<String> = emptyArray(),
-    val pluginSoftDepend: Array<String> = emptyArray()
+    val pluginDepend: Array<String> = emptyArray()
 )
