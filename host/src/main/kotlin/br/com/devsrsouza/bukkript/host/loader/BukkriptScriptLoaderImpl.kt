@@ -4,6 +4,9 @@ import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.script.BukkriptLoadedScript
 import br.com.devsrsouza.bukkript.api.script.loader.BukkriptScriptLoader
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.unregisterAll
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.unregister
+import org.bukkit.plugin.Plugin
 
 class BukkriptScriptLoaderImpl(plugin: BukkriptAPI) : BukkriptScriptLoader(plugin) {
 
@@ -25,7 +28,7 @@ class BukkriptScriptLoaderImpl(plugin: BukkriptAPI) : BukkriptScriptLoader(plugi
             controller.commands.forEach { it.unregister() }
             controller.tasks.forEach { it.cancel() }
 
-            plugin.info("Script ${script.scriptFilePath} disabled")
+            (plugin as Plugin).info("Script ${script.scriptFilePath} disabled")
             return true
         } else return false
     }

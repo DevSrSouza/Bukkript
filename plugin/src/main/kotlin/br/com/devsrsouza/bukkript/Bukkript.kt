@@ -3,6 +3,7 @@ package br.com.devsrsouza.bukkript
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.DependecyImport
 import br.com.devsrsouza.bukkript.api.PluginDependencyImport
+import br.com.devsrsouza.bukkript.host.compileScripts
 import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptLoaderImpl
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
@@ -20,7 +21,7 @@ class Bukkript : JavaPlugin(), BukkriptAPI {
     }
 
     override val SCRIPT_DIR by lazy { File(dataFolder, "scripts/").apply { mkdirs() } }
-    override val CACHE_DIR by lazy { File(dataFolder, ".cache/").apply { mkdirs() } }
+    override val CACHE_DIR by lazy { File(dataFolder, "cache/").apply { mkdirs() } }
 
     override val LOADER by lazy { BukkriptScriptLoaderImpl(this) } // TODO
 
@@ -30,6 +31,7 @@ class Bukkript : JavaPlugin(), BukkriptAPI {
 
     override fun onEnable() {
         // TODO add KotlinBukkitAPI imports
+        compileScripts(this)
     }
 
     fun addImport(imports: DependecyImport) {

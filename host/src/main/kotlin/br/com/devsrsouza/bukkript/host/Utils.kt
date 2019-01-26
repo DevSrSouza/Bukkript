@@ -7,11 +7,18 @@ import java.io.File
 import kotlin.script.experimental.api.ResultWithDiagnostics
 import kotlin.script.experimental.api.resultOrNull
 
-fun <R> ResultWithDiagnostics<R>.resultOrSeveral(plugin: Plugin): R? {
+fun <R> ResultWithDiagnostics<R>.resultOrSeveral(plugin: Plugin, api: BukkriptAPI): R? {
     return resultOrNull() ?: run {
-        for (diag in reports) { plugin.severe(diag.toString()) }
+        for (diag in reports) {
+            if(diag.exception != null) {
+                diag.exception?.printStackTrace()
+            } else {
+                plugin.severe(diag.message)
+            }
+            diag.sourcePath?.also { plugin.severe(File(it).relativeTo(api.SCRIPT_DIR).path) }
+        }
         null
     }
 }
 
-fun File.scriptName(plugin: BukkriptAPI) = relativeTo(plugin.SCRIPT_DIR).path.substringBeforeLast(".")
+fun File.scriptName(api: BukkriptAPI) = relativeTo(api.SCRIPT_DIR).path.substringBeforeLast(".")

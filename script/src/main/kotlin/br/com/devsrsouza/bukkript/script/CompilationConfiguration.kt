@@ -1,22 +1,24 @@
 package br.com.devsrsouza.bukkript.script
 
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
+import org.bukkit.Bukkit
 import org.jetbrains.kotlin.script.util.DependsOn
 import org.jetbrains.kotlin.script.util.FilesAndMavenResolver
 import org.jetbrains.kotlin.script.util.Repository
 import java.io.File
+import java.net.URLClassLoader
 import kotlin.script.dependencies.ScriptContents
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.JvmDependency
-import kotlin.script.experimental.jvm.dependenciesFromClassloader
 import kotlin.script.experimental.jvm.jvm
+import kotlin.script.experimental.jvm.updateClasspath
 
 object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
     defaultImports(bukkitImports + bukkriptImports + kotlinBukkitAPICoreImports
             + kotlinBukkitAPIAttributeStorageImports + kotlinBukkitAPIPluginsImports)
 
     jvm {
-        dependenciesFromClassloader(classLoader = BukkriptAPI::class.java.classLoader, wholeClasspath = true)
+        updateClasspath(classpathFromBukkit())
     }
 
     refineConfiguration {
@@ -52,11 +54,11 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
                 ResultWithDiagnostics.Failure(*diagnostics.toTypedArray(), e.asDiagnostics())
             }
         }
-        onAnnotations(DependsOn::class, Repository::class, handler = ::configureMavenDepsOnAnnotations)
+        //onAnnotations(DependsOn::class, Repository::class, handler = ::configureMavenDepsOnAnnotations)
     }
 })
 
-private val resolver = FilesAndMavenResolver()
+/*private val resolver = FilesAndMavenResolver()
 
 fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContext): ResultWithDiagnostics<ScriptCompilationConfiguration> {
 
@@ -87,4 +89,17 @@ fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContex
     } catch (e: Throwable) {
         ResultWithDiagnostics.Failure(*diagnostics.toTypedArray(), e.asDiagnostics())
     }
-}
+}*/
+
+fun classpathFromBukkit(): List<File> =
+    (Bukkit.getServer().pluginManager.plugins
+        .map { it.javaClass.classLoader } + BukkriptAPI::class.java.classLoader.parent)
+        .mapNotNull { it as? URLClassLoader }
+        .flatMap { it.urLs.toList() }.mapNotNull {
+            try {
+                File(it.toURI().schemeSpecificPart)
+            } catch (e: java.net.URISyntaxException) {
+                if (it.protocol != "file") null
+                else File(it.file)
+            }
+        }

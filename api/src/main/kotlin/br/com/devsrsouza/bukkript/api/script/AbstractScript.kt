@@ -1,6 +1,7 @@
 package br.com.devsrsouza.bukkript.api.script
 
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
+import br.com.devsrsouza.bukkript.api.script.loader.BukkriptScriptLoader
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.KCommand
 import org.bukkit.event.Listener
 import org.bukkit.scheduler.BukkitTask
@@ -15,7 +16,7 @@ abstract class AbstractScript(val api: BukkriptAPI) : Listener {
         controller.disable = block
     }
 
-    //fun BukkriptScriptLoader.getController() = controller
+    fun BukkriptScriptLoader.getController() = controller
 }
 
 

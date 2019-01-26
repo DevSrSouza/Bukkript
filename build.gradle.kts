@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.20-eap-100"
+    kotlin("jvm") version "1.3.20"
     id("maven-publish")
     id("com.github.johnrengelman.shadow") version "4.0.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
@@ -37,7 +37,6 @@ allprojects {
     repositories {
         jcenter()
         mavenLocal()
-        maven { url = uri("https://dl.bintray.com/kotlin/kotlin-eap") }
 
         maven {
             name = "spigot"

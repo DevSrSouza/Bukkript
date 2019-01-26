@@ -8,18 +8,25 @@ import br.com.devsrsouza.bukkript.script.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import java.io.File
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvm.defaultJvmScriptingHostConfiguration
 import kotlin.script.experimental.jvmhost.*
+import kotlin.script.experimental.jvmhost.impl.KJvmCompiledModule
 
-suspend fun compileScripts(api: BukkriptAPI) {
+fun compileScripts(api: BukkriptAPI) {
 
     if(api !is Plugin) return
+
+    api.info("Starting scripts compilation")
 
     val scripts = api.SCRIPT_DIR.listFiles()
         .filter { it.extension.equals(scriptExtension, true) }
@@ -79,40 +86,31 @@ suspend fun compileScripts(api: BukkriptAPI) {
 
     fun File.scriptName() = this.nameWithoutExtension
 
+    api.info("Loading scripts dependencies")
+
+    if(scripts.isEmpty()) {
+        api.info("scripts not founded")
+        return
+    }
+
     for (script in scripts) {
         val source = script.toScriptSource()
 
-        // generate script dependencies entries
+        // generate script dependencies script
 
         val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration)
 
-        compiler(source, configuration(script)).reports.forEach { println(it) } // generate scriptDepend entries
+        runBlocking { compiler(source, configuration(script)).resultOrSeveral(api, api) } // generate scriptDepend script
     }
 
-    fun cache(script: File): FileBasedScriptCache {
-        // CACHE
-        val cachedDir = File(api.CACHE_DIR, script.scriptName())
-        cachedDir.mkdirs()
-
-        val modification = File(cachedDir, ".modification")
-        val scriptModification = script.lastModified()
-
-        if (modification.exists() && scriptModification != modification.lastModified()) {
-            cachedDir.deleteRecursively()
-        }
-
-        if (!modification.exists()) {
-            modification.createNewFile()
-            modification.setLastModified(scriptModification)
-        }
-
-        return FileBasedScriptCache(cachedDir)
-    }
+    val cache = FileBasedScriptCache(api, api)
 
     suspend fun compile(script: File): ResultWithDiagnostics<BukkriptCompiledScriptImpl> {
         val source = script.toScriptSource()
 
-        val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration, cache = cache(script))
+        api.info("Compiling ${script.scriptName()}...")
+
+        val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration, cache = cache)
 
         val compiled = compiler(source, configuration(script))
 
@@ -142,10 +140,14 @@ suspend fun compileScripts(api: BukkriptAPI) {
         }
     }
 
-    val sorted = sortToCompile(scriptToSort).resultOrSeveral(api)!!
+    if(scriptToSort.isEmpty() && scriptNoDepend.isEmpty()) return
+
+    api.info("Sorting script dependencies")
+
+    val sorted = sortToCompile(scriptToSort).resultOrSeveral(api, api)!!
 
     suspend fun load(script: File) {
-        val bkCompiledScript = compile(script).resultOrSeveral(api)
+        val bkCompiledScript = compile(script).resultOrSeveral(api, api)
 
         if(bkCompiledScript != null) {
             api.info("Starting loading ${bkCompiledScript.scriptFileName}")
@@ -166,27 +168,35 @@ suspend fun compileScripts(api: BukkriptAPI) {
     }
 }
 
-suspend fun loadScript(plugin: BukkriptAPI, bukkriptCompiledScript: BukkriptCompiledScriptImpl) {
+suspend fun loadScript(api: BukkriptAPI, bukkriptCompiledScript: BukkriptCompiledScriptImpl) {
 
-    val baseClassLoader = plugin::class.java.classLoader
+    val baseClassLoader = api::class.java.classLoader
 
     val bukkriptClassLoader = BukkriptScriptClassLoaderImpl(
-        plugin.LOADER,
+        api.LOADER,
         baseClassLoader,
         bukkriptCompiledScript
     )
 
     val evalConfig = ScriptEvaluationConfiguration {
-        constructorArgs(plugin)
-        set(JvmScriptEvaluationConfiguration.actualClassLoader, bukkriptClassLoader)
+        constructorArgs(api)
+        jvm {
+            actualClassLoader(bukkriptClassLoader)
+        }
     }
+    val compiled = bukkriptCompiledScript.compiledScript
+    val moduleMember = compiled::class.memberProperties.find { it.name == "compiledModule" } as KProperty1<Any, Any>?
+    moduleMember?.isAccessible = true
+    val module = moduleMember?.get(compiled) as KJvmCompiledModule
 
-    val clazz = bukkriptCompiledScript.compiledScript.getClass(evalConfig).resultOrSeveral(plugin as Plugin)
+    bukkriptClassLoader.script = module.compilerOutputFiles
+
+    val clazz = bukkriptCompiledScript.compiledScript.getClass(evalConfig).resultOrSeveral(api as Plugin, api)
 
     if (clazz != null) {
-        plugin.LOADER.loadScript(
+        api.LOADER.loadScript(
             BukkriptLoadedScriptImpl(
-                plugin,
+                api,
                 clazz as KClass<AbstractScript>,
                 bukkriptClassLoader,
                 bukkriptCompiledScript
