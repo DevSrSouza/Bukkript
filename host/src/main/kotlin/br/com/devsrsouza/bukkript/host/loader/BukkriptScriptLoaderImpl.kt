@@ -3,9 +3,7 @@ package br.com.devsrsouza.bukkript.host.loader
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.script.BukkriptLoadedScript
 import br.com.devsrsouza.bukkript.api.script.loader.BukkriptScriptLoader
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.unregisterAll
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.unregister
 import org.bukkit.plugin.Plugin
 
 class BukkriptScriptLoaderImpl(plugin: BukkriptAPI) : BukkriptScriptLoader(plugin) {
@@ -21,12 +19,8 @@ class BukkriptScriptLoaderImpl(plugin: BukkriptAPI) : BukkriptScriptLoader(plugi
         if(script != null) {
             val bukkriptScript = script.instance
 
-            val controller = bukkriptScript.run { getController() }
-
-            bukkriptScript.unregisterAll()
-            controller.events.forEach { it.unregisterAll() }
-            controller.commands.forEach { it.unregister() }
-            controller.tasks.forEach { it.cancel() }
+            val controllers = bukkriptScript.run { getControllers() }
+            controllers.forEach { it.disable() }
 
             (plugin as Plugin).info("Script ${script.scriptFilePath} disabled")
             return true
