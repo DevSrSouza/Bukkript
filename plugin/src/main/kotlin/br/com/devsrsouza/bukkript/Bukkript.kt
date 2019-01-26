@@ -1,13 +1,14 @@
 package br.com.devsrsouza.bukkript
 
+import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.DependecyImport
 import br.com.devsrsouza.bukkript.api.PluginDependencyImport
-import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptLoader
+import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptLoaderImpl
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 
-class Bukkript : JavaPlugin() {
+class Bukkript : JavaPlugin(), BukkriptAPI {
 
     companion object {
         private lateinit var INSTANCE: Bukkript
@@ -18,10 +19,10 @@ class Bukkript : JavaPlugin() {
         }
     }
 
-    val SCRIPT_DIR by lazy { File(dataFolder, "scripts/").apply { mkdirs() } }
-    val CACHE_DIR by lazy { File(dataFolder, ".cache/").apply { mkdirs() } }
+    override val SCRIPT_DIR by lazy { File(dataFolder, "scripts/").apply { mkdirs() } }
+    override val CACHE_DIR by lazy { File(dataFolder, ".cache/").apply { mkdirs() } }
 
-    val LOADER by lazy { BukkriptScriptLoader(this) } // TODO
+    override val LOADER by lazy { BukkriptScriptLoaderImpl(this) } // TODO
 
     private val imports = mutableListOf<DependecyImport>()
 

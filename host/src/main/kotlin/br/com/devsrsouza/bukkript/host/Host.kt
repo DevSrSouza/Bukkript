@@ -1,13 +1,15 @@
 package br.com.devsrsouza.bukkript.host
 
-import br.com.devsrsouza.bukkript.Bukkript
+import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.ScriptDescription
-import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptClassLoader
+import br.com.devsrsouza.bukkript.api.script.AbstractScript
+import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptClassLoaderImpl
 import br.com.devsrsouza.bukkript.script.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import org.bukkit.Bukkit
+import org.bukkit.plugin.Plugin
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.script.experimental.api.*
@@ -15,9 +17,11 @@ import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvm.defaultJvmScriptingHostConfiguration
 import kotlin.script.experimental.jvmhost.*
 
-suspend fun compileScripts(plugin: Bukkript) {
+suspend fun compileScripts(api: BukkriptAPI) {
 
-    val scripts = plugin.SCRIPT_DIR.listFiles()
+    if(api !is Plugin) return
+
+    val scripts = api.SCRIPT_DIR.listFiles()
         .filter { it.extension.equals(scriptExtension, true) }
 
     val scriptNoDepend: MutableList<File> = mutableListOf()
@@ -36,7 +40,7 @@ suspend fun compileScripts(plugin: Bukkript) {
                     var pluginMissing = false
                     for (depend in dependPlugins) {
                         if (!Bukkit.getServer().pluginManager.isPluginEnabled(depend)) {
-                            diagnostics.add("Missing plugin $depend needed on the script ${context.script.name}".asErrorDiagnostics())
+                            diagnostics.add("Missing api $depend needed on the script ${context.script.name}".asErrorDiagnostics())
                             pluginMissing = true
                         }
                     }
@@ -52,7 +56,7 @@ suspend fun compileScripts(plugin: Bukkript) {
                         if (dependency.isEmpty()) {
                             scriptNoDepend.add(script)
                         } else {
-                            val dependScripts = dependency.map { File(plugin.dataFolder, it).normalize() }
+                            val dependScripts = dependency.map { File(api.dataFolder, it).normalize() }
                             var scriptMissing = false
                             for (depend in dependScripts) {
                                 if (!depend.exists() || depend.isDirectory) {
@@ -87,7 +91,7 @@ suspend fun compileScripts(plugin: Bukkript) {
 
     fun cache(script: File): FileBasedScriptCache {
         // CACHE
-        val cachedDir = File(plugin.CACHE_DIR, script.scriptName())
+        val cachedDir = File(api.CACHE_DIR, script.scriptName())
         cachedDir.mkdirs()
 
         val modification = File(cachedDir, ".modification")
@@ -105,7 +109,7 @@ suspend fun compileScripts(plugin: Bukkript) {
         return FileBasedScriptCache(cachedDir)
     }
 
-    suspend fun compile(script: File): ResultWithDiagnostics<BukkriptCompiledScript> {
+    suspend fun compile(script: File): ResultWithDiagnostics<BukkriptCompiledScriptImpl> {
         val source = script.toScriptSource()
 
         val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration, cache = cache(script))
@@ -127,7 +131,7 @@ suspend fun compileScripts(plugin: Bukkript) {
                 )
             }
 
-            ResultWithDiagnostics.Success(BukkriptCompiledScript(
+            ResultWithDiagnostics.Success(BukkriptCompiledScriptImpl(
                 script.scriptName(),
                 script,
                 result as CompiledScript<BukkriptScript>,
@@ -138,14 +142,14 @@ suspend fun compileScripts(plugin: Bukkript) {
         }
     }
 
-    val sorted = sortToCompile(plugin, scriptToSort).resultOrSeveral(plugin)!!
+    val sorted = sortToCompile(scriptToSort).resultOrSeveral(api)!!
 
     suspend fun load(script: File) {
-        val bkCompiledScript = compile(script).resultOrSeveral(plugin)
+        val bkCompiledScript = compile(script).resultOrSeveral(api)
 
         if(bkCompiledScript != null) {
-            plugin.info("Starting loading ${bkCompiledScript.scriptFileName}")
-            loadScript(plugin, bkCompiledScript)
+            api.info("Starting loading ${bkCompiledScript.scriptFileName}")
+            loadScript(api, bkCompiledScript)
         }
     }
 
@@ -162,11 +166,11 @@ suspend fun compileScripts(plugin: Bukkript) {
     }
 }
 
-suspend fun loadScript(plugin: Bukkript, bukkriptCompiledScript: BukkriptCompiledScript) {
+suspend fun loadScript(plugin: BukkriptAPI, bukkriptCompiledScript: BukkriptCompiledScriptImpl) {
 
-    val baseClassLoader = Bukkript::class.java.classLoader
+    val baseClassLoader = plugin::class.java.classLoader
 
-    val bukkriptClassLoader = BukkriptScriptClassLoader(
+    val bukkriptClassLoader = BukkriptScriptClassLoaderImpl(
         plugin.LOADER,
         baseClassLoader,
         bukkriptCompiledScript
@@ -177,13 +181,13 @@ suspend fun loadScript(plugin: Bukkript, bukkriptCompiledScript: BukkriptCompile
         set(JvmScriptEvaluationConfiguration.actualClassLoader, bukkriptClassLoader)
     }
 
-    val clazz = bukkriptCompiledScript.compiledScript.getClass(evalConfig).resultOrSeveral(plugin)
+    val clazz = bukkriptCompiledScript.compiledScript.getClass(evalConfig).resultOrSeveral(plugin as Plugin)
 
     if (clazz != null) {
         plugin.LOADER.loadScript(
-            BukkriptLoadedScript(
+            BukkriptLoadedScriptImpl(
                 plugin,
-                clazz as KClass<BukkriptScript>,
+                clazz as KClass<AbstractScript>,
                 bukkriptClassLoader,
                 bukkriptCompiledScript
             )
@@ -191,7 +195,7 @@ suspend fun loadScript(plugin: Bukkript, bukkriptCompiledScript: BukkriptCompile
     }
 }
 
-fun sortToCompile(plugin: Bukkript, dependencies: MutableMap<File, MutableList<File>>) : ResultWithDiagnostics.Success<List<File>> {
+fun sortToCompile(dependencies: MutableMap<File, MutableList<File>>) : ResultWithDiagnostics.Success<List<File>> {
 
     val scripts = dependencies.keys.toMutableList()
 

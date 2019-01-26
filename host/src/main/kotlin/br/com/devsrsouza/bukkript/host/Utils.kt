@@ -1,6 +1,6 @@
 package br.com.devsrsouza.bukkript.host
 
-import br.com.devsrsouza.bukkript.Bukkript
+import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.severe
 import org.bukkit.plugin.Plugin
 import java.io.File
@@ -14,4 +14,4 @@ fun <R> ResultWithDiagnostics<R>.resultOrSeveral(plugin: Plugin): R? {
     }
 }
 
-fun File.scriptName(plugin: Bukkript) = relativeTo(plugin.SCRIPT_DIR).path.substringBeforeLast(".")
+fun File.scriptName(plugin: BukkriptAPI) = relativeTo(plugin.SCRIPT_DIR).path.substringBeforeLast(".")

@@ -1,6 +1,6 @@
 rootProject.name = "Bukkript"
 
-include("host", "script", "plugin")
+include("api", "plugin", "host", "script")
 
 pluginManagement {
     repositories {

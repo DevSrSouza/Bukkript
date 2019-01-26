@@ -1,6 +1,6 @@
 package br.com.devsrsouza.bukkript.script
 
-import br.com.devsrsouza.bukkript.Bukkript
+import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import org.jetbrains.kotlin.script.util.DependsOn
 import org.jetbrains.kotlin.script.util.FilesAndMavenResolver
 import org.jetbrains.kotlin.script.util.Repository
@@ -16,7 +16,7 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
             + kotlinBukkitAPIAttributeStorageImports + kotlinBukkitAPIPluginsImports)
 
     jvm {
-        dependenciesFromClassloader(classLoader = Bukkript::class.java.classLoader, wholeClasspath = true)
+        dependenciesFromClassloader(classLoader = BukkriptAPI::class.java.classLoader, wholeClasspath = true)
     }
 
     refineConfiguration {

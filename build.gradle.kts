@@ -1,15 +1,38 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.20-eap-100"
     id("maven-publish")
+    id("com.github.johnrengelman.shadow") version "4.0.1"
+    id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
+}
+
+dependencies {
+    compile(kotlin("stdlib-jdk8"))
+
+    subprojects.forEach {
+        compile(project(":${it.name}", configuration = "shadow"))
+    }
+}
+
+bukkit {
+    name = project.name
+    version = project.version.toString()
+    main = "br.com.devsrsouza.bukkript.Bukkript"
+
+    website = "https://github.com/DevSrSouza/Bukkript"
+    authors = listOf("DevSrSouza")
+
+    depend = listOf("KotlinBukkitAPI")
 }
 
 allprojects {
     plugins.apply("org.jetbrains.kotlin.jvm")
+    plugins.apply("com.github.johnrengelman.shadow")
 
     group = "br.com.devsrsouza.bukkript"
-    version = "1.0-SNAPSHOT"
+    version = "0.0.1-SNAPSHOT"
 
     repositories {
         jcenter()
@@ -23,8 +46,6 @@ allprojects {
     }
 
     dependencies {
-        compile(kotlin("stdlib-jdk8"))
-
         // spigot
         compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
@@ -34,14 +55,23 @@ allprojects {
         compileOnly("br.com.devsrsouza.kotlinbukkitapi:plugins:0.1.0-SNAPSHOT")
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+    tasks {
+        withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+        withType<ShadowJar> {
+            baseName = project.name
+            classifier = null
+        }
     }
 }
 
-
 subprojects {
     plugins.apply("maven-publish")
+
+    dependencies {
+        compileOnly(kotlin("stdlib-jdk8"))
+    }
 
     val sources by tasks.registering(Jar::class) {
         baseName = "Bukkript-${project.name}"

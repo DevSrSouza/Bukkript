@@ -1,5 +1,0 @@
-println(plugin.name)
-
-onDisable {
-
-}
