@@ -17,8 +17,14 @@ import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitRunnable
+import java.io.File
 
 typealias DisableBlock = () -> Unit
+
+const val scriptExtension = "bkts"
+
+val File.isScriptFile get() = extension.equals(scriptExtension, true)
+fun File.scriptName(api: BukkriptAPI) = relativeTo(api.SCRIPT_DIR).path.substringBeforeLast(".")
 
 abstract class AbstractScript(val api: BukkriptAPI) : Listener {
     val controllers = mutableSetOf<ScriptController>()
