@@ -28,7 +28,7 @@ fun compileScripts(api: BukkriptAPI) {
 
     api.info("Starting scripts compilation")
 
-    val scripts = api.SCRIPT_DIR.listFiles()
+    val scripts = api.SCRIPT_DIR.walkTopDown().toList()
         .filter { it.extension.equals(scriptExtension, true) }
 
     val scriptNoDepend: MutableList<File> = mutableListOf()

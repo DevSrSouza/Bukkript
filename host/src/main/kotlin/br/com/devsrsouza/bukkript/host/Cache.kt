@@ -31,7 +31,7 @@ internal class FileBasedScriptCache(val plugin: Plugin, val api: BukkriptAPI) : 
         }
 
         return if (!file.exists()) null else {
-            plugin.info("Loading cache of ${file.scriptName(api)}.")
+            plugin.info("Loading cache of ${script.file.scriptName(api)}.")
             file.readCompiledScript(scriptCompilationConfiguration)
         }
     }
