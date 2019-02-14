@@ -91,5 +91,5 @@ val kotlinBukkitAPIPluginsImports = listOf(
 )
 
 val bukkriptImports = listOf(
-    "br.com.devsrsouza.bukkript.script.Script"
+    "br.com.devsrsouza.bukkript.script.annotations.*"
 )
