@@ -13,9 +13,13 @@ import kotlin.script.experimental.api.resultOrNull
 fun <R> ResultWithDiagnostics<R>.resultOrSeveral(plugin: Plugin, api: BukkriptAPI): R? {
     return resultOrNull() ?: run {
         for (diag in reports) {
-            val file = diag.sourcePath?.let { File(it) }?.scriptName(api) ?: ""
-            val line = diag.location?.start?.line ?: ""
-            plugin.severe(YELLOW + diag.severity.toString() + ": $RESET$file($line)" + diag.message)
+            val file = diag.sourcePath?.let { File(it) }?.scriptName(api)
+            val line = diag.location?.start?.line
+            val column = diag.location?.start?.col
+            val sourceLocation = if(file != null && line != null)
+                "$file(line: $line ${if(column != null) ", column: $column" else ""})"
+            else ""
+            plugin.severe(YELLOW + diag.severity.toString() + ": $RESET$sourceLocation" + diag.message)
             if(diag.exception != null) {
                 diag.exception?.printStackTrace()
             }
