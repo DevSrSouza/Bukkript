@@ -11,12 +11,12 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.command.command
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.registerEvents
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.task
+import com.okkero.skedule.BukkitSchedulerController
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
-import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 
 typealias DisableBlock = () -> Unit
@@ -40,6 +40,10 @@ abstract class AbstractScript(val api: BukkriptAPI) : Listener {
     fun BukkriptScriptLoader.getControllers() = controllers
 
     // implementations
+
+    fun <T : AbstractScript> script(name: String): T? {
+        return api.LOADER.scripts.get(name)?.instance as? T?
+    }
 
     // command
     fun simpleCommand(
@@ -85,22 +89,20 @@ abstract class AbstractScript(val api: BukkriptAPI) : Listener {
     // tasks
     inline fun task(
         delayToRun: Long = 0,
-        repeatDelay: Long = -1,
-        crossinline runnable: BukkitRunnable.() -> Unit
-    ) = task(delayToRun, repeatDelay, false, runnable)
+        crossinline runnable: suspend BukkitSchedulerController.() -> Unit
+    ) = task(delayToRun, false, runnable)
 
     inline fun taskAsync(
         delayToRun: Long = 0,
         repeatDelay: Long = -1,
-        crossinline runnable: BukkitRunnable.() -> Unit
-    ) = task(delayToRun, repeatDelay, true, runnable)
+        crossinline runnable: suspend BukkitSchedulerController.() -> Unit
+    ) = task(delayToRun, true, runnable)
 
     inline fun task(
         delayToRun: Long,
-        repeatDelay: Long = -1,
         async: Boolean,
-        crossinline runnable: BukkitRunnable.() -> Unit
-    ) = task(delayToRun, repeatDelay, async, api as Plugin, runnable).also {
+        crossinline runnable: suspend BukkitSchedulerController.() -> Unit
+    ) = task(delayToRun, async, api as Plugin, runnable).also {
         val c = controllerByType() ?: TaskScriptController().also {
             controllers.add(it)
         }
