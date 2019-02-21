@@ -7,11 +7,13 @@ import java.net.URLClassLoader
 import kotlin.reflect.KClass
 
 abstract class BukkriptScriptClassLoader(
-    loader: BukkriptScriptLoader,
+    val loader: BukkriptScriptLoader,
     parent: ClassLoader,
     val bukkriptCompiledScript: BukkriptCompiledScript
 ) : URLClassLoader(emptyArray(), parent) {
 
     val description: ScriptDescription get() = bukkriptCompiledScript.description
     lateinit var scriptClass: KClass<AbstractScript>
+
+    abstract fun findClass(name: String, checkGlobal: Boolean): Class<*>?
 }
