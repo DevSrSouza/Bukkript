@@ -1,6 +1,9 @@
 package br.com.devsrsouza.bukkript.host
 
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
+import br.com.devsrsouza.bukkript.api.ScriptDescription
+import br.com.devsrsouza.bukkript.api.script.scriptName
+import br.com.devsrsouza.bukkript.script.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import org.bukkit.plugin.Plugin
 import java.io.File
@@ -13,7 +16,13 @@ import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.jvmhost.CompiledJvmScriptsCache
 import kotlin.script.experimental.jvmhost.impl.KJvmCompiledScript
 
-internal class FileBasedScriptCache(val plugin: Plugin, val api: BukkriptAPI) : CompiledJvmScriptsCache {
+internal class FileBasedScriptCache(
+    val plugin: Plugin,
+    val api: BukkriptAPI,
+    description: ScriptDescription? = null
+) : CompiledJvmScriptsCache {
+    var description = description
+        private set
 
     fun getFile(script: FileScriptSource) = File(api.CACHE_DIR, script.file.scriptName(api))
 
@@ -39,23 +48,30 @@ internal class FileBasedScriptCache(val plugin: Plugin, val api: BukkriptAPI) : 
     override fun store(
         compiledScript: CompiledScript<*>,
         script: SourceCode,
-        scriptCompilationConfiguration: ScriptCompilationConfiguration
+        configuration: ScriptCompilationConfiguration
     ) {
         val file = getFile(script as FileScriptSource)
         file.outputStream().use { fs ->
             ObjectOutputStream(fs).use { os ->
+                os.writeObject(
+                    description ?: ScriptDescription.DEFAULT
+                )
                 os.writeObject(compiledScript)
             }
         }
         file.setLastModified(script.file.lastModified())
     }
-}
 
-private fun File.readCompiledScript(scriptCompilationConfiguration: ScriptCompilationConfiguration): CompiledScript<*> {
-    return inputStream().use { fs ->
-        ObjectInputStream(fs).use { os ->
-            (os.readObject() as KJvmCompiledScript<*>).apply {
-                setCompilationConfiguration(scriptCompilationConfiguration)
+    private fun File.readCompiledScript(scriptCompilationConfiguration: ScriptCompilationConfiguration): CompiledScript<*> {
+        return inputStream().use { fs ->
+            ObjectInputStream(fs).use { os ->
+                val description = os.readObject() as ScriptDescription
+                this@FileBasedScriptCache.description = description
+                (os.readObject() as KJvmCompiledScript<*>).apply {
+                    setCompilationConfiguration(ScriptCompilationConfiguration(scriptCompilationConfiguration) {
+                        set(ScriptCompilationConfiguration.description, description)
+                    })
+                }
             }
         }
     }

@@ -3,6 +3,7 @@ package br.com.devsrsouza.bukkript.host.loader
 import br.com.devsrsouza.bukkript.api.script.BukkriptCompiledScript
 import br.com.devsrsouza.bukkript.api.script.loader.BukkriptScriptClassLoader
 import br.com.devsrsouza.bukkript.api.script.loader.BukkriptScriptLoader
+import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import org.jetbrains.kotlin.codegen.BytesUrlUtils
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -16,11 +17,37 @@ class BukkriptScriptClassLoaderImpl(
 ) : BukkriptScriptClassLoader(loader, parent, bukkriptCompiledScript) {
 
     lateinit var script: Map<String, ByteArray>
+    val classes: MutableMap<String, Class<*>> = mutableMapOf()
 
     override fun findClass(name: String): Class<*>? {
+        return findClass(name, true)
+    }
+
+    override fun findClass(name: String, checkGlobal: Boolean): Class<*>? {
+        classes.get(name)?.let { return@findClass it }
+
+        var clazz: Class<*>? = null
+
         val classPathName = name.replace('.', '/') + ".class"
-        val classBytes = script[classPathName] ?: return null
-        return defineClass(name, classBytes, 0, classBytes.size)
+        val classBytes = script[classPathName]
+
+        if(classBytes != null) {
+            clazz = defineClass(name, classBytes, 0, classBytes.size)
+        }
+
+        if(checkGlobal && clazz == null) {
+            clazz = loader.getClassByName(name)
+        }
+
+        if(clazz == null) {
+            clazz = whenErrorNull { super.findClass(name) }
+        }
+
+        if(clazz != null) {
+            classes.put(name, clazz)
+        }
+
+        return clazz
     }
 
     override fun getResourceAsStream(name: String): InputStream? =

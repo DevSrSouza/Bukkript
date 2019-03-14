@@ -3,11 +3,8 @@ package br.com.devsrsouza.bukkript.api.script
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.script.controllers.*
 import br.com.devsrsouza.bukkript.api.script.loader.BukkriptScriptLoader
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandMaker
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorBlock
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.KCommand
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.simpleCommand
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.command
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
+import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.registerEvents
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.task
@@ -63,7 +60,7 @@ abstract class AbstractScript(val api: BukkriptAPI) : Listener {
         block: CommandMaker
     ) = command(name, *aliases, plugin = api as Plugin, block = block)
 
-    fun KCommand.unregister() {
+    fun CommandDSL.unregister() {
         controllerByType<CommandScriptController>()?.commands?.remove(this)
     }
 
@@ -73,7 +70,7 @@ abstract class AbstractScript(val api: BukkriptAPI) : Listener {
         ignoreCancelled: Boolean = true,
         crossinline block: T.() -> Unit
     ) {
-        event(priority, ignoreCancelled, api as Plugin, block)
+        event(api as Plugin, priority, ignoreCancelled, block)
     }
 
     fun Listener.unregisterAll() {

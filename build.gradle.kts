@@ -50,8 +50,8 @@ allprojects {
 
         // kotlinbukkitapi
         compileOnly("br.com.devsrsouza.kotlinbukkitapi:core:0.1.0-SNAPSHOT")
-        compileOnly("br.com.devsrsouza.kotlinbukkitapi:attributestorage:0.1.0-SNAPSHOT")
-        compileOnly("br.com.devsrsouza.kotlinbukkitapi:plugins:0.1.0-SNAPSHOT")
+        //compileOnly("br.com.devsrsouza.kotlinbukkitapi:attributestorage:0.1.0-SNAPSHOT")
+        //compileOnly("br.com.devsrsouza.kotlinbukkitapi:plugins:0.1.0-SNAPSHOT")
     }
 
     tasks {

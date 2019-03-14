@@ -1,6 +1,7 @@
 package br.com.devsrsouza.bukkript.script
 
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
+import br.com.devsrsouza.bukkript.api.ScriptDescription
 import br.com.devsrsouza.bukkript.script.annotations.*
 import org.bukkit.Bukkit
 import java.io.File
@@ -30,16 +31,18 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
                 val scriptDepends = mutableSetOf<String>()
                 val pluginDepends = mutableSetOf<String>()
 
+                var name= "None"
+                var version = "None"
+                var author = "Unknown"
+                var website = "None"
+
                 for (annotation in annotations) {
                     when (annotation) {
                         is Script -> {
-                            annotation.name.takeIf { it.isNotBlank() }?.also { name(it) }
-                            annotation.version.takeIf { it.isNotBlank() }?.also { version(it) }
-                            annotation.author.takeIf { it.isNotBlank() }?.also { author(it) }
-                            //script.authors.takeIf { it.isNotEmpty() }?.also { authors(it.toList()) }
-                            annotation.website.takeIf { it.isNotBlank() }?.also { website(it) }
-                            //script.depend.takeIf { it.isNotEmpty() }?.also { dependScripts(it.toList()) }
-                            //script.pluginDepend.takeIf { it.isNotEmpty() }?.also { dependPlugins(it.toList()) }
+                            annotation.name.takeIf { it.isNotBlank() }?.also { name = it }
+                            annotation.version.takeIf { it.isNotBlank() }?.also { version = it }
+                            annotation.author.takeIf { it.isNotBlank() }?.also { author = it }
+                            annotation.website.takeIf { it.isNotBlank() }?.also { website = it }
                         }
                         is Import -> {
                             scriptDepends.add(annotation.script)
@@ -54,8 +57,17 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
                     }
                 }
 
-                scriptDepends.takeIf { it.isNotEmpty() }?.also { dependScripts(it.toList()) }
-                pluginDepends.takeIf { it.isNotEmpty() }?.also { dependPlugins(it.toList()) }
+                description(
+                    ScriptDescription(
+                        name,
+                        version,
+                        author,
+                        emptyList(), // TODO
+                        website,
+                        scriptDepends.toList(),
+                        pluginDepends.toList()
+                    )
+                )
             }.asSuccess()
         }
         //onAnnotations(DependsOn::class, Repository::class, handler = ::configureMavenDepsOnAnnotations)

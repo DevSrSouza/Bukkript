@@ -3,15 +3,20 @@ package br.com.devsrsouza.bukkript.host
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.ScriptDescription
 import br.com.devsrsouza.bukkript.api.script.AbstractScript
+import br.com.devsrsouza.bukkript.api.script.scriptName
 import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptClassLoaderImpl
 import br.com.devsrsouza.bukkript.script.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import br.com.devsrsouza.kotlinbukkitapi.extensions.text.msg
+import br.com.devsrsouza.kotlinbukkitapi.extensions.text.plus
+import kotlinx.coroutines.*
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
 import java.io.File
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
@@ -19,96 +24,115 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvm.defaultJvmScriptingHostConfiguration
+import kotlin.script.experimental.jvm.jvm
+import kotlin.script.experimental.jvm.updateClasspath
 import kotlin.script.experimental.jvmhost.*
 import kotlin.script.experimental.jvmhost.impl.KJvmCompiledModule
+import kotlin.script.experimental.util.PropertiesCollection
 
-fun compileScripts(api: BukkriptAPI) {
+val CompilerKeys.beforeCompilingCalled by PropertiesCollection.key<Boolean>(false)
+
+fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender? = null, afterCompile: () -> Unit = {}) {
+
+    val scripts = scripts.toMutableList()
 
     if(api !is Plugin) return
 
-    api.info("Starting scripts compilation")
+    fun log(log: String, color: ChatColor = ChatColor.GREEN) {
+        api.info(log)
+        sender?.msg(ChatColor.AQUA + "[Bukkript] " + color + log)
+    }
 
-    val scripts = api.SCRIPT_DIR.walkTopDown().toList()
-        .filter { it.extension.equals(scriptExtension, true) }
+    log("Starting compilation of following scripts: " + scripts.map { it.path }.joinToString())
 
     val scriptNoDepend: MutableList<File> = mutableListOf()
     val scriptToSort: MutableMap<File, MutableList<File>> = mutableMapOf()
+
+    val scriptDescriptions: MutableMap<File, ScriptDescription> = mutableMapOf()
+    val compiledJar = mutableMapOf<File, File>()
 
     fun configuration(script: File) =
         ScriptCompilationConfiguration(createJvmCompilationConfigurationFromTemplate<BukkriptScript>()) {
             refineConfiguration {
                 beforeCompiling { context ->
 
+                    val description = context.compilationConfiguration.get(ScriptCompilationConfiguration.description)!!
+
                     val diagnostics = arrayListOf<ScriptDiagnostic>()
 
-                    val dependPlugins =
-                        context.compilationConfiguration.get(ScriptCompilationConfiguration.dependPlugins)!!
+                    if (get(beforeCompilingCalled) != true) {
+                        set(beforeCompilingCalled, true)
 
-                    var pluginMissing = false
-                    for (depend in dependPlugins) {
-                        if (!Bukkit.getServer().pluginManager.isPluginEnabled(depend)) {
-                            diagnostics.add("Missing api $depend needed on the script ${context.script.name}".asErrorDiagnostics())
-                            pluginMissing = true
-                        }
-                    }
+                        if (!(scriptToSort.containsKey(script) || scriptNoDepend.contains(script))) {
 
-                    if (pluginMissing) ResultWithDiagnostics.Failure(diagnostics)
+                            val dependPlugins = description.pluginDepend
 
-                    if (!(scriptToSort.containsKey(script) || scriptNoDepend.contains(script))) {
-
-                        val dependency =
-                            context.compilationConfiguration.get(ScriptCompilationConfiguration.dependScripts)
-                                ?: emptyList()
-
-                        if (dependency.isEmpty()) {
-                            scriptNoDepend.add(script)
-                        } else {
-                            val dependScripts = dependency.map { File(api.dataFolder, it).normalize() }
-                            var scriptMissing = false
-                            for (depend in dependScripts) {
-                                if (!depend.exists() || depend.isDirectory) {
-                                    diagnostics.add("Missing script ${depend.name} needed on the script ${context.script.name}".asErrorDiagnostics())
-                                    scriptMissing = true
+                            var pluginMissing = false
+                            for (depend in dependPlugins) {
+                                if (!Bukkit.getServer().pluginManager.isPluginEnabled(depend)) {
+                                    diagnostics.add("Missing plugin $depend needed on the script ${context.script.name}".asErrorDiagnostics())
+                                    pluginMissing = true
                                 }
                             }
 
-                            if (!scriptMissing) scriptToSort.put(script, dependScripts.toMutableList())
-                            return@beforeCompiling ResultWithDiagnostics.Failure(diagnostics)
-                        }
+                            if (pluginMissing) return@beforeCompiling ResultWithDiagnostics.Failure(diagnostics)
 
-                        ResultWithDiagnostics.Failure()
+                            val dependency = description.depend
+
+                            if (dependency.isEmpty()) {
+                                scriptNoDepend.add(script)
+                            } else {
+                                val dependScripts = dependency.map { File(api.SCRIPT_DIR, it).normalize() }
+                                var scriptMissing = false
+                                for (depend in dependScripts) {
+                                    if (!depend.exists() || depend.isDirectory) {
+                                        diagnostics.add("Missing script ${depend.name} needed on the script ${context.script.name}".asErrorDiagnostics())
+                                        scriptMissing = true
+                                    }
+                                }
+
+                                if (!scriptMissing) scriptToSort.put(script, dependScripts.toMutableList())
+                                else return@beforeCompiling ResultWithDiagnostics.Failure(diagnostics)
+                            }
+
+                            return@beforeCompiling ResultWithDiagnostics.Failure()
+                        }
                     }
 
-                    ResultWithDiagnostics.Success(context.compilationConfiguration)
+                    scriptDescriptions.put(script, description)
+
+                    ResultWithDiagnostics.Success(ScriptCompilationConfiguration(context.compilationConfiguration) {
+                        jvm {
+                            updateClasspath(compiledJar.values)
+                        }
+                    })
                 }
             }
         }
 
-    fun File.scriptName() = this.nameWithoutExtension
-
-    api.info("Loading scripts dependencies")
-
     if(scripts.isEmpty()) {
-        api.info("scripts not founded")
+        log("Scripts not founded", ChatColor.RED)
         return
     }
+
+    log("Loading scripts dependencies")
 
     for (script in scripts) {
         val source = script.toScriptSource()
 
-        // generate script dependencies script
+        // generate script dependencies
 
         val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration)
 
-        runBlocking { compiler(source, configuration(script)).resultOrSeveral(api, api) } // generate scriptDepend script
+        runBlocking { compiler(source, configuration(script)).resultOrSeveral(api, api, sender) } // generate scriptDepend script
     }
-
-    val cache = FileBasedScriptCache(api, api)
 
     suspend fun compile(script: File): ResultWithDiagnostics<BukkriptCompiledScriptImpl> {
         val source = script.toScriptSource()
 
-        api.info("Compiling ${script.scriptName()}...")
+        log("Compiling ${script.scriptName(api)}...")
+
+        val cache = FileBasedScriptCache(api, api, scriptDescriptions[script])
 
         val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration, cache = cache)
 
@@ -117,20 +141,11 @@ fun compileScripts(api: BukkriptAPI) {
         val result = compiled.resultOrNull()
 
         return if (result != null) {
-            val description = result.compilationConfiguration.run {
-                ScriptDescription(
-                    get(ScriptCompilationConfiguration.name)!!,
-                    get(ScriptCompilationConfiguration.version)!!,
-                    get(ScriptCompilationConfiguration.author)!!,
-                    get(ScriptCompilationConfiguration.authors)!!,
-                    get(ScriptCompilationConfiguration.website)!!,
-                    get(ScriptCompilationConfiguration.dependScripts)!!,
-                    get(ScriptCompilationConfiguration.dependPlugins)!!
-                )
-            }
+            val description = cache.description ?: return ResultWithDiagnostics
+                    .Failure("Not possible to find the script description of ${script.scriptName(api)}".asErrorDiagnostics())
 
             ResultWithDiagnostics.Success(BukkriptCompiledScriptImpl(
-                script.scriptName(),
+                script.scriptName(api),
                 script,
                 result as CompiledScript<BukkriptScript>,
                 description
@@ -142,29 +157,72 @@ fun compileScripts(api: BukkriptAPI) {
 
     if(scriptToSort.isEmpty() && scriptNoDepend.isEmpty()) return
 
-    api.info("Sorting script dependencies")
+    val toSort = scriptNoDepend.filter { f -> scriptToSort.values.any { it.any { it.absolutePath == f.absolutePath } } }
+    scriptNoDepend.removeAll(toSort)
+    scriptToSort += toSort.map { it to mutableListOf<File>() }.toMap()
+
+    // removing already loaded scripts from sort and compilation
+    for (key in (scriptToSort.keys + scriptNoDepend).filter { api.LOADER.scripts.containsKey(it.scriptName(api)) }) {
+        log("Script ${key.scriptName(api)} already loaded, skipping compilation.")
+        scriptToSort.remove(key) ?: scriptNoDepend.remove(key)
+    }
+
+    for((key, value) in scriptToSort) {
+        value.removeAll { depend ->
+            api.LOADER.scripts.any { depend.absolutePath == it.value.bukkriptCompiledScript.scriptFile.absolutePath }
+        }
+    }
+
+    log("Sorting script dependencies")
 
     val sorted = sortToCompile(scriptToSort).resultOrSeveral(api, api)!!
+
+    val tempCompilation = File(api.dataFolder, "/tempCompilation")
+    if(tempCompilation.exists())
+        tempCompilation.deleteRecursively()
+    tempCompilation.mkdirs()
 
     suspend fun load(script: File) {
         val bkCompiledScript = compile(script).resultOrSeveral(api, api)
 
-        if(bkCompiledScript != null) {
-            api.info("Starting loading ${bkCompiledScript.scriptFileName}")
+        if (bkCompiledScript != null) {
+            log("Starting loading ${bkCompiledScript.scriptFileName}")
             loadScript(api, bkCompiledScript)
+            val scriptTempJar = File(tempCompilation, script.scriptName(api) + ".jar")
+            scriptTempJar.outputStream().use { jarOutput ->
+                ZipOutputStream(jarOutput).use { zipOutput ->
+                    api.LOADER.scripts.get(script.scriptName(api))?.also {
+                        (it.classLoader as BukkriptScriptClassLoaderImpl).script.forEach {
+                            val entry = ZipEntry(it.key)
+                            zipOutput.putNextEntry(entry)
+                            zipOutput.write(it.value)
+                            zipOutput.closeEntry()
+                        }
+                    }
+                }
+            }
+            compiledJar.put(script, scriptTempJar)
         }
     }
 
+    val compilations = mutableListOf<Job>()
+
     for (script in scriptNoDepend) {
-        GlobalScope.async {
+        compilations += GlobalScope.launch {
             load(script)
         }
     }
 
-    GlobalScope.async {
+    compilations += GlobalScope.launch {
         for (script in sorted) {
             load(script)
         }
+        tempCompilation.deleteRecursively()
+    }
+
+    GlobalScope.launch {
+        compilations.forEach { if(it.isActive) it.join() }
+        afterCompile()
     }
 }
 
@@ -215,10 +273,10 @@ fun sortToCompile(dependencies: MutableMap<File, MutableList<File>>) : ResultWit
 
     while (!scripts.isEmpty()) {
         var missingDependency = true
-        var scriptsInterator = scripts.listIterator()
+        var scriptsIterator = scripts.listIterator()
 
-        while (scriptsInterator.hasNext()) {
-            val script = scriptsInterator.next()
+        while (scriptsIterator.hasNext()) {
+            val script = scriptsIterator.next()
 
             if (dependencies.containsKey(script)) {
                 val dependencyIterator = dependencies.get(script)!!.listIterator()
@@ -226,11 +284,11 @@ fun sortToCompile(dependencies: MutableMap<File, MutableList<File>>) : ResultWit
                 while (dependencyIterator.hasNext()) {
                     val dependency = dependencyIterator.next()
 
-                    if (sorteds.firstOrNull { it.name.equals(dependency) } != null) {
+                    if (sorteds.firstOrNull { it.absolutePath.equals(dependency.absolutePath) } != null) {
                         dependencyIterator.remove()
-                    } else if (scripts.firstOrNull { it.name.equals(dependency) } === null) {
+                    } else if (scripts.firstOrNull { it.absolutePath.equals(dependency.absolutePath) } === null) {
                         missingDependency = false
-                        scriptsInterator.remove()
+                        scriptsIterator.remove()
                         dependencies.remove(script)
 
                         diagnostics.add("Could not load ${script.name}: missing dependency $dependency".asErrorDiagnostics())
@@ -243,7 +301,7 @@ fun sortToCompile(dependencies: MutableMap<File, MutableList<File>>) : ResultWit
             }
             if (!(dependencies.containsKey(script)) && scripts.contains(script)) {
 
-                scriptsInterator.remove()
+                scriptsIterator.remove()
                 missingDependency = false
 
 
@@ -252,15 +310,15 @@ fun sortToCompile(dependencies: MutableMap<File, MutableList<File>>) : ResultWit
             }
         }
         if (missingDependency) {
-            scriptsInterator = scripts.listIterator()
+            scriptsIterator = scripts.listIterator()
 
-            while (scriptsInterator.hasNext()) {
-                val script = scriptsInterator.next()
+            while (scriptsIterator.hasNext()) {
+                val script = scriptsIterator.next()
 
                 if (!dependencies.containsKey(script)) {
                     missingDependency = false
 
-                    scriptsInterator.remove()
+                    scriptsIterator.remove()
 
                     sorteds.add(script)
                     break

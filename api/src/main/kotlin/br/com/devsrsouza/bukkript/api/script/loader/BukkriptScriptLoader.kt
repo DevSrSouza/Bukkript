@@ -11,6 +11,7 @@ abstract class BukkriptScriptLoader(val api: BukkriptAPI) {
 
     val scripts = mutableMapOf<String, BukkriptLoadedScript>()
 
+    abstract fun getScript(file: File): AbstractScript?
     abstract fun getScript(name: String): AbstractScript?
     abstract fun getScriptDescription(name: String): ScriptDescription?
     abstract fun loadScript(scriptLoaded: BukkriptLoadedScript)

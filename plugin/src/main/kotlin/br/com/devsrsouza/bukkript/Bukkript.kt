@@ -3,8 +3,11 @@ package br.com.devsrsouza.bukkript
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.DependecyImport
 import br.com.devsrsouza.bukkript.api.PluginDependencyImport
+import br.com.devsrsouza.bukkript.api.script.ScriptDisableResult
+import br.com.devsrsouza.bukkript.api.script.isScriptFile
 import br.com.devsrsouza.bukkript.host.compileScripts
 import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptLoaderImpl
+import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
@@ -31,7 +34,10 @@ class Bukkript : JavaPlugin(), BukkriptAPI {
 
     override fun onEnable() {
         // TODO add KotlinBukkitAPI imports
-        compileScripts(this)
+        compileScripts(this, SCRIPT_DIR.walkTopDown().toList()
+            .filter { it.isScriptFile })
+
+        bukkriptCommands()
     }
 
     fun addImport(imports: DependecyImport) {

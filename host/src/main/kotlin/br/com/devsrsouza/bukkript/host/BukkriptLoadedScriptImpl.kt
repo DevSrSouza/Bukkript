@@ -3,6 +3,7 @@ package br.com.devsrsouza.bukkript.host
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.script.AbstractScript
 import br.com.devsrsouza.bukkript.api.script.BukkriptLoadedScript
+import br.com.devsrsouza.bukkript.api.script.scriptName
 import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptClassLoaderImpl
 import kotlin.reflect.KClass
 
