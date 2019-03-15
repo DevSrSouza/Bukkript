@@ -34,7 +34,7 @@ class BukkriptScriptLoaderImpl(api: BukkriptAPI) : BukkriptScriptLoader(api) {
     }
 
     override fun disableScript(scriptName: String, force: Boolean): ScriptDisableResult {
-        val script = scripts.remove(scriptName)
+        val script = scripts[scriptName]
 
         val dependencies = mutableListOf<File>()
 
@@ -57,6 +57,7 @@ class BukkriptScriptLoaderImpl(api: BukkriptAPI) : BukkriptScriptLoader(api) {
             controllers.forEach { it.disable() }
 
             (api as Plugin).info("Script ${script.scriptFilePath} disabled")
+            scripts.remove(scriptName)
             return ScriptDisableResult.Sucess(script.bukkriptCompiledScript.scriptFile, dependencies)
         } else return ScriptDisableResult.Failure(
             File(api.SCRIPT_DIR, scriptName),
