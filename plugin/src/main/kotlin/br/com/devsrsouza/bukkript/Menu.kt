@@ -19,8 +19,7 @@ val Bukkript.forceReloadMenu: Menu get() {
     if (_forceReloadMenu == null)
         _forceReloadMenu = menu("Force reload script", 3, true) {
             slot(2, 3) {
-                item = ItemStack(Material.WOOL).apply {
-                    data.data = 5
+                item = ItemStack(Material.WOOL, 1, 5).apply {
                     meta<ItemMeta> {
                         displayName = ChatColor.GREEN + "Force reload"
                     }
@@ -41,8 +40,7 @@ val Bukkript.forceReloadMenu: Menu get() {
                 }
             }
             slot(2, 7) {
-                item = ItemStack(Material.WOOL).apply {
-                    data.data = 14
+                item = ItemStack(Material.WOOL, 1 , 14).apply {
                     meta<ItemMeta> {
                         displayName = ChatColor.RED + "Cancel"
                     }
