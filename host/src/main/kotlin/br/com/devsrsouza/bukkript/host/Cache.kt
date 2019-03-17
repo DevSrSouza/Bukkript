@@ -5,6 +5,7 @@ import br.com.devsrsouza.bukkript.api.ScriptDescription
 import br.com.devsrsouza.bukkript.api.script.scriptName
 import br.com.devsrsouza.bukkript.script.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
+import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import org.bukkit.plugin.Plugin
 import java.io.File
 import java.io.ObjectInputStream
@@ -26,16 +27,37 @@ internal class FileBasedScriptCache(
 
     fun getFile(script: FileScriptSource) = File(api.CACHE_DIR, script.file.scriptName(api))
 
+    fun readDescription(
+        script: FileScriptSource
+    ): ScriptDescription? = getFile(script).takeIf { it.exists() }?.inputStream().use { fs ->
+        ObjectInputStream(fs).use { os ->
+            val description = whenErrorNull { os.readObject() as ScriptDescription }
+            whenErrorNull { os.readObject() }
+            return@use description
+        }
+    }
+
+    fun isValid(
+        source: FileScriptSource
+    ) = isValid(source.file, getFile(source))
+
+    private fun isValid(
+        sourceFile: File,
+        cacheFile: File
+    ): Boolean {
+        val scriptModification = sourceFile.lastModified()
+        val cacheModification = cacheFile.lastModified()
+
+        return scriptModification == cacheModification
+    }
+
     override fun get(
         script: SourceCode,
         scriptCompilationConfiguration: ScriptCompilationConfiguration
     ): CompiledScript<*>? {
         val file = getFile(script as FileScriptSource)
 
-        val scriptModification = script.file.lastModified()
-        val modification = file.lastModified()
-
-        if (scriptModification != modification) {
+        if (!isValid(script.file, file)) {
             file.delete()
         }
 
