@@ -2,9 +2,13 @@ package br.com.devsrsouza.bukkript.script
 
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
 import br.com.devsrsouza.bukkript.api.ScriptDescription
-import br.com.devsrsouza.bukkript.script.annotations.*
+import br.com.devsrsouza.bukkript.script.annotations.DependPlugin
+import br.com.devsrsouza.bukkript.script.annotations.Import
+import br.com.devsrsouza.bukkript.script.annotations.Script
 import org.bukkit.Bukkit
+import org.bukkit.plugin.Plugin
 import java.io.File
+import java.net.URL
 import java.net.URLClassLoader
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.jvm
@@ -15,7 +19,7 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
             + kotlinBukkitAPIAttributeStorageImports + kotlinBukkitAPIPluginsImports)
 
     jvm {
-        updateClasspath(classpathFromBukkit())
+        updateClasspath(holeClasspathFromBukkit())
     }
 
     refineConfiguration {
@@ -107,15 +111,30 @@ fun configureMavenDepsOnAnnotations(context: ScriptConfigurationRefinementContex
     }
 }*/
 
-fun classpathFromBukkit(): List<File> =
-    (Bukkit.getServer().pluginManager.plugins
-        .map { it.javaClass.classLoader } + BukkriptAPI::class.java.classLoader.parent)
-        .mapNotNull { it as? URLClassLoader }
-        .flatMap { it.urLs.toList() }.mapNotNull {
-            try {
-                File(it.toURI().schemeSpecificPart)
-            } catch (e: java.net.URISyntaxException) {
-                if (it.protocol != "file") null
-                else File(it.file)
-            }
-        }
+private fun URL.toFileOrNull() = try {
+    java.io.File(toURI().schemeSpecificPart)
+} catch (e: java.net.URISyntaxException) {
+    if (protocol != "file") null
+    else java.io.File(file)
+}
+
+private fun ClassLoader.urlsOrEmpty(): Array<URL> {
+    return (javaClass.classLoader as? URLClassLoader)?.urLs ?: emptyArray()
+}
+
+private fun ClassLoader.classpathFiles(): List<File> {
+    return urlsOrEmpty().mapNotNull {
+        it.toFileOrNull()
+    }
+}
+
+fun Plugin.classpath(): List<File> {
+    return javaClass.classLoader.classpathFiles()
+}
+
+fun classpathFromBukkit(): List<File> {
+    return BukkriptAPI::class.java.classLoader.classpathFiles()
+}
+
+fun holeClasspathFromBukkit(): List<File> = Bukkit.getServer().pluginManager.plugins
+    .flatMap { it.classpath() } + classpathFromBukkit()
