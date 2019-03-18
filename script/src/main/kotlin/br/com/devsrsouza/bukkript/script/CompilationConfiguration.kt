@@ -5,6 +5,7 @@ import br.com.devsrsouza.bukkript.api.ScriptDescription
 import br.com.devsrsouza.bukkript.script.annotations.DependPlugin
 import br.com.devsrsouza.bukkript.script.annotations.Import
 import br.com.devsrsouza.bukkript.script.annotations.Script
+import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import java.io.File
@@ -19,7 +20,8 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
             + kotlinBukkitAPIAttributeStorageImports + kotlinBukkitAPIPluginsImports)
 
     jvm {
-        updateClasspath(holeClasspathFromBukkit())
+        updateClasspath(classpathFromBukkit())
+        updateClasspath(KotlinBukkitAPI.INSTANCE.classpath())
     }
 
     refineConfiguration {

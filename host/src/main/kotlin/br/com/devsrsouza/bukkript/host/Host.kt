@@ -14,8 +14,8 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.Plugin
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import java.io.File
-import java.io.Serializable
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.reflect.KClass
@@ -31,8 +31,6 @@ import kotlin.script.experimental.jvm.updateClasspath
 import kotlin.script.experimental.jvmhost.*
 import kotlin.script.experimental.jvmhost.impl.KJvmCompiledModule
 import kotlin.script.experimental.util.PropertiesCollection
-
-val CompilerKeys.beforeCompilingCalled by PropertiesCollection.key<Boolean>(false)
 
 fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender? = null, afterCompile: () -> Unit = {}) {
 
@@ -50,8 +48,8 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
     val scriptNoDepend: MutableList<File> = mutableListOf()
     val scriptToSort: MutableMap<File, MutableList<File>> = mutableMapOf()
 
-    val scriptDescriptions: MutableMap<File, ScriptDescription> = mutableMapOf()
-    val compiledJar = mutableMapOf<File, File>()
+    val scriptDescriptions: MutableMap<File, ScriptDescription> = hashMapOf()
+    val compiledJar = hashMapOf<File, File>()
 
     fun loadDependencies(script: File, description: ScriptDescription): Boolean {
         val dependPlugins = description.pluginDepend
@@ -101,13 +99,25 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
             }
         }
 
-    fun configurationForCompile() =
+    fun configurationForCompile(script: File) =
         ScriptCompilationConfiguration(createJvmCompilationConfigurationFromTemplate<BukkriptScript>()) {
             refineConfiguration {
                 beforeCompiling { context ->
                     ResultWithDiagnostics.Success(ScriptCompilationConfiguration(context.compilationConfiguration) {
                         jvm {
-                            updateClasspath(compiledJar.values)
+                            val description = scriptDescriptions[script]
+
+                            if (description != null) {
+                                // plugins classpath
+                                for (plugin in description.pluginDepend) {
+                                    updateClasspath(Bukkit.getPluginManager().getPlugin(plugin).classpath())
+                                }
+                                // scripts classpath
+                                description.depend.mapNotNull { otherScript ->
+                                    File(api.SCRIPT_DIR, otherScript).takeIf { it.exists() }
+                                        ?.let { compiledJar.get(it) }
+                                }.ifNotEmpty { updateClasspath(this) }
+                            }
                         }
                     })
                 }
@@ -156,7 +166,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
 
         val compiler = JvmScriptCompiler(defaultJvmScriptingHostConfiguration, cache = cache)
 
-        val compiled = compiler(source, configurationForCompile())
+        val compiled = compiler(source, configurationForCompile(script))
 
         val result = compiled.resultOrNull()
 
