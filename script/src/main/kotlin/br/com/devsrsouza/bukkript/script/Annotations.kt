@@ -14,14 +14,12 @@ annotation class Script(
 
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
-@Repeatable
 annotation class Import(
-    val script: String
+    vararg val script: String
 )
 
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
-@Repeatable
 annotation class DependPlugin(
-    val plugin: String
+    vararg val plugin: String
 )

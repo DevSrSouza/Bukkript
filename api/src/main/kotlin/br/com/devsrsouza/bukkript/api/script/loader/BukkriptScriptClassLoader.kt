@@ -13,7 +13,6 @@ abstract class BukkriptScriptClassLoader(
 ) : URLClassLoader(emptyArray(), parent) {
 
     val description: ScriptDescription get() = bukkriptCompiledScript.description
-    lateinit var scriptClass: KClass<AbstractScript>
 
     abstract fun findClass(name: String, checkGlobal: Boolean): Class<*>?
 }

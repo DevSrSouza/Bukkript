@@ -30,13 +30,12 @@ import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvm.updateClasspath
 import kotlin.script.experimental.jvmhost.*
 import kotlin.script.experimental.jvmhost.impl.KJvmCompiledModule
-import kotlin.script.experimental.util.PropertiesCollection
 
 fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender? = null, afterCompile: () -> Unit = {}) {
 
     val scripts = scripts.toMutableList()
 
-    if(api !is Plugin) return
+    if (api !is Plugin) return
 
     fun log(log: String, color: ChatColor = ChatColor.GREEN) {
         api.info(log)
@@ -50,6 +49,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
 
     val scriptDescriptions: MutableMap<File, ScriptDescription> = hashMapOf()
     val compiledJar = hashMapOf<File, File>()
+    val compiledImports = hashMapOf<File, List<String>>()
 
     fun loadDependencies(script: File, description: ScriptDescription): Boolean {
         val dependPlugins = description.pluginDepend
@@ -91,7 +91,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
                 beforeCompiling { context ->
                     val description = context.compilationConfiguration.get(ScriptCompilationConfiguration.description)!!
 
-                    if(loadDependencies(script, description))
+                    if (loadDependencies(script, description))
                         scriptDescriptions.put(script, description)
 
                     return@beforeCompiling ResultWithDiagnostics.Failure()
@@ -102,6 +102,18 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
     fun configurationForCompile(script: File) =
         ScriptCompilationConfiguration(createJvmCompilationConfigurationFromTemplate<BukkriptScript>()) {
             refineConfiguration {
+                beforeParsing { context ->
+                    ResultWithDiagnostics.Success(ScriptCompilationConfiguration(context.compilationConfiguration) {
+                        val description = scriptDescriptions[script]
+
+                        if (description != null) {
+                            description.depend.mapNotNull { otherScript ->
+                                File(api.SCRIPT_DIR, otherScript).takeIf { it.exists() }
+                                    ?.let { compiledImports.get(it) }
+                            }.flatten().ifNotEmpty { defaultImports.append(this) }
+                        }
+                    })
+                }
                 beforeCompiling { context ->
                     ResultWithDiagnostics.Success(ScriptCompilationConfiguration(context.compilationConfiguration) {
                         jvm {
@@ -124,7 +136,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
             }
         }
 
-    if(scripts.isEmpty()) {
+    if (scripts.isEmpty()) {
         log("Scripts not founded", ChatColor.RED)
         return
     }
@@ -138,7 +150,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
 
         // generate script dependencies
 
-        if(cacheDescription.isValid(source)) {
+        if (cacheDescription.isValid(source)) {
             val description = cacheDescription.readDescription(source) ?: continue // TODO LOG
 
             loadDependencies(script, description)
@@ -172,20 +184,22 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
 
         return if (result != null) {
             val description = cache.description ?: return ResultWithDiagnostics
-                    .Failure("Not possible to find the script description of ${script.scriptName(api)}".asErrorDiagnostics())
+                .Failure("Not possible to find the script description of ${script.scriptName(api)}".asErrorDiagnostics())
 
-            ResultWithDiagnostics.Success(BukkriptCompiledScriptImpl(
-                script.scriptName(api),
-                script,
-                result as CompiledScript<BukkriptScript>,
-                description
-            ))
+            ResultWithDiagnostics.Success(
+                BukkriptCompiledScriptImpl(
+                    script.scriptName(api),
+                    script,
+                    result as CompiledScript<BukkriptScript>,
+                    description
+                )
+            )
         } else {
             ResultWithDiagnostics.Failure(compiled.reports)
         }
     }
 
-    if(scriptToSort.isEmpty() && scriptNoDepend.isEmpty()) return
+    if (scriptToSort.isEmpty() && scriptNoDepend.isEmpty()) return
 
     val toSort = scriptNoDepend.filter { f -> scriptToSort.values.any { it.any { it.absolutePath == f.absolutePath } } }
     scriptNoDepend.removeAll(toSort)
@@ -197,7 +211,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
         scriptToSort.remove(key) ?: scriptNoDepend.remove(key)
     }
 
-    for((key, value) in scriptToSort) {
+    for ((key, value) in scriptToSort) {
         value.removeAll { depend ->
             api.LOADER.scripts.any { depend.absolutePath == it.value.bukkriptCompiledScript.scriptFile.absolutePath }
         }
@@ -208,7 +222,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
     val sorted = sortToCompile(scriptToSort).resultOrSeveral(api, api)!!
 
     val tempCompilation = File(api.dataFolder, "/tempCompilation")
-    if(tempCompilation.exists())
+    if (tempCompilation.exists())
         tempCompilation.deleteRecursively()
     tempCompilation.mkdirs()
 
@@ -217,7 +231,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
 
         if (bkCompiledScript != null) {
             log("Starting loading ${bkCompiledScript.scriptFileName}")
-            loadScript(api, bkCompiledScript)
+            val loaded = loadScript(api, bkCompiledScript)
             val scriptTempJar = File(tempCompilation, script.scriptName(api) + ".jar")
             scriptTempJar.outputStream().use { jarOutput ->
                 ZipOutputStream(jarOutput).use { zipOutput ->
@@ -232,6 +246,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
                 }
             }
             compiledJar.put(script, scriptTempJar)
+            if(loaded != null) compiledImports.put(script, loaded.scriptClass.java.imports())
         }
     }
 
@@ -250,13 +265,15 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
     }
 
     GlobalScope.launch {
-        compilations.forEach { if(it.isActive) it.join() }
+        compilations.forEach { if (it.isActive) it.join() }
         tempCompilation.deleteRecursively()
         afterCompile()
     }
 }
 
-suspend fun loadScript(api: BukkriptAPI, bukkriptCompiledScript: BukkriptCompiledScriptImpl) {
+internal fun Class<*>.imports(): List<String> = (classes.filterNot { it.isAnonymousClass }.flatMap { it.imports() } + name.replace('$', '.'))
+
+suspend fun loadScript(api: BukkriptAPI, bukkriptCompiledScript: BukkriptCompiledScriptImpl): BukkriptLoadedScriptImpl? {
 
     val baseClassLoader = api::class.java.classLoader
 
@@ -282,15 +299,15 @@ suspend fun loadScript(api: BukkriptAPI, bukkriptCompiledScript: BukkriptCompile
     val clazz = bukkriptCompiledScript.compiledScript.getClass(evalConfig).resultOrSeveral(api as Plugin, api)
 
     if (clazz != null) {
-        api.LOADER.loadScript(
-            BukkriptLoadedScriptImpl(
-                api,
-                clazz as KClass<AbstractScript>,
-                bukkriptClassLoader,
-                bukkriptCompiledScript
-            )
-        )
-    }
+        return BukkriptLoadedScriptImpl(
+            api,
+            clazz as KClass<AbstractScript>,
+            bukkriptClassLoader,
+            bukkriptCompiledScript
+        ).also {
+            api.LOADER.loadScript(it)
+        }
+    } else return null
 }
 
 fun sortToCompile(dependencies: MutableMap<File, MutableList<File>>) : ResultWithDiagnostics.Success<List<File>> {

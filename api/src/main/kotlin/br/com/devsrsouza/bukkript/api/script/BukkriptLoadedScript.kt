@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 abstract class BukkriptLoadedScript(
     val plugin: BukkriptAPI,
-    val clazz: KClass<AbstractScript>,
+    val scriptClass: KClass<AbstractScript>,
     val classLoader: BukkriptScriptClassLoader,
     val bukkriptCompiledScript: BukkriptCompiledScript) {
 

@@ -51,10 +51,10 @@ object BukkriptScriptConfiguration : ScriptCompilationConfiguration({
                             annotation.website.takeIf { it.isNotBlank() }?.also { website = it }
                         }
                         is Import -> {
-                            scriptDepends.add(annotation.script)
+                            scriptDepends.addAll(annotation.script)
                         }
                         is DependPlugin -> {
-                            pluginDepends.add(annotation.plugin)
+                            pluginDepends.addAll(annotation.plugin)
                         }
                         else -> {
                             (annotation::class.members.find { it.name == "error" }?.call(annotation) as Exception?)?.printStackTrace()

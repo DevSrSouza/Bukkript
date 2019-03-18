@@ -9,11 +9,11 @@ import kotlin.reflect.KClass
 
 class BukkriptLoadedScriptImpl(
     plugin: BukkriptAPI,
-    clazz: KClass<AbstractScript>,
+    scriptClass: KClass<AbstractScript>,
     classLoader: BukkriptScriptClassLoaderImpl,
     bukkriptCompiledScript: BukkriptCompiledScriptImpl
-) : BukkriptLoadedScript(plugin, clazz, classLoader, bukkriptCompiledScript) {
+) : BukkriptLoadedScript(plugin, scriptClass, classLoader, bukkriptCompiledScript) {
 
-    override val instance by lazy { clazz.constructors.first().call(plugin) }
+    override val instance by lazy { scriptClass.constructors.first().call(plugin) }
     override val scriptFilePath get() = bukkriptCompiledScript.scriptFile.scriptName(plugin)
 }
