@@ -1,15 +1,20 @@
 package br.com.devsrsouza.bukkript.host
 
 import br.com.devsrsouza.bukkript.api.BukkriptAPI
+import br.com.devsrsouza.bukkript.api.LOG_PREFIX
 import br.com.devsrsouza.bukkript.api.ScriptDescription
 import br.com.devsrsouza.bukkript.api.script.AbstractScript
 import br.com.devsrsouza.bukkript.api.script.scriptName
 import br.com.devsrsouza.bukkript.host.loader.BukkriptScriptClassLoaderImpl
-import br.com.devsrsouza.bukkript.script.*
+import br.com.devsrsouza.bukkript.script.BukkriptScript
+import br.com.devsrsouza.bukkript.script.classpath
+import br.com.devsrsouza.bukkript.script.description
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.msg
-import br.com.devsrsouza.kotlinbukkitapi.extensions.text.plus
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
@@ -28,8 +33,11 @@ import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvm.defaultJvmScriptingHostConfiguration
 import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvm.updateClasspath
-import kotlin.script.experimental.jvmhost.*
+import kotlin.script.experimental.jvmhost.JvmScriptCompiler
+import kotlin.script.experimental.jvmhost.actualClassLoader
+import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 import kotlin.script.experimental.jvmhost.impl.KJvmCompiledModule
+import kotlin.script.experimental.jvmhost.jvm
 
 fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender? = null, afterCompile: () -> Unit = {}) {
 
@@ -39,10 +47,10 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
 
     fun log(log: String, color: ChatColor = ChatColor.GREEN) {
         api.info(log)
-        sender?.msg(ChatColor.AQUA + "[Bukkript] " + color + log)
+        sender?.msg(LOG_PREFIX + color + log)
     }
 
-    log("Starting compilation of following scripts: " + scripts.map { it.path }.joinToString())
+    log("Starting compilation of following scripts: " + scripts.map { it.scriptName(api) }.joinToString())
 
     val scriptNoDepend: MutableList<File> = mutableListOf()
     val scriptToSort: MutableMap<File, MutableList<File>> = mutableMapOf()
