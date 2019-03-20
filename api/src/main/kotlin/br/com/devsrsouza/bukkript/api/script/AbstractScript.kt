@@ -22,8 +22,10 @@ const val scriptExtension = "bkts"
 
 val File.isScriptFile get() = extension.equals(scriptExtension, true)
 fun File.scriptName(api: BukkriptAPI) = relativeTo(api.SCRIPT_DIR).path.substringBeforeLast(".")
+fun File.scriptSimpleName() = relativeTo(parentFile).path.substringBeforeLast(".")
+fun File.scriptDataFolder(api: BukkriptAPI) = File(api.DATA_DIR, scriptName(api))
 
-abstract class AbstractScript(val api: BukkriptAPI) : Listener {
+abstract class AbstractScript(val api: BukkriptAPI, val dataFolder: File) : Listener {
     val controllers = mutableSetOf<ScriptController>()
 
     init {

@@ -23,6 +23,7 @@ class Bukkript : JavaPlugin(), BukkriptAPI {
         }
     }
 
+    override val DATA_DIR by lazy { File(dataFolder, "data/").apply { mkdirs() } }
     override val SCRIPT_DIR by lazy { File(dataFolder, "scripts/").apply { mkdirs() } }
     override val CACHE_DIR by lazy { File(dataFolder, "cache/").apply { mkdirs() } }
 

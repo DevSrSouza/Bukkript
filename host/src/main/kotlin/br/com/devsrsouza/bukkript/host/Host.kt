@@ -241,6 +241,7 @@ fun compileScripts(api: BukkriptAPI, scripts: List<File>, sender: CommandSender?
             log("Starting loading ${bkCompiledScript.scriptFileName}")
             val loaded = loadScript(api, bkCompiledScript)
             val scriptTempJar = File(tempCompilation, script.scriptName(api) + ".jar")
+            scriptTempJar.parentFile.mkdirs()
             scriptTempJar.outputStream().use { jarOutput ->
                 ZipOutputStream(jarOutput).use { zipOutput ->
                     api.LOADER.scripts.get(script.scriptName(api))?.also {
