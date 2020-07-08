@@ -1,0 +1,36 @@
+<idea-plugin>
+    <id>br.com.devsrsouza.bukkript.intellij</id>
+    <name>Bukkript</name>
+    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+
+    <description><![CDATA[
+    Enter short description for your plugiFn here.<br>
+    <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.kotlin</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <fileType language="kotlin" extensions="bk.kts" name="Bukkript File" fieldName="INSTANCE"
+                  implementationClass="br.com.devsrsouza.bukkript.intellij.BukkriptFileType" />
+        <internalFileTemplate name="Bukkript Script" />
+        <fileIconPatcher implementation="br.com.devsrsouza.bukkript.intellij.BukkriptFileIconPatcher" />
+        <fileIconProvider implementation="br.com.devsrsouza.bukkript.intellij.BukkriptFileIconProvider" />
+        <projectViewNodeDecorator implementation="br.com.devsrsouza.bukkript.intellij.Test" />
+    </extensions>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <scriptDefinitionsProvider implementation="br.com.devsrsouza.bukkript.intellij.BukkriptScriptDefinitionProvider" />
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="Bukkript.NewScript" class="br.com.devsrsouza.bukkript.intellij.BukkriptCreateNewFileAction">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
+    </actions>
+</idea-plugin>

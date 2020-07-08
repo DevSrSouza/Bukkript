@@ -1,21 +1,22 @@
 plugins {
     kotlin("jvm") version "1.3.72"
     id("com.github.johnrengelman.shadow") version "6.0.0"
-    id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
+}
+
+repositories {
+    maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
 }
 
 dependencies {
     api(kotlin("stdlib-jdk8"))
-    api(project(":script-host"))
+    api(project(":core"))
 
     // script
     api(kotlin("scripting-jvm"))
     api(kotlin("scripting-dependencies"))
-    api(kotlin("scripting-compiler-embeddable"))
-    api(kotlin("compiler-embeddable"))
     api("org.apache.ivy:ivy:2.5.0")
 
-    api("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+    api("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT") // TODO: remove api() and use JAR in the future
 
     val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
 
@@ -24,7 +25,9 @@ dependencies {
     listOf(
         "br.com.devsrsouza.kotlinbukkitapi:core:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:architecture:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION"
+        "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION",
+        "br.com.devsrsouza.kotlinbukkitapi:exposed:$KOTLINBUKKITAPI_VERSION",
+        "br.com.devsrsouza.kotlinbukkitapi:plugins:$KOTLINBUKKITAPI_VERSION"
     ).forEach {
         compileOnly(it, changing)
     }
@@ -37,14 +40,11 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
+    shadowJar {
+        archiveClassifier.set("embedded")
+    }
 }
 
-bukkit {
-    name = "Bukkript"
-    main = "br.com.devsrsouza.bukkript.plugin.BukkriptPlugin"
-    author = "DevSrSouza"
-    website = "devsrsouza.com.br"
-    depend = listOf("KotlinBukkitAPI")
-
-    description = "Bukkript Scripting."
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor(120, "seconds")
 }
