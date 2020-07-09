@@ -49,13 +49,17 @@ class ScriptManagerImpl(
         return pluginCoroutineScope.async(Dispatchers.Default) {
             val scriptFile = File(scriptDir, "$scriptName.$BUKKRIPT_EXTENSION")
 
-            val description = compiler.retrieveDescriptor(scriptFile)
-                ?: TODO()
+            val cachedScript = compiler.getCachedScript(scriptFile)
 
-            val compiled = runCatching { compiler.compile(scriptFile, description) }.getOrNull()
-                ?: TODO()
+            val compiled = if(cachedScript != null && cachedScript.isValid) {
+                cachedScript.compiled
+            } else {
+                val description = compiler.retrieveDescriptor(scriptFile)
+                    ?: TODO()
 
-            println(compiled)
+                runCatching { compiler.compile(scriptFile, description) }.getOrNull()
+                    ?: TODO()
+            }
 
             val loaded = runCatching { loader.load(compiled) }.onFailure { it.printStackTrace() }.getOrNull()
                 ?: TODO()
