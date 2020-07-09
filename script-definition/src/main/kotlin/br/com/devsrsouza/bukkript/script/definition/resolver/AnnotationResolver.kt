@@ -15,7 +15,7 @@ import kotlin.script.experimental.api.*
 import kotlin.script.experimental.dependencies.tryAddRepository
 import kotlin.script.experimental.jvm.updateClasspath
 
-fun resolveScript(
+fun resolveScriptAnnotation(
     ctx: ScriptConfigurationRefinementContext
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
     val annotations = ctx.collectedData?.get(ScriptCollectedData.foundAnnotations)
@@ -23,7 +23,7 @@ fun resolveScript(
 
     val reports = mutableListOf<ScriptDiagnostic>()
 
-    val configuration = ScriptCompilationConfiguration(ctx.compilationConfiguration) {
+    val configuration = ctx.compilationConfiguration.with {
 
         var name = "None"
         var version = "None"
@@ -64,29 +64,6 @@ fun resolveScript(
                 logLevel
             )
         )
-
-        val resolver = IvyResolver()
-
-
-        // TODO: remove this from the resolver and do every single time
-
-        val files = mutableListOf<File>()
-
-        runBlocking {
-            for ((fqn, repositories, artifacts) in baseDependencies) {
-                runCatching { Class.forName(fqn) }.onFailure {
-                    for (repository in repositories) {
-                        resolver.tryAddRepository(repository)
-                    }
-
-                    for (artifact in artifacts) {
-                        files += (resolver.resolve(artifact) as ResultWithDiagnostics.Success<List<File>>).value
-                    }
-                }
-            }
-        }
-
-        updateClasspath(files)
     }
 
     return if(reports.isEmpty()) {
