@@ -1,6 +1,8 @@
 package br.com.devsrsouza.bukkript.script.host.cache
 
 import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
+import br.com.devsrsouza.bukkript.script.definition.bukkritNameRelative
+import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -12,6 +14,7 @@ import kotlin.script.experimental.jvm.CompiledJvmScriptsCache
 import kotlin.script.experimental.jvm.impl.KJvmCompiledScript
 
 internal class FileBasedScriptCache(
+    val scriptDir: File,
     val cacheDir: File,
     scriptDescription: ScriptDescription?
 ) : CompiledJvmScriptsCache {
@@ -32,7 +35,7 @@ internal class FileBasedScriptCache(
         } else {
             // TODO: migrate to a proper log system
             //println("Loading cache of ${script.file.scriptName(cacheDir)}.")
-            return cached.compiledScript
+            return cached.compiled.compiled
         }
     }
 
@@ -59,7 +62,7 @@ internal class FileBasedScriptCache(
         val cacheFile = getCacheFileForScript(script).takeIf { it.exists() }
             ?: return null
 
-        val (md5, info, jvmScript) = cacheFile.inputStream().use { fs ->
+        val (md5, description, jvmScript) = cacheFile.inputStream().use { fs ->
             ObjectInputStream(fs).use { os ->
 
                 val md5 = os.readUTF()
@@ -71,17 +74,19 @@ internal class FileBasedScriptCache(
         }
 
         return CachedScript(
-            script,
             cacheFile,
             isValid(script, md5),
-            info,
-            jvmScript
+            BukkriptCompiledScript(
+                script,
+                jvmScript,
+                description
+            )
         )
     }
 
     private fun getCacheFileForScript(script: FileScriptSource) = File(
         cacheDir,
-        script.file.scriptName(cacheDir)
+        script.bukkritNameRelative(scriptDir).replace("/", ".")
     )
 
     private fun isValid(

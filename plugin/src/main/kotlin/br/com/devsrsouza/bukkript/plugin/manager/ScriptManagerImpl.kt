@@ -3,10 +3,7 @@ package br.com.devsrsouza.bukkript.plugin.manager
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
 import br.com.devsrsouza.bukkript.plugin.disable
 import br.com.devsrsouza.bukkript.plugin.result.LoadResult
-import br.com.devsrsouza.bukkript.script.definition.BUKKRIPT_EXTENSION
-import br.com.devsrsouza.bukkript.script.definition.bukkriptName
-import br.com.devsrsouza.bukkript.script.definition.bukkriptRelative
-import br.com.devsrsouza.bukkript.script.definition.isBukkriptScript
+import br.com.devsrsouza.bukkript.script.definition.*
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImpl
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptLoadedScript
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
@@ -83,7 +80,7 @@ class ScriptManagerImpl(
 
     private fun unload(loadedScript: BukkriptLoadedScript) {
         loadedScript.disable()
-        loadedScripts.remove(loadedScript.compiledScript.pathWithoutExtension)
+        loadedScripts.remove(loadedScript.compiledScript.source.bukkritNameRelative(scriptDir))
     }
 
     private fun unloadAll() {
@@ -112,7 +109,7 @@ class ScriptManagerImpl(
     override fun listScriptsFromFolder(): Set<String> {
         return scriptDir.walkTopDown()
             .filter { it.isBukkriptScript }
-            .map { it.bukkriptRelative(scriptDir).bukkriptName }
+            .map { it.bukkriptNameRelative(scriptDir) }
             .toSet()
     }
 

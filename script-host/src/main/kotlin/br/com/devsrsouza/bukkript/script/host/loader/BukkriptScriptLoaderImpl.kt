@@ -1,14 +1,14 @@
 package br.com.devsrsouza.bukkript.script.host.loader
 
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
+import br.com.devsrsouza.bukkript.script.definition.bukkritNameRelative
+import br.com.devsrsouza.bukkript.script.definition.bukkritRelative
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import br.com.devsrsouza.bukkript.script.host.loader.classloader.ClassProvider
 import br.com.devsrsouza.bukkript.script.host.loader.classloader.ScriptClassloader
-import br.com.devsrsouza.bukkript.script.host.utils.actualClassLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import org.bukkit.plugin.Plugin
-import org.jetbrains.kotlin.scripting.compiler.plugin.JvmCliScriptEvaluationExtension
 import java.io.File
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.BasicJvmScriptEvaluator
@@ -28,7 +28,7 @@ class BukkriptScriptLoaderImpl(
         val job = Job()
         val coroutineScope = CoroutineScope(job)
 
-        val dataFolder = File(scriptDir, compiledScript.pathWithoutExtension).apply {
+        val dataFolder = compiledScript.source.bukkritRelative(scriptDir).apply {
             mkdirs()
         }
 

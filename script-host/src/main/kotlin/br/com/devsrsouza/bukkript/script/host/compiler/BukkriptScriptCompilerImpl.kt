@@ -57,9 +57,8 @@ class BukkriptScriptCompilerImpl(
 
     override suspend fun compile(scriptFile: File, description: ScriptDescription): BukkriptCompiledScript {
         val source = FileScriptSource(scriptFile)
-        val scriptPath = scriptFile.relativeTo(scriptDir).path
 
-        val cache = FileBasedScriptCache(cacheDir, description)
+        val cache = FileBasedScriptCache(scriptDir, cacheDir, description)
 
         val compilationConfiguration = createJvmCompilationConfigurationFromTemplate<BukkriptScript>()
 
@@ -74,7 +73,6 @@ class BukkriptScriptCompilerImpl(
                 .valueOrThrow() as KJvmCompiledScript<*>
 
             BukkriptCompiledScript(
-                scriptPath,
                 source,
                 compiledScript,
                 description
@@ -85,7 +83,7 @@ class BukkriptScriptCompilerImpl(
     }
 
     override suspend fun getCachedScript(scriptFile: File): CachedScript? {
-         val scriptCache = FileBasedScriptCache(cacheDir, null)
+         val scriptCache = FileBasedScriptCache(scriptDir, cacheDir, null)
 
         val source = FileScriptSource(scriptFile)
 
