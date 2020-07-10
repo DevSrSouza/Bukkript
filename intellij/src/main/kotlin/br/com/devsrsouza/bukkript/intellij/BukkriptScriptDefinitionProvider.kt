@@ -20,7 +20,7 @@ class BukkriptScriptDefinitionProvider : ScriptDefinitionsProvider {
 
     override fun getDefinitionsClassPath(): Iterable<File> {
         val jarFile = File(
-            "/home/devsrsouza/Drive/programming/Minecraft/Server/Bukkit/BukkriptV2/script-definition/build/libs/script-definition-0.1.0-SNAPSHOT-embedded.jar"
+            "${System.getenv("project-dir")}/script-definition/build/libs/script-definition-0.1.0-SNAPSHOT-embedded.jar"
         )
 
         return listOf(jarFile)

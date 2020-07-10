@@ -16,8 +16,6 @@ fun resolveScriptDependencies(
 
         val resolver = IvyResolver()
 
-        // TODO: remove this from the resolver and do every single time
-
         // TODO: add support to find plugins and the server jar and add to the classpath
 
         val files = mutableListOf<File>()

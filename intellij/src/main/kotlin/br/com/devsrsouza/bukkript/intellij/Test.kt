@@ -11,11 +11,8 @@ class Test : ProjectViewNodeDecorator {
         if(node?.name?.endsWith(".bk.kts") == true) {
             node.icon = BukkriptFileType.INSTANCE.icon
             node.validate()
-            println("mudando o icone do node aqui!")
             //node.update()
         }
-
-        println("node1: $node")
     }
 
     override fun decorate(node: PackageDependenciesNode?, cellRenderer: ColoredTreeCellRenderer?) {

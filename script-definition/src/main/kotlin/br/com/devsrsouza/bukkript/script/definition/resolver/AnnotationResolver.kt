@@ -18,12 +18,14 @@ import kotlin.script.experimental.jvm.updateClasspath
 fun resolveScriptAnnotation(
     ctx: ScriptConfigurationRefinementContext
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
+    val depConfiguration = (resolveScriptDependencies(ctx) as ResultWithDiagnostics.Success).value
+
     val annotations = ctx.collectedData?.get(ScriptCollectedData.foundAnnotations)
-        ?.takeIf { it.isNotEmpty() } ?: return ctx.compilationConfiguration.asSuccess()
+        ?.takeIf { it.isNotEmpty() } ?: return depConfiguration.asSuccess()
 
     val reports = mutableListOf<ScriptDiagnostic>()
 
-    val configuration = ctx.compilationConfiguration.with {
+    val configuration = depConfiguration.with {
 
         var name = "None"
         var version = "None"

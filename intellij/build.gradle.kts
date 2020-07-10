@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.tasks.RunIdeTask
+
 plugins {
     id("org.jetbrains.intellij") version "0.4.21"
     java
@@ -30,6 +32,11 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
+    runIde {
+        environment("project-dir", projectDir.parentFile.absolutePath)
+    }
+
+    runIde.get().dependsOn(":script-definition:shadowJar")
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""

@@ -23,3 +23,9 @@ command("scripttest") {
     }
 }
 ```
+
+## Test
+
+### IntelliJ plugin
+
+Just run the command `./gradlew :intellij:runIde` and will open a IntelliJ with the Plugin.
