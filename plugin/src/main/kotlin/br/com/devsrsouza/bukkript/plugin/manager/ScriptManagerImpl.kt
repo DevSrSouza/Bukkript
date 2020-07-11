@@ -8,10 +8,8 @@ import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImp
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptLoadedScript
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.pluginCoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
+import kotlinx.coroutines.*
 import org.bukkit.entity.Player
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -32,7 +30,7 @@ class ScriptManagerImpl(
     }
 
     override fun onPluginEnable() {
-        runBlocking {
+        pluginCoroutineScope.launch {
             loadAll().forEach {
                 it.await()
             }

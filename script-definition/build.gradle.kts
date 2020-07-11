@@ -3,10 +3,6 @@ plugins {
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
-repositories {
-    maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
-}
-
 dependencies {
     api(kotlin("stdlib-jdk8"))
     api(project(":core"))
@@ -16,7 +12,7 @@ dependencies {
     api(kotlin("scripting-dependencies"))
     api("org.apache.ivy:ivy:2.5.0")
 
-    api("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT") // TODO: remove api() and use JAR in the future
+    api("org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT")
 
     val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
 

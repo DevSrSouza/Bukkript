@@ -5,15 +5,9 @@ import br.com.devsrsouza.bukkript.script.definition.annotation.DependPlugin
 import br.com.devsrsouza.bukkript.script.definition.annotation.Script
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.definition.configuration.info
-import br.com.devsrsouza.bukkript.script.definition.dependencies.IvyResolver
-import br.com.devsrsouza.bukkript.script.definition.dependencies.baseDependencies
 import br.com.devsrsouza.bukkript.script.definition.error.DiagnosticResult
 import br.com.devsrsouza.bukkript.script.definition.error.requireOrFail
-import kotlinx.coroutines.runBlocking
-import java.io.File
 import kotlin.script.experimental.api.*
-import kotlin.script.experimental.dependencies.tryAddRepository
-import kotlin.script.experimental.jvm.updateClasspath
 
 fun resolveScriptAnnotation(
     ctx: ScriptConfigurationRefinementContext
