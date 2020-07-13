@@ -25,7 +25,7 @@ fun resolveIdeScriptDependencies(
         // If spigot is not available at this time, this means that is server running at a server
         if(!isPackageAvailable(SPIGOT_DEPENDENCY.fqnPackage)) {
 
-            val scriptFile = File((ctx.script as ExternalSourceCode).externalLocation.file)
+            val scriptFile = ctx.script.finalFile
 
             val ivyResolver = IvyResolver(null)
             val fileResolver = FileSystemDependenciesResolver()
@@ -82,7 +82,7 @@ fun resolveExternalDependencies(
     repositories: Set<String>,
     dependencies: Set<String>
 ): Set<File> {
-    val scriptFile = File((scriptSource as ExternalSourceCode).externalLocation.file)
+    val scriptFile = scriptSource.finalFile
 
     val pluginsFolder = scriptFile.findParentPluginFolder(10)
 
