@@ -1,4 +1,4 @@
-package br.com.devsrsouza.bukkript.script.definition.compilation
+package br.com.devsrsouza.bukkript.script.definition.configuration
 
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
