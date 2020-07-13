@@ -20,7 +20,9 @@ import kotlin.script.experimental.dependencies.ExternalDependenciesResolver
 import kotlin.script.experimental.dependencies.RepositoryCoordinates
 import kotlin.script.experimental.dependencies.impl.toRepositoryUrlOrNull
 
-class IvyResolver : ExternalDependenciesResolver {
+class IvyResolver(
+    val jarCacheDir: File?
+) : ExternalDependenciesResolver {
 
     private fun String?.isValidParam() = this?.isNotBlank() ?: false
 
@@ -67,6 +69,9 @@ class IvyResolver : ExternalDependenciesResolver {
             )
         }
         val ivySettings = IvySettings().apply {
+            if(jarCacheDir != null)
+                defaultCache = jarCacheDir
+
             val resolver =
                 if (ivyResolvers.size == 1) ivyResolvers.first()
                 else ChainResolver().also {

@@ -1,8 +1,6 @@
 package br.com.devsrsouza.bukkript.script.host.loader
 
-import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
-import br.com.devsrsouza.bukkript.script.definition.bukkritNameRelative
-import br.com.devsrsouza.bukkript.script.definition.bukkritRelative
+import br.com.devsrsouza.bukkript.script.definition.*
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import br.com.devsrsouza.bukkript.script.host.loader.classloader.ClassProvider
 import br.com.devsrsouza.bukkript.script.host.loader.classloader.ScriptClassloader
@@ -28,11 +26,13 @@ class BukkriptScriptLoaderImpl(
         val job = Job()
         val coroutineScope = CoroutineScope(job)
 
-        val dataFolder = compiledScript.source.bukkritRelative(scriptDir).apply {
-            mkdirs()
-        }
+        val dataFolder = File(scriptDir, compiledScript.source.bukkritNameRelative(scriptDir))
 
-        val classLoader = ScriptClassloader(classProvider, parentClassloader)
+        val classLoader = ScriptClassloader(
+            classProvider,
+            parentClassloader,
+            compiledScript.description.dependenciesFiles.map { File(it) }.toSet()
+        )
 
         val evalConfig = ScriptEvaluationConfiguration {
             constructorArgs(plugin, compiledScript.description, dataFolder, coroutineScope)

@@ -13,6 +13,7 @@ dependencies {
     api("org.apache.ivy:ivy:2.5.0")
 
     api("org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
 
     val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
 

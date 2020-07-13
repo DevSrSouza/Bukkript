@@ -1,22 +1,22 @@
 package br.com.devsrsouza.bukkript.script.definition.resolver
 
-import br.com.devsrsouza.bukkript.script.definition.compilation.classpathFromBukkit
-import br.com.devsrsouza.bukkript.script.definition.compilation.classpathFromPlugins
+import br.com.devsrsouza.bukkript.script.definition.configuration.classpathFromPlugins
 import br.com.devsrsouza.bukkript.script.definition.dependencies.IvyResolver
 import br.com.devsrsouza.bukkript.script.definition.dependencies.SPIGOT_DEPENDENCY
 import br.com.devsrsouza.bukkript.script.definition.dependencies.baseDependencies
 import br.com.devsrsouza.bukkript.script.definition.findParentPluginFolder
 import br.com.devsrsouza.bukkript.script.definition.isJar
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.dependencies.FileSystemDependenciesResolver
 import kotlin.script.experimental.dependencies.tryAddRepository
 import kotlin.script.experimental.dependencies.tryResolve
-import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.jvm.updateClasspath
 
-fun resolveScriptDependencies(
+fun resolveIdeScriptDependencies(
     ctx: ScriptConfigurationRefinementContext
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
 
@@ -27,7 +27,7 @@ fun resolveScriptDependencies(
 
             val scriptFile = File((ctx.script as ExternalSourceCode).externalLocation.file)
 
-            val ivyResolver = IvyResolver()
+            val ivyResolver = IvyResolver(null)
             val fileResolver = FileSystemDependenciesResolver()
 
             // TODO: add support to find plugins and the server jar and add to the classpath
@@ -75,4 +75,32 @@ fun resolveScriptDependencies(
     }
 
     return configuration.asSuccess()
+}
+
+fun resolveExternalDependencies(
+    scriptSource: SourceCode,
+    repositories: Set<String>,
+    dependencies: Set<String>
+): Set<File> {
+    val scriptFile = File((scriptSource as ExternalSourceCode).externalLocation.file)
+
+    val pluginsFolder = scriptFile.findParentPluginFolder(10)
+
+    // If is running in the Server, use server internal server cache folder for the libraries
+    val ivyResolver = IvyResolver(
+        pluginsFolder?.parentFile?.let { File(it, ".klibs").apply { mkdirs() } }
+    )
+
+    for(repository in repositories) {
+        ivyResolver.tryAddRepository(repository)
+    }
+
+    return runBlocking {
+        ConcurrentSkipListSet<File>().also {
+            dependencies.asFlow()
+                //.buffer(8)
+                .flatMapConcat { (ivyResolver.tryResolve(it) ?: emptyList()).asFlow() }
+                .toCollection(it)
+        }
+    }
 }

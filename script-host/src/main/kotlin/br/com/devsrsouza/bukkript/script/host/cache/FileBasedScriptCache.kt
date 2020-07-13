@@ -45,7 +45,6 @@ internal class FileBasedScriptCache(
         configuration: ScriptCompilationConfiguration
     ) {
         val file = getCacheFileForScript(script as FileScriptSource)
-        file.parentFile.mkdirs()
         file.outputStream().use { fs ->
             ObjectOutputStream(fs).use { os ->
                 os.writeUTF(script.generateMD5())

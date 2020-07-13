@@ -14,6 +14,7 @@ val CompilerKeys.info by PropertiesCollection.key<ScriptDescription>(
         "Unknown",
         "None",
         emptySet(),
-        LogLevel.INFO
+        LogLevel.INFO,
+        emptySet()
     )
 )

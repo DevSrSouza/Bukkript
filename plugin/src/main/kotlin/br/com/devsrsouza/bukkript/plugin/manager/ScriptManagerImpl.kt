@@ -59,8 +59,12 @@ class ScriptManagerImpl(
                     ?: TODO()
             }
 
-            val loaded = runCatching { loader.load(compiled) }.onFailure { it.printStackTrace() }.getOrNull()
-                ?: TODO()
+
+            // loading scripts in the main thread
+            val loaded = withContext(BukkitDispatchers.SYNC) {
+                runCatching { loader.load(compiled) }.onFailure { it.printStackTrace() }.getOrNull()
+                    ?: TODO()
+            }
 
             loadedScripts.put(scriptName, loaded)
 

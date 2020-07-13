@@ -1,13 +1,18 @@
 package br.com.devsrsouza.bukkript.script.host.loader.classloader
 
+import java.io.File
 import java.net.URLClassLoader
 
 typealias ClassProvider = (name: String) -> Class<*>?
 
 class ScriptClassloader(
     val classProvider: ClassProvider,
-    parent: ClassLoader
-) : URLClassLoader(emptyArray(), parent) {
+    parent: ClassLoader,
+    dependenciesFiles: Set<File>
+) : URLClassLoader(
+    dependenciesFiles.map { it.toURI().toURL() }.toTypedArray(),
+    parent
+) {
 
     override fun findClass(name: String): Class<*>? {
         return findClass(name, true)
