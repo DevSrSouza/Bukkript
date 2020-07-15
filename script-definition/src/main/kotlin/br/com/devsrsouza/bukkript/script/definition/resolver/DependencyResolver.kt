@@ -16,7 +16,7 @@ import kotlin.script.experimental.dependencies.tryAddRepository
 import kotlin.script.experimental.dependencies.tryResolve
 import kotlin.script.experimental.jvm.updateClasspath
 
-fun resolveIdeScriptDependencies(
+fun resolveScriptStaticDependencies(
     ctx: ScriptConfigurationRefinementContext
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
 
