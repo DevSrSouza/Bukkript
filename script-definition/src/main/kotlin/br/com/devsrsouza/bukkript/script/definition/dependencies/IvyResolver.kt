@@ -21,7 +21,8 @@ import kotlin.script.experimental.dependencies.RepositoryCoordinates
 import kotlin.script.experimental.dependencies.impl.toRepositoryUrlOrNull
 
 class IvyResolver(
-    val jarCacheDir: File?
+    val jarCacheDir: File?,
+    val isSources: Boolean = false
 ) : ExternalDependenciesResolver {
 
     private fun String?.isValidParam() = this?.isNotBlank() ?: false
@@ -99,7 +100,7 @@ class IvyResolver(
             val depArtifact = DefaultDependencyArtifactDescriptor(depsDescriptor, artifactName, type, type, null, null)
             depsDescriptor.addDependencyArtifact(conf, depArtifact)
         }
-        depsDescriptor.addDependencyConfiguration("default", "master,compile")
+        depsDescriptor.addDependencyConfiguration("default", if(!isSources) "master,compile" else "sources")
         moduleDescriptor.addDependency(depsDescriptor)
 
         val resolveOptions = ResolveOptions().apply {

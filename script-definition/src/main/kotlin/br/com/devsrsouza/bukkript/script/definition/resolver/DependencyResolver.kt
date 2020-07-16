@@ -14,6 +14,7 @@ import kotlin.script.experimental.api.*
 import kotlin.script.experimental.dependencies.FileSystemDependenciesResolver
 import kotlin.script.experimental.dependencies.tryAddRepository
 import kotlin.script.experimental.dependencies.tryResolve
+import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
 
 fun resolveScriptStaticDependencies(
@@ -28,11 +29,11 @@ fun resolveScriptStaticDependencies(
             val scriptFile = ctx.script.finalFile
 
             val ivyResolver = IvyResolver(null)
+            val sourcesResolver = IvyResolver(null, true)
             val fileResolver = FileSystemDependenciesResolver()
 
-            // TODO: add support to find plugins and the server jar and add to the classpath
-
             val files = mutableListOf<File>()
+            val sources = mutableListOf<File>()
 
 
             runBlocking {
@@ -50,17 +51,23 @@ fun resolveScriptStaticDependencies(
                     for (jar in allPlugins + serverJar) {
                         files += fileResolver.tryResolve(jar.absolutePath) ?: emptyList()
                     }
-                } else {
-                    // Resolve Ivy Static Dependencies
-                    for ((fqn, repositories, artifacts) in baseDependencies) {
-                        if (!isPackageAvailable(fqn)) {
-                            for (repository in repositories) {
-                                ivyResolver.tryAddRepository(repository)
-                            }
+                }
 
-                            for (artifact in artifacts) {
+                // Resolve Ivy Static Dependencies
+                for ((fqn, repositories, artifacts) in baseDependencies) {
+                    if (!isPackageAvailable(fqn)) {
+                        for (repository in repositories) {
+                            ivyResolver.tryAddRepository(repository)
+                            sourcesResolver.tryAddRepository(repository)
+                        }
+
+                        for (artifact in artifacts) {
+                            // Adding the dependency only in a plugin folder was not available
+                            if(pluginsFolder == null)
                                 files += ivyResolver.tryResolve(artifact) ?: emptyList()
-                            }
+
+                            // Adding the source codes
+                            sources += sourcesResolver.tryResolve(artifact) ?: emptyList()
                         }
                     }
                 }
@@ -68,6 +75,9 @@ fun resolveScriptStaticDependencies(
 
 
             updateClasspath(files)
+
+            // TODO: Bukkript definition sources is missing, adding when it get a Maven repo.
+            ide.dependenciesSources.append(JvmDependency(sources))
         } else {
             // Is running on a server, then, add the hole classpath of the plugins here
             updateClasspath(classpathFromPlugins())
@@ -77,30 +87,53 @@ fun resolveScriptStaticDependencies(
     return configuration.asSuccess()
 }
 
+data class ExternalDependencies(
+    val compiled: Set<File>,
+    val sources: Set<File>
+)
+
 fun resolveExternalDependencies(
     scriptSource: SourceCode,
     repositories: Set<String>,
     dependencies: Set<String>
-): Set<File> {
+): ExternalDependencies {
     val scriptFile = scriptSource.finalFile
 
     val pluginsFolder = scriptFile.findParentPluginFolder(10)
+    val cacheDir = pluginsFolder?.parentFile?.let { File(it, ".klibs").apply { mkdirs() } }
 
     // If is running in the Server, use server internal server cache folder for the libraries
-    val ivyResolver = IvyResolver(
-        pluginsFolder?.parentFile?.let { File(it, ".klibs").apply { mkdirs() } }
-    )
+    val ivyResolver = IvyResolver(cacheDir)
+    // If is running in the IntelliJ we will not need cache dir, and we can use the .ivy2
+    val sourcesResolver = IvyResolver(null, true)
 
     for(repository in repositories) {
         ivyResolver.tryAddRepository(repository)
+        sourcesResolver.tryAddRepository(repository)
+    }
+
+    val sources = mutableSetOf<File>()
+
+    // Checking where is spigot avaible, if not, is not running at the server
+    // And should use sources.
+    if(!isPackageAvailable(SPIGOT_DEPENDENCY.fqnPackage)) {
+        // Downloading sources for IntelliJ
+        runBlocking {
+            sources += dependencies.asFlow()
+                //.buffer(8)
+                .flatMapConcat { (sourcesResolver.tryResolve(it) ?: emptyList()).asFlow() }
+                .toSet()
+        }
     }
 
     return runBlocking {
-        ConcurrentSkipListSet<File>().also {
+        ExternalDependencies(
+            // Downloading compiled dependencies
             dependencies.asFlow()
                 //.buffer(8)
                 .flatMapConcat { (ivyResolver.tryResolve(it) ?: emptyList()).asFlow() }
-                .toCollection(it)
-        }
+                .toSet(),
+            sources
+        )
     }
 }

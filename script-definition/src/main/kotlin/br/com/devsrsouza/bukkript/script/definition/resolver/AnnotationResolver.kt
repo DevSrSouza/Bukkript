@@ -10,6 +10,7 @@ import br.com.devsrsouza.bukkript.script.definition.configuration.info
 import br.com.devsrsouza.bukkript.script.definition.error.DiagnosticResult
 import br.com.devsrsouza.bukkript.script.definition.error.requireOrFail
 import kotlin.script.experimental.api.*
+import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
 
 fun resolveScriptAnnotation(
@@ -60,11 +61,11 @@ fun resolveScriptAnnotation(
 
         // Resolving/downloading external dependencies provided with annotations: adding to
         // classpath for compilation and to Description for be usaged in the Classloader.
-        val dependenciesFiles = if (dependencies.isNotEmpty())
-            resolveExternalDependencies(ctx.script, repositories, dependencies).also {
-                updateClasspath(it)
-            }.map { it.absolutePath }.toSet()
-        else emptySet()
+        val external = resolveExternalDependencies(ctx.script, repositories, dependencies)
+        val dependenciesFiles = external.compiled
+
+        if(dependenciesFiles.isNotEmpty())
+            updateClasspath(dependenciesFiles)
 
         info(
             ScriptDescription(
@@ -74,9 +75,13 @@ fun resolveScriptAnnotation(
                 website,
                 pluginDepends,
                 logLevel,
-                dependenciesFiles
+                dependenciesFiles.map { it.absolutePath }.toSet()
             )
         )
+
+        if(external.sources.isNotEmpty()) {
+            ide.dependenciesSources.append(JvmDependency(external.sources.toList()))
+        }
     }
 
     return if(reports.isEmpty()) {
