@@ -18,9 +18,7 @@
         <fileType language="kotlin" extensions="bk.kts" name="Bukkript File" fieldName="INSTANCE"
                   implementationClass="br.com.devsrsouza.bukkript.intellij.BukkriptFileType" />
         <internalFileTemplate name="Bukkript Script" />
-        <fileIconPatcher implementation="br.com.devsrsouza.bukkript.intellij.BukkriptFileIconPatcher" />
-        <fileIconProvider implementation="br.com.devsrsouza.bukkript.intellij.BukkriptFileIconProvider" />
-        <projectViewNodeDecorator implementation="br.com.devsrsouza.bukkript.intellij.Test" />
+        <iconProvider implementation="br.com.devsrsouza.bukkript.intellij.BukkriptIconProvider" order="first"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
