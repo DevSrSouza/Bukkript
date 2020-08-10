@@ -8,7 +8,6 @@ import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Script(
-    val name: String,
     val version: String = "",
     val logLevel: LogLevel = LogLevel.INFO,
     val author: String = "",

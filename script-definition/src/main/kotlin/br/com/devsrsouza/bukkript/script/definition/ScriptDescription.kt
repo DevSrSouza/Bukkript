@@ -5,7 +5,6 @@ import java.io.File
 import java.io.Serializable
 
 data class ScriptDescription(
-    val name: String,
     val version: String,
     val author: String,
     val website: String,

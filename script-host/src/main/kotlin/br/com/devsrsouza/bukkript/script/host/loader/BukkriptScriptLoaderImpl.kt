@@ -1,11 +1,10 @@
 package br.com.devsrsouza.bukkript.script.host.loader
 
 import br.com.devsrsouza.bukkript.script.definition.*
+import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import br.com.devsrsouza.bukkript.script.host.loader.classloader.ClassProvider
 import br.com.devsrsouza.bukkript.script.host.loader.classloader.ScriptClassloader
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import org.bukkit.plugin.Plugin
 import java.io.File
 import kotlin.script.experimental.api.*
@@ -18,13 +17,11 @@ class BukkriptScriptLoaderImpl(
     val plugin: Plugin,
     val scriptDir: File,
     val parentClassloader: ClassLoader,
-    val classProvider: ClassProvider
+    val classProvider: ClassProvider,
+    val logger: (script: String, LogLevel, message: String) -> Unit
 ) : BukkriptScriptLoader {
 
     override suspend fun load(compiledScript: BukkriptCompiledScript): BukkriptLoadedScript {
-
-        val job = Job()
-        val coroutineScope = CoroutineScope(job)
 
         val dataFolder = File(scriptDir, compiledScript.source.bukkritNameRelative(scriptDir))
 
@@ -34,8 +31,18 @@ class BukkriptScriptLoaderImpl(
             compiledScript.description.dependenciesFiles.map { File(it) }.toSet()
         )
 
+        fun scriptLog(level: LogLevel, message: String) {
+            logger(compiledScript.scriptName, level, message)
+        }
+
         val evalConfig = ScriptEvaluationConfiguration {
-            constructorArgs(plugin, compiledScript.description, dataFolder, coroutineScope)
+            constructorArgs(
+                plugin,
+                compiledScript.description,
+                dataFolder,
+                compiledScript.scriptName,
+                ::scriptLog
+            )
             jvm {
                 baseClassLoader(classLoader)
                 loadDependencies(false)
@@ -49,7 +56,7 @@ class BukkriptScriptLoaderImpl(
         return when(result) {
             is ResultWithDiagnostics.Success -> {
                 when (val it = result.value.returnValue) {
-                    is ResultValue.Error -> TODO() // TODO: throw error
+                    is ResultValue.Error -> throw it.error
                     ResultValue.NotEvaluated -> TODO() // TODO: throw error
                     else -> {
                         // VALUE and UNIT
@@ -59,9 +66,7 @@ class BukkriptScriptLoaderImpl(
                                 it.scriptClass!!,
                                 classLoader,
                                 compiledScript,
-                                dataFolder,
-                                job,
-                                coroutineScope
+                                dataFolder
                             )
                         } else {
                             TODO() // TODO: throw error

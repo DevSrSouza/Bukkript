@@ -23,8 +23,7 @@ fun resolveScriptAnnotation(
 
     val configuration = ctx.compilationConfiguration.with {
 
-        var name = "None"
-        var version = "None"
+        var version = "Unknown"
         var author = "Unknown"
         var website = "None"
         var logLevel = LogLevel.INFO
@@ -37,14 +36,6 @@ fun resolveScriptAnnotation(
         for (annotation in annotations) {
             when (annotation) {
                 is Script -> {
-                    val requireOrFail =
-                        annotation.name.requireOrFail({ "Script name require to be not blank!" }) { it.isNotBlank() }
-
-                    when(requireOrFail) {
-                        is DiagnosticResult.Success -> name = requireOrFail.value
-                        is DiagnosticResult.Fail -> reports.add(requireOrFail.diagnostic)
-                    }
-
                     annotation.version.takeIf { it.isNotBlank() }?.also { version = it }
                     annotation.author.takeIf { it.isNotBlank() }?.also { author = it }
                     annotation.website.takeIf { it.isNotBlank() }?.also { website = it }
@@ -69,7 +60,6 @@ fun resolveScriptAnnotation(
 
         info(
             ScriptDescription(
-                name,
                 version,
                 author,
                 website,

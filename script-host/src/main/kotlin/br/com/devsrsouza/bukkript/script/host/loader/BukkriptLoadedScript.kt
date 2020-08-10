@@ -13,7 +13,5 @@ data class BukkriptLoadedScript(
     val kclass: KClass<*>,
     val classLoader: ScriptClassloader,
     val compiledScript: BukkriptCompiledScript,
-    val dataFolder: File,
-    val job: Job,
-    val coroutineScope: CoroutineScope
+    val dataFolder: File
 )

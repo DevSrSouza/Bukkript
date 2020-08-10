@@ -3,7 +3,7 @@ package br.com.devsrsouza.bukkript.script.definition.api
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
 
 enum class LogLevel(val level: Int) {
-    NONE(0),
+    DISABLED(0),
     ERROR(1),
     WARN(2),
     INFO(3),
@@ -13,25 +13,25 @@ enum class LogLevel(val level: Int) {
 
 inline fun BukkriptScript.info(message: () -> String) {
     if(description.logLevel.level >= LogLevel.INFO.level)
-        message() // TODO: send message logic
+        log(LogLevel.INFO, message())
 }
 
 inline fun BukkriptScript.warn(message: () -> String) {
     if(description.logLevel.level >= LogLevel.WARN.level)
-        message() // TODO: send message logic
+        log(LogLevel.WARN, message())
 }
 
 inline fun BukkriptScript.debug(message: () -> String) {
     if(description.logLevel.level >= LogLevel.DEBUG.level)
-        message() // TODO: send message logic
+        log(LogLevel.DEBUG, message())
 }
 
 inline fun BukkriptScript.verbose(message: () -> String) {
     if(description.logLevel.level >= LogLevel.VERBOSE.level)
-        message() // TODO: send message logic
+        log(LogLevel.VERBOSE, message())
 }
 
 inline fun BukkriptScript.error(error: () -> Throwable) {
     if(description.logLevel.level >= LogLevel.ERROR.level)
-        error() // TODO: send message logic
+        log(LogLevel.ERROR, error().toString())
 }

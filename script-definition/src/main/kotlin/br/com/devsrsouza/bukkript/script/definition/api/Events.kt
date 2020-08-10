@@ -28,13 +28,13 @@ fun <T : Event> BukkriptScript.event(
 
 // event flow
 
-suspend inline fun <reified T : Event> BukkriptScript.eventFlow(
+inline fun <reified T : Event> BukkriptScript.eventFlow(
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false
 ): Flow<T> = eventFlow<T>(T::class, assign, priority, ignoreCancelled)
 
-suspend fun <T : Event> BukkriptScript.eventFlow(
+fun <T : Event> BukkriptScript.eventFlow(
     type: KClass<T>,
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,

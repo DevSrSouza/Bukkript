@@ -9,8 +9,7 @@ typealias CompilerKeys = ScriptCompilationConfigurationKeys
 
 val CompilerKeys.info by PropertiesCollection.key<ScriptDescription>(
     ScriptDescription(
-        "None",
-        "None",
+        "Unknown",
         "Unknown",
         "None",
         emptySet(),

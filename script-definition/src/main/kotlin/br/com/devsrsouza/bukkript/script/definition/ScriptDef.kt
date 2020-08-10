@@ -1,8 +1,8 @@
 package br.com.devsrsouza.bukkript.script.definition
 
+import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.definition.compiler.BukkriptScriptCompilationConfiguration
-import kotlinx.coroutines.CoroutineScope
-import org.bukkit.plugin.Plugin
+import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import java.io.File
 import kotlin.script.experimental.annotations.KotlinScript
 
@@ -16,10 +16,11 @@ typealias RemoveRegistryFunction = () -> Unit
     compilationConfiguration = BukkriptScriptCompilationConfiguration::class
 )
 abstract class BukkriptScript(
-    val plugin: Plugin,
+    val plugin: KotlinPlugin,
     val description: ScriptDescription,
     val dataFolder: File,
-    val coroutineScope: CoroutineScope
+    val scriptName: String,
+    val log: (LogLevel, message: String) -> Unit
 ) {
 
     private val _onDisableListeners = mutableListOf<() -> Unit>()

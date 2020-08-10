@@ -13,7 +13,6 @@ val KOTLINBUKKITAPI_DEPENDENCY = Dependency(
     listOf("http://nexus.devsrsouza.com.br/repository/maven-public/"),
     listOf(
         "br.com.devsrsouza.kotlinbukkitapi:core:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:architecture:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:exposed:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:plugins:$KOTLINBUKKITAPI_VERSION"

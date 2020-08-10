@@ -2,6 +2,7 @@ package br.com.devsrsouza.bukkript.script.host.compiler
 
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
 import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
+import br.com.devsrsouza.bukkript.script.definition.bukkriptNameRelative
 import br.com.devsrsouza.bukkript.script.definition.configuration.info
 import br.com.devsrsouza.bukkript.script.host.cache.CachedScript
 import br.com.devsrsouza.bukkript.script.host.cache.FileBasedScriptCache
@@ -47,8 +48,6 @@ class BukkriptScriptCompilerImpl(
 
         runCatching {
             compile(source, customConfiguration)
-        }.onFailure {
-            it.printStackTrace()
         }
 
         return scriptDescriptionLoaded
@@ -73,6 +72,7 @@ class BukkriptScriptCompilerImpl(
                 .valueOrThrow() as KJvmCompiledScript<*>
 
             BukkriptCompiledScript(
+                scriptFile.bukkriptNameRelative(scriptDir),
                 source,
                 compiledScript,
                 description

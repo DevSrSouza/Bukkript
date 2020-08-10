@@ -76,6 +76,7 @@ internal class FileBasedScriptCache(
             cacheFile,
             isValid(script, md5),
             BukkriptCompiledScript(
+                script.bukkritNameRelative(scriptDir),
                 script,
                 jvmScript,
                 description

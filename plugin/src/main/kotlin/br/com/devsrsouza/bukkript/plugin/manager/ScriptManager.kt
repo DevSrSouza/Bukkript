@@ -1,18 +1,19 @@
 package br.com.devsrsouza.bukkript.plugin.manager
 
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
-import br.com.devsrsouza.bukkript.plugin.result.LoadResult
-import br.com.devsrsouza.bukkript.script.host.loader.BukkriptLoadedScript
+import br.com.devsrsouza.bukkript.plugin.manager.script.ScriptState
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import org.bukkit.entity.Player
 import java.util.concurrent.ConcurrentHashMap
 
 interface ScriptManager : LifecycleListener<BukkriptPlugin> {
 
-    val loadedScripts: ConcurrentHashMap<String, BukkriptLoadedScript>
+    val scripts: ConcurrentHashMap<String, ScriptState>
 
-    fun load(scriptName: String): Deferred<LoadResult>
+    fun compile(scriptName: String): Job
+
+    fun load(scriptName: String)
 
     fun isLoaded(scriptName: String): Boolean
 
@@ -26,5 +27,5 @@ interface ScriptManager : LifecycleListener<BukkriptPlugin> {
 
     fun hotRecompile(scriptName: String)
 
-    fun listScriptsFromFolder(): Set<String>
+    fun discoveryAllScripts()
 }
