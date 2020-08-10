@@ -41,13 +41,12 @@ val bukkitImports = listOf(
     "org.bukkit.util.noise.*",
     "org.bukkit.util.permissions.*"
 )
-
 val kotlinBukkitAPICoreImports = listOf(
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.array",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.optional",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandMaker",
+    /* Architecture package not needed */
+    "br.com.devsrsouza.kotlinbukkitapi.collections.*",
+    /* Controller package not needed */
+    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.*",
+    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.*",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.command.KCommand",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorBlock",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor",
@@ -55,30 +54,41 @@ val kotlinBukkitAPICoreImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.dsl.command.TabCompleter",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.command.TabCompleterBlock",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorPlayerBlock",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.*",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.*",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.event.displaced",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.event.callEvent",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.item.*",
+
     "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.*",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.config.*",
+    "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.*",
+    "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.*",
+    "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.slot.*",
+
+    "br.com.devsrsouza.kotlinbukkitapi.dsl.scoreboard.*",
+
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.block.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.Console",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.Log",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.bungeecord.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.command.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.configuration.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.entity.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.event.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.inventory.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.item.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.location.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.permission.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.player.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.text.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.bungeecord.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.world.*",
-    "br.com.devsrsouza.kotlinbukkitapi.utils.*",
-    "br.com.devsrsouza.kotlinbukkitapi.utils.time.*"
-)
 
-val kotlinBukkitAPIAttributeStorageImports = listOf(
-    "br.com.devsrsouza.kotlinbukkitapi.attributestorage.*"
+    /* Flow Event ignored because already have a implementation at Bukkript */
+
+    "br.com.devsrsouza.kotlinbukkitapi.menu.*",
+    "br.com.devsrsouza.kotlinbukkitapi.menu.slot.*",
+
+    "br.com.devsrsouza.kotlinbukkitapi.utils.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utils.player.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utils.time.*"
 )
 
 val kotlinBukkitAPIPluginsImports = listOf(
@@ -91,7 +101,13 @@ val kotlinBukkitAPIPluginsImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.plugins.viaversion.*"
 )
 
+val kotlinBukkitAPIExposedImports = listOf(
+    "br.com.devsrsouza.kotlinbukkitapi.exposed.*",
+    "br.com.devsrsouza.kotlinbukkitapi.exposed.delegate.*"
+)
+
 val bukkriptImports = listOf(
     "br.com.devsrsouza.bukkript.script.definition.annotation.*",
-    "br.com.devsrsouza.bukkript.script.definition.api.*"
+    "br.com.devsrsouza.bukkript.script.definition.api.*",
+    "br.com.devsrsouza.bukkript.script.definition.api.architecture.*"
 )
