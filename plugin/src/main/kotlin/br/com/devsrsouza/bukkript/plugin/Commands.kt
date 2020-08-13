@@ -2,6 +2,8 @@ package br.com.devsrsouza.bukkript.plugin
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.command
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.sendSubCommandsList
+import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
+import org.bukkit.ChatColor
 
 fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
     permission = PERMISSION_BASE
@@ -12,7 +14,24 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
     command("list") {
         permission = PERMISSION_CMD_LIST
-        description = "List all avaiable scripts and there status."
+        description = "List all available scripts and there status."
+
+        executor {
+            // discovering new scripts
+            scriptManager.discoveryAllScripts()
+
+            sender.msg("$BUKKRIPT_PREFIX &aAll available scripts.".translateColor())
+
+            val scripts = scriptManager.scripts.values.map {
+                "&l➥ &b${it.scriptName} ${it.stateDisplayName()}".translateColor()
+                    .showText("Click".color(ChatColor.AQUA))
+                    .suggestCommand("/bukkript SUB-COMMAND ${it.scriptName}")
+            }
+
+            sender.msg(scripts.joinToText(textOf("\n")))
+
+            sender.msg("&b---------------------------------------------".translateColor())
+        }
     }
     command("load") {
         permission = PERMISSION_CMD_LOAD

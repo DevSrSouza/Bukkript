@@ -26,7 +26,7 @@ dependencies {
         "br.com.devsrsouza.kotlinbukkitapi:architecture:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION"
     ).forEach {
-        compileOnly(it, changing)
+        api(it, changing)
     }
 }
 

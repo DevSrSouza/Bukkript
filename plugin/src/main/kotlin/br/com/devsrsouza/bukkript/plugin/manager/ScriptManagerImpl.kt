@@ -276,7 +276,7 @@ class ScriptManagerImpl(
     // retrieve all scripts files in put into de scripts
     override fun discoveryAllScripts() {
         for (scriptName in listScriptsFromFolder()) {
-            if (scriptName !in scripts)
+            if (!scripts.containsKey(scriptName))
                 scripts.put(scriptName, ScriptState.Discovered(scriptName))
         }
     }
