@@ -20,13 +20,14 @@ import java.io.File
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListSet
+import kotlin.math.log
 
 class ScriptManagerImpl(
     override val plugin: BukkriptPlugin
 ) : ScriptManager {
 
     companion object {
-        const val MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS = 5
+        const val MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS = 2
     }
 
     override val scripts: ConcurrentHashMap<String, ScriptState> = ConcurrentHashMap()
@@ -68,10 +69,15 @@ class ScriptManagerImpl(
                 for ((script, lastTimeModified) in recompileQueue) {
                     if (now() - lastTimeModified > MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS * 1000) {
                         recompileQueue.remove(script)
-                        recompile(script)
+                        try {
+                            recompile(script)
+                        } catch (e: Throwable) {
+                            // ignore any recompilation error to not broken your timer
+                            e.printStackTrace()
+                        }
                     }
                 }
-                delay(1000)
+                delay(500)
             }
         }
 
@@ -248,7 +254,11 @@ class ScriptManagerImpl(
     override fun recompile(scriptName: String) {
         logger.logScript(scriptName, LogLevel.INFO, "Recompiling script.")
 
-        unload(scriptName)
+        val state = scripts[scriptName] ?: TODO("Could not find the script to recompile")
+
+        if(state is ScriptState.Loaded) {
+            unload(scriptName)
+        }
 
         // setting a discovered because the compile uses just discovered state.
         scripts.put(scriptName, ScriptState.Discovered(scriptName))
@@ -266,8 +276,16 @@ class ScriptManagerImpl(
         logger.listenLog(player, scriptName)
     }
 
+    override fun updateLogLevel(scriptName: String, logLevel: LogLevel) {
+        scripts[scriptName] ?: TODO("Could not find the script to update the log level")
+
+        val script = scripts[scriptName] as? ScriptState.Loaded ?: TODO("Script is not loaded")
+
+        script.loadedScript.script.description.logLevel = logLevel
+    }
+
     override fun hotRecompile(scriptName: String) {
-        if (scriptName !in scripts)
+        if (!scripts.containsKey(scriptName))
             TODO("Could not find the script to enable hot recompile")
 
         hotrecompileScripts.add(scriptName)
@@ -282,7 +300,7 @@ class ScriptManagerImpl(
     }
 
     private fun discoveryScript(scriptName: String) {
-        if (scriptName in scripts)
+        if (scripts.containsKey(scriptName))
             TODO("The script tring to discovery is already discovered.")
 
         val scriptFile = File(scriptDir, "$scriptName.$BUKKRIPT_EXTENSION")

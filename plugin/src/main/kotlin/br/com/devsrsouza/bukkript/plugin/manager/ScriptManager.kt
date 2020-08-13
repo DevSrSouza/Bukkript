@@ -2,6 +2,7 @@ package br.com.devsrsouza.bukkript.plugin.manager
 
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
 import br.com.devsrsouza.bukkript.plugin.manager.script.ScriptState
+import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import kotlinx.coroutines.Job
 import org.bukkit.entity.Player
@@ -28,4 +29,6 @@ interface ScriptManager : LifecycleListener<BukkriptPlugin> {
     fun hotRecompile(scriptName: String)
 
     fun discoveryAllScripts()
+
+    fun updateLogLevel(scriptName: String, logLevel: LogLevel)
 }

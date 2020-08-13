@@ -19,4 +19,6 @@ interface LoggingManager : LifecycleListener<BukkriptPlugin> {
     fun listenLog(player: Player, scriptName: String)
 
     fun unlistenLog(player: Player, scriptName: String)
+
+    fun isListingLog(player: Player): Boolean
 }

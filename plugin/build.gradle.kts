@@ -26,7 +26,7 @@ dependencies {
         "br.com.devsrsouza.kotlinbukkitapi:architecture:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION"
     ).forEach {
-        api(it, changing)
+        compileOnly(it, changing)
     }
 }
 
@@ -47,4 +47,8 @@ bukkit {
     depend = listOf("KotlinBukkitAPI")
 
     description = "Bukkript Scripting."
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor(120, "seconds")
 }

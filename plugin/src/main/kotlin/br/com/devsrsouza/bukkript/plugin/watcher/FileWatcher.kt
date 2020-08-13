@@ -9,6 +9,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds.*
 import java.nio.file.WatchService
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 sealed class FileEvent(val file: File) {
@@ -39,7 +40,7 @@ fun watchFolder(path: Path): Flow<FileEvent> {
                 path.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE)
 
                 while (running.get()) {
-                    val key = watchService.take()
+                    val key = watchService.poll(5, TimeUnit.SECONDS) ?: continue
                     val path = key.watchable() as Path
 
                     for(event in key.pollEvents()) {
@@ -50,6 +51,8 @@ fun watchFolder(path: Path): Flow<FileEvent> {
                             ENTRY_DELETE -> channel.sendBlocking(FileEvent.Delete(file))
                         }
                     }
+
+                    key.reset()
                 }
             }
         }

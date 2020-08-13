@@ -49,6 +49,10 @@ class LoggingManagerImpl(override val plugin: BukkriptPlugin) : LoggingManager {
             ?.remove(scriptName)
     }
 
+    override fun isListingLog(player: Player): Boolean {
+        return logToPlayerInterceptor.players[player] != null
+    }
+
     val scriptLogFolder = File(plugin.dataFolder, "logs")
 
     private val logToFileInterceptor = LogToFileInterceptor(scriptLogFolder)
