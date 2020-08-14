@@ -33,7 +33,6 @@ class ScriptManagerImpl(
 
     private val compiler by lazy { BukkriptScriptCompilerImpl(scriptDir, cacheDir) }
     private val loader by lazy {
-        GlobalScope
         BukkriptScriptLoaderImpl(
             plugin,
             scriptDir,
