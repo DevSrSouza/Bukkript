@@ -19,11 +19,19 @@ import kotlin.script.experimental.api.*
 import kotlin.script.experimental.dependencies.ExternalDependenciesResolver
 import kotlin.script.experimental.dependencies.RepositoryCoordinates
 import kotlin.script.experimental.dependencies.impl.toRepositoryUrlOrNull
+import kotlin.script.experimental.dependencies.tryAddRepository
 
 class IvyResolver(
     val jarCacheDir: File?,
     val isSources: Boolean = false
 ) : ExternalDependenciesResolver {
+
+    private val ivyResolvers = arrayListOf<URLResolver>()
+
+    init {
+        // jcenter by default
+        tryAddRepository("https://jcenter.bintray.com")
+    }
 
     private fun String?.isValidParam() = this?.isNotBlank() ?: false
 
@@ -53,8 +61,6 @@ class IvyResolver(
             makeFailureResult("Unrecognized set of arguments to ivy resolver: $stringCoordinates")
         }
     }
-
-    private val ivyResolvers = arrayListOf<URLResolver>()
 
     private fun resolveArtifact(
         groupId: String, artifactName: String, revision: String, conf: String? = null, type: String? = null

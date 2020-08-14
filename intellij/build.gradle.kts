@@ -36,7 +36,7 @@ tasks {
         environment("project-dir", projectDir.parentFile.absolutePath)
     }
 
-    runIde.get().dependsOn(":script-definition:shadowJar")
+    runIde.get().dependsOn(":script-definition-embedded:shadowJar")
 }
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""

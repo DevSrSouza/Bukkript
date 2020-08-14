@@ -20,7 +20,7 @@ class BukkriptScriptDefinitionProvider : ScriptDefinitionsProvider {
 
     override fun getDefinitionsClassPath(): Iterable<File> {
         val jarFile = File(
-            "${System.getenv("project-dir")}/script-definition/build/libs/script-definition-0.1.0-SNAPSHOT-embedded.jar"
+            "${System.getenv("project-dir")}/script-definition-embedded/build/libs/script-definition-embedded-0.1.0-SNAPSHOT.jar"
         )
 
         return listOf(jarFile)

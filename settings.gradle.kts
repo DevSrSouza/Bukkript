@@ -1,6 +1,6 @@
 rootProject.name = "Bukkript"
 
-include("intellij", "script-definition", "script-host", "plugin", "core")
+include("intellij", "script-definition", "script-definition-embedded", "script-host", "plugin")
 
 pluginManagement {
     repositories {

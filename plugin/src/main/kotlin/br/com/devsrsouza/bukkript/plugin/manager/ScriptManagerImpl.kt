@@ -8,7 +8,7 @@ import br.com.devsrsouza.bukkript.script.definition.*
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImpl
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.pluginCoroutineScope
+import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions.pluginCoroutineScope
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
@@ -20,7 +20,6 @@ import java.io.File
 import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListSet
-import kotlin.math.log
 
 class ScriptManagerImpl(
     override val plugin: BukkriptPlugin

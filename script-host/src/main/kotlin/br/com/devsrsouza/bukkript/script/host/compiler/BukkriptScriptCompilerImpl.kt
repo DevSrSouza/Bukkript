@@ -7,18 +7,13 @@ import br.com.devsrsouza.bukkript.script.definition.configuration.info
 import br.com.devsrsouza.bukkript.script.host.cache.CachedScript
 import br.com.devsrsouza.bukkript.script.host.cache.FileBasedScriptCache
 import br.com.devsrsouza.bukkript.script.host.exception.BukkriptCompilationException
-import org.bukkit.Bukkit
-import org.bukkit.plugin.Plugin
 import java.io.File
-import java.net.URL
-import java.net.URLClassLoader
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.host.ScriptingHostConfiguration
 import kotlin.script.experimental.host.with
 import kotlin.script.experimental.jvm.*
 import kotlin.script.experimental.jvm.impl.KJvmCompiledScript
-import kotlin.script.experimental.jvm.util.classpathFromClassloader
 import kotlin.script.experimental.jvmhost.JvmScriptCompiler
 import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
@@ -48,6 +43,9 @@ class BukkriptScriptCompilerImpl(
 
         runCatching {
             compile(source, customConfiguration)
+        }.onFailure {
+            if(scriptDescriptionLoaded == null)
+                throw it
         }
 
         return scriptDescriptionLoaded

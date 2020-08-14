@@ -4,26 +4,23 @@ plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
 
+repositories {
+    maven("https://kotlin.bintray.com/kotlin-dependencies")
+}
+
 dependencies {
-    api(kotlin("stdlib-jdk8"))
-    api(project(":script-host"))
+    compileOnly(kotlin("stdlib-jdk8"))
+    compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
-    // script
-    api(kotlin("scripting-jvm"))
-    api(kotlin("scripting-dependencies"))
-    api(kotlin("scripting-compiler-embeddable"))
-    api(kotlin("compiler-embeddable"))
-    api("org.apache.ivy:ivy:2.5.0")
+    implementation(project(":script-host"))
+    implementation(project(":script-definition"))
 
-    api("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+    implementation(kotlin("scripting-dependencies-maven"))
 
     val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
-
     val changing = Action<ExternalModuleDependency> { isChanging = true }
-
     listOf(
         "br.com.devsrsouza.kotlinbukkitapi:core:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:architecture:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION"
     ).forEach {
         compileOnly(it, changing)
@@ -36,6 +33,27 @@ tasks {
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
+    }
+    shadowJar {
+        archiveBaseName.set("Bukkript")
+        archiveClassifier.set("")
+
+        dependencies {
+            this.exclude { dep ->
+                listOf(
+                    "kotlin-stdlib",
+                    "kotlin-stdlib",
+                    "kotlinx-coroutines-core",
+                    "kotlinx-coroutines-core",
+
+                    //https://github.com/JetBrains/kotlin/blob/master/libraries/scripting/dependencies-maven/build.gradle.kts#L9
+                    "aether",
+                    "maven-", // `-` for not remove the `dependencies-maven`
+                    "wagon-provider"
+                )
+                    .any { it.contains(dep.moduleName, ignoreCase = true) }
+            }
+        }
     }
 }
 

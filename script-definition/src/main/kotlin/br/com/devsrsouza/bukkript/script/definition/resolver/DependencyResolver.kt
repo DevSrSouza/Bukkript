@@ -44,6 +44,7 @@ fun resolveScriptStaticDependencies(
                 if (pluginsFolder != null) {
                     val allPlugins = (pluginsFolder.listFiles() ?: emptyArray())
                         .filter { it.isJar() }
+                        .filterNot { it.name.contains("bukkript", ignoreCase = true) }
 
                     val serverJar = (pluginsFolder.parentFile?.listFiles() ?: emptyArray())
                         .filter { it.isJar() }
@@ -100,7 +101,7 @@ fun resolveExternalDependencies(
     val scriptFile = scriptSource.finalFile
 
     val pluginsFolder = scriptFile.findParentPluginFolder(10)
-    val cacheDir = pluginsFolder?.parentFile?.let { File(it, ".klibs").apply { mkdirs() } }
+    val cacheDir = pluginsFolder?.parentFile?.let { File(it, "klibs").apply { mkdirs() } }
 
     // If is running in the Server, use server internal server cache folder for the libraries
     val ivyResolver = IvyResolver(cacheDir)
