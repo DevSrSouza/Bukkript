@@ -10,7 +10,9 @@ import kotlin.script.experimental.jvm.jvm
 
 object BukkriptScriptCompilationConfiguration : ScriptCompilationConfiguration({
     defaultImports(bukkitImports + bukkriptImports + kotlinBukkitAPICoreImports
-            + kotlinBukkitAPIExposedImports + kotlinBukkitAPIPluginsImports)
+            + kotlinBukkitAPIExposedImports + kotlinBukkitAPIPluginsImports
+            + javaImports + kotlinCoroutinesImports
+    )
     jvm {
         dependenciesFromClassContext(BukkriptScriptCompilationConfiguration::class, wholeClasspath = true)
         compilerOptions("-jvm-target", "1.8")

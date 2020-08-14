@@ -13,13 +13,10 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import org.bukkit.entity.Player
-import java.io.File
-import java.lang.IllegalStateException
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentSkipListSet
+import java.util.concurrent.*
+import java.io.*
 
 class ScriptManagerImpl(
     override val plugin: BukkriptPlugin
@@ -36,6 +33,7 @@ class ScriptManagerImpl(
 
     private val compiler by lazy { BukkriptScriptCompilerImpl(scriptDir, cacheDir) }
     private val loader by lazy {
+        GlobalScope
         BukkriptScriptLoaderImpl(
             plugin,
             scriptDir,

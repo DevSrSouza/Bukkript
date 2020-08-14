@@ -111,3 +111,17 @@ val bukkriptImports = listOf(
     "br.com.devsrsouza.bukkript.script.definition.api.*",
     "br.com.devsrsouza.bukkript.script.definition.api.architecture.*"
 )
+
+val javaImports = listOf(
+    "java.util.*",
+    "java.util.concurrent.*",
+    "java.io.*"
+    //"java.lang.*",
+)
+
+val kotlinCoroutinesImports = listOf(
+    "kotlinx.coroutines.*",
+    "kotlinx.coroutines.flow.*",
+    "kotlinx.coroutines.channels.*",
+    "kotlinx.coroutines.selects.*"
+)
