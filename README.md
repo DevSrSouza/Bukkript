@@ -1,4 +1,4 @@
-<img src="https://github.com/DevSrSouza/Bukkript/raw/master/icon.png?size=96" alt="Bukkript" title="Bukkript" align="right"/>
+<img src="https://github.com/DevSrSouza/Bukkript/raw/master/icon.png?size=96"  width="236" height="208" alt="Bukkript" title="Bukkript" align="right"/>
 
 ## Bukkript
 **Buk**kit **K**otlin Sc**ript**
