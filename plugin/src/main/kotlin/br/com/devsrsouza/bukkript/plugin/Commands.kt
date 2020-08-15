@@ -1,12 +1,9 @@
 package br.com.devsrsouza.bukkript.plugin
 
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.enum
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.string
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.command
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.fail
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.sendSubCommandsList
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import org.bukkit.ChatColor
 
@@ -21,6 +18,13 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
     executor {
         sendSubCommandsList()
+    }
+
+    errorHandler {
+        when(it) {
+            is BukkriptException -> sender.msg("$BUKKRIPT_PREFIX &4ERROR &c${it.message}".translateColor())
+            else -> defaultErrorHandler(it)
+        }
     }
 
     command("list") {

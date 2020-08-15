@@ -1,7 +1,5 @@
 package br.com.devsrsouza.bukkript.plugin
 
-import br.com.devsrsouza.bukkript.plugin.exceptions.SERVER_NOT_SUPPORTED_MESSAGE
-import br.com.devsrsouza.bukkript.plugin.exceptions.ServerNotSupportedException
 import br.com.devsrsouza.bukkript.plugin.manager.DependencyManager
 import br.com.devsrsouza.bukkript.plugin.manager.LoggingManagerImpl
 import br.com.devsrsouza.bukkript.plugin.manager.ScriptManagerImpl

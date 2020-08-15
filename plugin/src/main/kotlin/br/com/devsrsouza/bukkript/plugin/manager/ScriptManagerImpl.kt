@@ -1,6 +1,6 @@
 package br.com.devsrsouza.bukkript.plugin.manager
 
-import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
+import br.com.devsrsouza.bukkript.plugin.*
 import br.com.devsrsouza.bukkript.plugin.disable
 import br.com.devsrsouza.bukkript.plugin.manager.script.ScriptState
 import br.com.devsrsouza.bukkript.plugin.watcher.watchFolder
@@ -60,32 +60,7 @@ class ScriptManagerImpl(
             loadAllUnloaded()
         }
 
-        pluginCoroutineScope.launch(BukkitDispatchers.SYNC) {
-            while (true) {
-                for ((script, lastTimeModified) in recompileQueue) {
-                    if (now() - lastTimeModified > MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS * 1000) {
-                        recompileQueue.remove(script)
-                        try {
-                            recompile(script)
-                        } catch (e: Throwable) {
-                            // ignore any recompilation error to not broken your timer
-                            e.printStackTrace()
-                        }
-                    }
-                }
-                delay(500)
-            }
-        }
-
-        watchFolder(scriptDir.toPath())
-            .onEach {
-                val scriptName = it.file.bukkriptNameRelative(scriptDir)
-
-                if (scriptName in hotrecompileScripts) {
-                    recompileQueue.put(scriptName, now())
-                }
-            }
-            .launchIn(pluginCoroutineScope)
+        setupHotRecompiler()
     }
 
     override fun onPluginDisable() {
@@ -102,12 +77,15 @@ class ScriptManagerImpl(
             scriptState = scripts[scriptName]
         }
 
+        if(scriptState == null)
+            throw ScriptNotFoundException("Could not compile the script $scriptName because was not found", scriptName)
+
         // if the state is not discovered state is probably already loaded or unloaded in the Plugin.
         if(
             scriptState !is ScriptState.Discovered
             && scriptState !is ScriptState.CompileFail
             && scriptState !is ScriptState.LoadFail
-        ) TODO("The script is currently is unloaded or loaded and could not compile again.")
+        ) throw ScriptInvalidStateException("The script is currently is unloaded or loaded and could not compile again.", scriptState::class.java.simpleName)
 
         return pluginCoroutineScope.launch(Dispatchers.Default) {
             logger.logScript(scriptName, LogLevel.INFO, "Starting the compilation process.")
@@ -133,7 +111,7 @@ class ScriptManagerImpl(
                 cachedScript.compiled
             } else {
                 val description = compiler.retrieveDescriptor(scriptFile)
-                    ?: TODO()
+                    ?: throw RetrieveScriptDefinitionException("Could not retrieve the script $scriptName informations.", scriptName)
 
                 logger.logScript(scriptName, LogLevel.INFO, "Retrieved descriptor: version=${description.version}, author=${description.author}, log level=${description.logLevel}.")
 
@@ -157,8 +135,8 @@ class ScriptManagerImpl(
     }
 
     override fun load(scriptName: String) {
-        val state = scripts[scriptName] ?: TODO("script not found")
-        val unloaded = (state as? ScriptState.Unloaded) ?: TODO("the current state of the script is not unloaded.")
+        val state = scripts[scriptName] ?: throw ScriptNotFoundException("Could not load the script $scriptName because it was not found.", scriptName)
+        val unloaded = (state as? ScriptState.Unloaded) ?: throw ScriptInvalidStateException("Could not load the script because the current state of the script is not unloaded.", scriptName)
 
         load(unloaded)
     }
@@ -206,8 +184,8 @@ class ScriptManagerImpl(
     }
 
     override fun unload(scriptName: String) {
-        val script = scripts[scriptName] ?: TODO("Could not find the script")
-        val loaded = script as? ScriptState.Loaded ?: TODO("The provided script is not in the Loaded State")
+        val script = scripts[scriptName] ?: throw ScriptNotFoundException("Could not unload the script $scriptName bacause was not found.", scriptName)
+        val loaded = script as? ScriptState.Loaded ?: throw ScriptInvalidStateException("Could not unload the script $scriptName because it is not loaded.", scriptName)
 
         unload(loaded)
     }
@@ -234,15 +212,15 @@ class ScriptManagerImpl(
     }
 
     override fun reload(scriptName: String) {
-        val script = scripts[scriptName] ?: TODO("Could not find the script")
-        val loaded = script as? ScriptState.Loaded ?: TODO("The provided script is not in the Loaded State")
+        val script = scripts[scriptName] ?: throw ScriptNotFoundException("Could not reload the script $scriptName because it was not found.", scriptName)
+        val loaded = script as? ScriptState.Loaded ?: throw ScriptInvalidStateException("Could not reload the script $scriptName because it is not loaded.", scriptName)
 
         logger.logScript(scriptName, LogLevel.INFO, "Reloading the script.")
 
         unload(loaded)
 
         val unloaded = scripts[scriptName] as? ScriptState.Unloaded
-            ?: throw IllegalStateException("Reloading script invalid script state or missing.")
+            ?: throw ScriptInvalidStateException("Could not complete reload the script $scriptName by loading it because was not found the script into the Unloaded state.", scriptName)
 
         load(unloaded)
     }
@@ -250,7 +228,7 @@ class ScriptManagerImpl(
     override fun recompile(scriptName: String) {
         logger.logScript(scriptName, LogLevel.INFO, "Recompiling script.")
 
-        val state = scripts[scriptName] ?: TODO("Could not find the script to recompile")
+        val state = scripts[scriptName] ?: throw ScriptNotFoundException("Could not recompile the script $scriptName because it was not found.", scriptName)
 
         if(state is ScriptState.Loaded) {
             unload(scriptName)
@@ -267,22 +245,22 @@ class ScriptManagerImpl(
     }
 
     override fun lockLog(player: Player, scriptName: String) {
-        scripts[scriptName] ?: TODO("Could not find the script to lock the log for the Player")
+        scripts[scriptName] ?: throw ScriptNotFoundException("Could not lock the log into the chat because the script $scriptName because is not found.", scriptName)
 
         logger.listenLog(player, scriptName)
     }
 
     override fun updateLogLevel(scriptName: String, logLevel: LogLevel) {
-        scripts[scriptName] ?: TODO("Could not find the script to update the log level")
+        scripts[scriptName] ?: throw ScriptNotFoundException("Could not update the log level from the script $scriptName because it was not found.", scriptName)
 
-        val script = scripts[scriptName] as? ScriptState.Loaded ?: TODO("Script is not loaded")
+        val script = scripts[scriptName] as? ScriptState.Loaded ?: throw ScriptInvalidStateException("Could not update the log level from the script $scriptName because it is not loaded.", scriptName)
 
         script.loadedScript.script.description.logLevel = logLevel
     }
 
     override fun hotRecompile(scriptName: String) {
         if (!scripts.containsKey(scriptName))
-            TODO("Could not find the script to enable hot recompile")
+            throw ScriptNotFoundException("Could not enable the hot recompilation for a unknown script.", scriptName)
 
         hotrecompileScripts.add(scriptName)
     }
@@ -297,14 +275,14 @@ class ScriptManagerImpl(
 
     private fun discoveryScript(scriptName: String) {
         if (scripts.containsKey(scriptName))
-            TODO("The script tring to discovery is already discovered.")
+            throw ScriptInvalidStateException("The script $scriptName was already discovered.", scriptName)
 
         val scriptFile = File(scriptDir, "$scriptName.$BUKKRIPT_EXTENSION")
 
         if (scriptFile.exists()) {
             scripts.put(scriptName, ScriptState.Discovered(scriptName))
         } else {
-            TODO("Could not find the script file by the name $scriptName!")
+            throw ScriptFileDoesNotExistException("Could not find the script file by the name $scriptName!", scriptName, scriptFile)
         }
     }
 
@@ -324,5 +302,34 @@ class ScriptManagerImpl(
             .filter { it.isBukkriptScript }
             .map { it.bukkriptNameRelative(scriptDir) }
             .toSet()
+    }
+
+    private fun setupHotRecompiler() {
+        pluginCoroutineScope.launch(BukkitDispatchers.SYNC) {
+            while (true) {
+                for ((script, lastTimeModified) in recompileQueue) {
+                    if (now() - lastTimeModified > MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS * 1000) {
+                        recompileQueue.remove(script)
+                        try {
+                            recompile(script)
+                        } catch (e: Throwable) {
+                            // ignore any recompilation error to not broken your timer
+                            e.printStackTrace()
+                        }
+                    }
+                }
+                delay(500)
+            }
+        }
+
+        watchFolder(scriptDir.toPath())
+            .onEach {
+                val scriptName = it.file.bukkriptNameRelative(scriptDir)
+
+                if (scriptName in hotrecompileScripts) {
+                    recompileQueue.put(scriptName, now())
+                }
+            }
+            .launchIn(pluginCoroutineScope)
     }
 }
