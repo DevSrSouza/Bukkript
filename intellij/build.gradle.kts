@@ -12,7 +12,7 @@ dependencies {
     testCompile("junit", "junit", "4.12")
 
     api("org.apache.ivy:ivy:2.5.0")
-    api(project(":script-definition"))
+    api(project(":script-definition-embedded", configuration = "shadow"))
     api("org.apache.ivy:ivy:2.5.0") // TODO: remove in the future
 }
 

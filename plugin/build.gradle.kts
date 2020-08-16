@@ -81,7 +81,7 @@ val sources by tasks.registering(Jar::class) {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            from(components["java"])
+            from(components["kotlin"])
             artifact(sources.get())
         }
     }

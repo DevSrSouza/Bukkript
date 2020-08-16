@@ -18,7 +18,7 @@ private fun ClassLoader.urlsOrEmpty(): Array<URL> {
     return (javaClass.classLoader as? URLClassLoader)?.urLs ?: emptyArray()
 }
 
-private fun ClassLoader.classpathFiles(): List<File> {
+fun ClassLoader.classpathFiles(): List<File> {
     return urlsOrEmpty().mapNotNull {
         it.toFileOrNull()
     }

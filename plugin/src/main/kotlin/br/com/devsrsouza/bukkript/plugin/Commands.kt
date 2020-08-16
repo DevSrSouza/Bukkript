@@ -64,7 +64,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
             scriptManager.load(script)
 
-            sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script.".translateColor())
+            sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script&e.".translateColor())
             // TODO: use a Flow to listen for the completion or the fail of the load.
         }
     }
@@ -77,7 +77,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
             scriptManager.reload(script)
 
-            sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script.".translateColor())
+            sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script&e.".translateColor())
             // TODO: use a Flow to listen for the completion or the fail of the reload.
         }
     }
@@ -90,7 +90,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
             scriptManager.unload(script)
 
-            sender.msg("$BUKKRIPT_PREFIX &eStart unload the script &a$script.".translateColor())
+            sender.msg("$BUKKRIPT_PREFIX &eStart unload the script &a$script&e.".translateColor())
             // TODO: use a Flow to listen for the completion or the fail of the unload.
         }
     }
@@ -103,7 +103,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
             scriptManager.recompile(script)
 
-            sender.msg("$BUKKRIPT_PREFIX &eStart recompiling the script &a$script, this can take some seconds.".translateColor())
+            sender.msg("$BUKKRIPT_PREFIX &eStart recompiling the script &a$script, &ethis can take some seconds.".translateColor())
             // TODO: use a Flow to listen for the completion or the fail of the recompilation.
         }
     }
