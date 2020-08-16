@@ -1,5 +1,6 @@
 package br.com.devsrsouza.bukkript.plugin
 
+import br.com.devsrsouza.bukkript.plugin.manager.ScriptManagerImpl.Companion.MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.enum
@@ -38,9 +39,15 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
             sender.msg("$BUKKRIPT_PREFIX &aAll available scripts.".translateColor())
 
             val scripts = scriptManager.scripts.values.map {
-                "&l➥ &b${it.scriptName} ${it.stateDisplayName()}".translateColor()
+                val msg = "&l➥ &b${it.scriptName} ${it.stateDisplayName()}".translateColor()
                     .showText("Click".color(ChatColor.AQUA))
                     .suggestCommand("/bukkript SUB-COMMAND ${it.scriptName}")
+
+                if(scriptManager.isHotRecompileEnable(it.scriptName))
+                    msg + "*".color(ChatColor.DARK_RED).bold()
+                        .showText("Hot recompilation enable".color(ChatColor.RED))
+                else
+                    msg
             }
 
             sender.msg(scripts.joinToText(textOf("\n")))
@@ -51,18 +58,54 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
     command("load") {
         permission = PERMISSION_CMD_LOAD
         description = "Loads a script"
+
+        executor {
+            val script = scriptName(0)
+
+            scriptManager.load(script)
+
+            sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script.".translateColor())
+            // TODO: use a Flow to listen for the completion or the fail of the load.
+        }
     }
     command("reload") {
         permission = PERMISSION_CMD_RELOAD
         description = "Reloads a script that was unloaded or configured to not always load."
+
+        executor {
+            val script = scriptName(0)
+
+            scriptManager.reload(script)
+
+            sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script.".translateColor())
+            // TODO: use a Flow to listen for the completion or the fail of the reload.
+        }
     }
     command("unload") {
         permission = PERMISSION_CMD_UNLOAD
         description = "Unload a script"
+
+        executor {
+            val script = scriptName(0)
+
+            scriptManager.unload(script)
+
+            sender.msg("$BUKKRIPT_PREFIX &eStart unload the script &a$script.".translateColor())
+            // TODO: use a Flow to listen for the completion or the fail of the unload.
+        }
     }
     command("recompile") {
         permission = PERMISSION_CMD_RECOMPILE
         description = "Recompile and load a script"
+
+        executor {
+            val script = scriptName(0)
+
+            scriptManager.recompile(script)
+
+            sender.msg("$BUKKRIPT_PREFIX &eStart recompiling the script &a$script, this can take some seconds.".translateColor())
+            // TODO: use a Flow to listen for the completion or the fail of the recompilation.
+        }
     }
     command("debug") {
         description = "Script Debug sub commands"
@@ -111,6 +154,8 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
                     checkScriptLoaded(script)
 
                     scriptManager.updateLogLevel(script, logLevel)
+
+                    sender.msg("$BUKKRIPT_PREFIX &eYou update the script &a$script &elog level to &a$logLevel&e.".translateColor())
                 }
             }
         }
@@ -121,9 +166,10 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
             executor {
                 val script = scriptName(0)
 
-                scriptManager.hotRecompile(script) // handle exceptions
+                scriptManager.hotRecompile(script)
+                // TODO: also disable the hot recompilation
 
-                sender.msg("$BUKKRIPT_PREFIX &eYou enable the hot recompile for &a$script&e, when your script got change, it will recompile in 5 seconds.".translateColor())
+                sender.msg("$BUKKRIPT_PREFIX &eYou enable the hot recompile for &a$script&e, when your script got change, it will recompile in $MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS second.".translateColor())
             }
         }
     }

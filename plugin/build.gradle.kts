@@ -70,3 +70,19 @@ bukkit {
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor(120, "seconds")
 }
+
+val sources by tasks.registering(Jar::class) {
+    baseName = "Bukkript-${project.name}"
+    classifier = "sources"
+    version = null
+    from(sourceSets.main.get().allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            artifact(sources.get())
+        }
+    }
+}

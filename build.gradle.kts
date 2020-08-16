@@ -1,4 +1,10 @@
-allprojects {
+plugins {
+    id("maven-publish")
+}
+
+subprojects {
+    plugins.apply("maven-publish")
+
     group = "br.com.devsrsouza.bukkript"
     version = "0.1.0-SNAPSHOT"
 
@@ -8,5 +14,33 @@ allprojects {
         maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    }
+
+    afterEvaluate {
+        publishing.publications.forEach {
+            (it as? MavenPublication)?.pom {
+                name.set("Bukkript")
+                description.set("Bukkript is a Bukkit plugin that allows server admins to customize their server easily with the power of **Kotlin** language and **KotlinBukkitAPI**.")
+                url.set("https://github.com/DevSrSouza/Bukkript")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://github.com/DevSrSouza/Bukkript/blob/master/LICENSE")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("DevSrSouza")
+                        name.set("Gabriel Souza")
+                        email.set("devsrsouza@gmail.com")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/DevSrSouza/Bukkript/tree/master/" +
+                            project.path.removePrefix(":").replace(":", "/"))
+                }
+            }
+        }
     }
 }

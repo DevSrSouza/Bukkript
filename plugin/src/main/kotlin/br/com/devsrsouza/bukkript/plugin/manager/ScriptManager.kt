@@ -28,6 +28,8 @@ interface ScriptManager : LifecycleListener<BukkriptPlugin> {
 
     fun hotRecompile(scriptName: String)
 
+    fun isHotRecompileEnable(scriptName: String): Boolean
+
     fun discoveryAllScripts()
 
     fun updateLogLevel(scriptName: String, logLevel: LogLevel)

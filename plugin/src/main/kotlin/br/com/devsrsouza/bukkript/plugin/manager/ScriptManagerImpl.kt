@@ -23,7 +23,7 @@ class ScriptManagerImpl(
 ) : ScriptManager {
 
     companion object {
-        const val MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS = 2
+        const val MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS = 1
     }
 
     override val scripts: ConcurrentHashMap<String, ScriptState> = ConcurrentHashMap()
@@ -265,6 +265,10 @@ class ScriptManagerImpl(
         hotrecompileScripts.add(scriptName)
     }
 
+    override fun isHotRecompileEnable(scriptName: String): Boolean {
+        return scriptName in hotrecompileScripts
+    }
+
     // retrieve all scripts files in put into de scripts
     override fun discoveryAllScripts() {
         for (scriptName in listScriptsFromFolder()) {
@@ -318,7 +322,7 @@ class ScriptManagerImpl(
                         }
                     }
                 }
-                delay(500)
+                delay(300)
             }
         }
 

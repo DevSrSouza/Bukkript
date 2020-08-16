@@ -25,3 +25,19 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
 }
+
+val sources by tasks.registering(Jar::class) {
+    baseName = "Bukkript-${project.name}"
+    classifier = "sources"
+    version = null
+    from(sourceSets.main.get().allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            artifact(sources.get())
+        }
+    }
+}
