@@ -72,7 +72,7 @@ configurations.all {
 }
 
 val sources by tasks.registering(Jar::class) {
-    baseName = "Bukkript-${project.name}"
+    baseName = project.name
     classifier = "sources"
     version = null
     from(sourceSets.main.get().allSource)

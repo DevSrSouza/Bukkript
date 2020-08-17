@@ -7,6 +7,7 @@ data class Dependency(
 )
 
 private const val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
+private const val BUKKRIPT_VERSION = "0.1.0-SNAPSHOT"
 
 val KOTLINBUKKITAPI_DEPENDENCY = Dependency(
     "br.com.devsrsouza.kotlinbukkitapi",
@@ -16,6 +17,14 @@ val KOTLINBUKKITAPI_DEPENDENCY = Dependency(
         "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:exposed:$KOTLINBUKKITAPI_VERSION",
         "br.com.devsrsouza.kotlinbukkitapi:plugins:$KOTLINBUKKITAPI_VERSION"
+    )
+)
+
+val BUKKRIPT_DEPENDENCY = Dependency(
+    "br.com.devsrsouza.bukkript",
+    listOf("http://nexus.devsrsouza.com.br/repository/maven-public/"),
+    listOf(
+        "br.com.devsrsouza.bukkript:script-definition:$BUKKRIPT_VERSION"
     )
 )
 
@@ -32,5 +41,6 @@ val SPIGOT_DEPENDENCY = Dependency(
 
 val baseDependencies = listOf(
     KOTLINBUKKITAPI_DEPENDENCY,
+    BUKKRIPT_DEPENDENCY,
     SPIGOT_DEPENDENCY
 )
