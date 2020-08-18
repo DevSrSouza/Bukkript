@@ -12,20 +12,28 @@
 
 Bukkript is a Bukkit plugin that allows server admins to customize their server easily with the power of **Kotlin** language and **KotlinBukkitAPI**.
 
-- Easy to use
-- Full KotlinBukkitAPI experience
-- IntelliJ plugin support ([KotlinBukkitAPI Tooling](https://github.com/DevSrSouza/KotlinBukkitAPI-Tooling/))
-- Fast as possible
-- Cache
-
 ### Contents:
   
   * [Documentation](https://github.com/DevSrSouza/Bukkript/wiki/)
+  * [Features](#Features)
   * [Issue reporting](https://github.com/DevSrSouza/Bukkript/issues)
   * [Dev builds (download)](http://jenkins.devsrsouza.com.br/job/Bukkript/)
-  * [Consider donate](https://www.buymeacoffee.com/DevSrSouza)
+  * [Consider donate](#Consider-donate)
+  
+### Features
 
-#### Example Script
+   * Implicit imports for KotlinBukkitAPI, Bukkit, Kotlin Coroutines
+   * Compilation cache
+   * [Hot Recompilation](#Hot-recompilation)
+   * Per script logging with per script log file.
+   * In game commands
+   * Additional dependencies by using `@file:Maven("DEPENDENCY")` and `@file:MavenRepository("REPOSITORY URL")`
+   * IntelliJ Support with [KotlinBukkitAPI Tooling](https://github.com/DevSrSouza/KotlinBukkitAPI-Tooling)
+   
+More about the usage at the [Documentation](https://github.com/DevSrSouza/Bukkript/wiki/).
+   
+
+### Example Script
 
 Creating a new command that sends `Hello Script World!`
 
@@ -37,6 +45,8 @@ command("scripttest") {
     }
 }
 ```
+
+Script with the usage of [Jetbrains Exposed](https://github.com/JetBrains/Exposed/)
 
 `with-dependency.bk.kts`
 ```kotlin
@@ -81,7 +91,11 @@ You should clone the [KotlinBukkitAPI Tooling](https://github.com/DevSrSouza/Kot
 
 It will open a IntelliJ with the plugin installed to you use.
 
-![example](https://i.imgur.com/Qdtgrh8.png)
+[![Preview](https://i.imgur.com/exlwVUs.gif)](https://github.com/DevSrSouza/KotlinBukkitAPI-Tooling)
+
+## Hot recompilation
+
+![Preview](https://i.imgur.com/5eSNhBR.gif)
 
 ## Consider donate
 
