@@ -4,10 +4,7 @@ import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorBlock
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.unregister
-import com.google.common.annotations.VisibleForTesting
 import org.bukkit.command.CommandSender
-
-// TODO: Should use the CoroutineScope from the BukkriptScript.
 
 fun BukkriptScript.simpleCommand(
     name: String,
@@ -29,6 +26,7 @@ fun BukkriptScript.command(
 
 private fun BukkriptScript.unregisterOnDisable(it: CommandDSL) {
     onDisable {
+        it.job.cancel()
         it.unregister()
     }
 }
