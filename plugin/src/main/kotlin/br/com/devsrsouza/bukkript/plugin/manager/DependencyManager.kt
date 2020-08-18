@@ -1,6 +1,7 @@
 package br.com.devsrsouza.bukkript.plugin.manager
 
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
+import br.com.devsrsouza.bukkript.script.definition.IVY_CACHE_FOLDER
 import br.com.devsrsouza.bukkript.script.definition.dependencies.IvyResolver
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
@@ -19,7 +20,8 @@ class DependencyManager(
     private val kotlinVersion = "1.4.0"
 
     private val compilerDependencies = listOf(
-        "org.jetbrains.kotlin:kotlin-scripting-jvm-host-embeddable:$kotlinVersion"
+        "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion",
+        "org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion"
     )
 
     private val aetherDependencies = listOf(
@@ -53,7 +55,7 @@ class DependencyManager(
     }
 
     private fun downloadAetherDependency() {
-        val ivyResolver = IvyResolver(File(plugin.dataFolder.parentFile.parentFile, "klibs"))
+        val ivyResolver = IvyResolver(File(plugin.dataFolder.parentFile.parentFile, IVY_CACHE_FOLDER))
 
         ivyResolver.provideDependencies(aetherDependencies)
     }

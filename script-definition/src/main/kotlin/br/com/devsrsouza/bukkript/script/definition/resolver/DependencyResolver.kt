@@ -4,6 +4,7 @@ import br.com.devsrsouza.bukkript.script.definition.configuration.classpathFromP
 import br.com.devsrsouza.bukkript.script.definition.dependencies.IvyResolver
 import br.com.devsrsouza.bukkript.script.definition.dependencies.SPIGOT_DEPENDENCY
 import br.com.devsrsouza.bukkript.script.definition.dependencies.baseDependencies
+import br.com.devsrsouza.bukkript.script.definition.IVY_CACHE_FOLDER
 import br.com.devsrsouza.bukkript.script.definition.findParentPluginFolder
 import br.com.devsrsouza.bukkript.script.definition.isJar
 import kotlinx.coroutines.flow.*
@@ -100,7 +101,7 @@ fun resolveExternalDependencies(
     val scriptFile = scriptSource.finalFile
 
     val pluginsFolder = scriptFile.findParentPluginFolder(10)
-    val cacheDir = pluginsFolder?.parentFile?.let { File(it, "klibs").apply { mkdirs() } }
+    val cacheDir = pluginsFolder?.parentFile?.let { File(it, IVY_CACHE_FOLDER).apply { mkdirs() } }
 
     // If is running in the Server, use server internal server cache folder for the libraries
     val ivyResolver = IvyResolver(cacheDir)

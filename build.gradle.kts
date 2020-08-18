@@ -1,8 +1,10 @@
 plugins {
+    kotlin("jvm") version "1.4.0"
     id("maven-publish")
 }
 
 subprojects {
+    plugins.apply("org.jetbrains.kotlin.jvm")
     plugins.apply("maven-publish")
 
     group = "br.com.devsrsouza.bukkript"
@@ -14,6 +16,22 @@ subprojects {
         maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    }
+
+    tasks {
+        compileKotlin {
+            kotlinOptions{
+                jvmTarget = "1.8"
+                freeCompilerArgs += "-Xno-optimized-callable-references"
+            }
+        }
+        compileTestKotlin {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+    }
+
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor(120, "seconds")
     }
 
     afterEvaluate {

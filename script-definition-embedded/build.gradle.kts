@@ -1,5 +1,4 @@
 plugins {
-    kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
@@ -15,10 +14,6 @@ tasks {
     shadowJar {
         archiveClassifier.set("")
     }
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor(120, "seconds")
 }
 
 publishing {

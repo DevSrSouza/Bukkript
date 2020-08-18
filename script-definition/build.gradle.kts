@@ -1,7 +1,3 @@
-plugins {
-    kotlin("jvm") version "1.4.0"
-}
-
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
 
@@ -22,15 +18,6 @@ dependencies {
         "br.com.devsrsouza.kotlinbukkitapi:plugins:$KOTLINBUKKITAPI_VERSION"
     ).forEach {
         compileOnly(it, changing)
-    }
-}
-
-tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
     }
 }
 

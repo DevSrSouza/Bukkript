@@ -1,5 +1,4 @@
 plugins {
-    kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
@@ -15,7 +14,9 @@ dependencies {
     implementation(project(":script-host"))
     implementation(project(":script-definition"))
 
-    implementation(kotlin("scripting-dependencies-maven"))
+    implementation(kotlin("scripting-dependencies-maven") as String) {
+        isTransitive = true
+    }
 
     val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
     val changing = Action<ExternalModuleDependency> { isChanging = true }
@@ -28,12 +29,6 @@ dependencies {
 }
 
 tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
     shadowJar {
         archiveBaseName.set("Bukkript")
         archiveClassifier.set("")
@@ -42,16 +37,10 @@ tasks {
             this.exclude { dep ->
                 listOf(
                     "kotlin-stdlib",
-                    "kotlin-stdlib",
-                    "kotlinx-coroutines-core",
-                    "kotlinx-coroutines-core",
-
-                    //https://github.com/JetBrains/kotlin/blob/master/libraries/scripting/dependencies-maven/build.gradle.kts#L9
-                    "aether",
-                    "maven-", // `-` for not remove the `dependencies-maven`
-                    "wagon-provider"
-                )
-                    .any { it.contains(dep.moduleName, ignoreCase = true) }
+                    "kotlinx-coroutines-core"
+                ).any {
+                    dep.moduleName.contains(it, ignoreCase = true)
+                }
             }
         }
     }
@@ -65,10 +54,6 @@ bukkit {
     depend = listOf("KotlinBukkitAPI")
 
     description = "Bukkript Scripting."
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor(120, "seconds")
 }
 
 val sources by tasks.registering(Jar::class) {
