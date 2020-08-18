@@ -4,6 +4,7 @@ import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
 import br.com.devsrsouza.bukkript.script.definition.bukkritNameRelative
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import java.io.File
+import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import kotlin.script.experimental.api.CompiledScript
@@ -24,7 +25,7 @@ internal class FileBasedScriptCache(
     override fun get(
         script: SourceCode,
         scriptCompilationConfiguration: ScriptCompilationConfiguration
-    ): CompiledScript<*>? {
+    ): CompiledScript? {
         val fileSource = script as FileScriptSource
 
         val cached = findCacheScript(fileSource) ?: return null
@@ -40,7 +41,7 @@ internal class FileBasedScriptCache(
     }
 
     override fun store(
-        compiledScript: CompiledScript<*>,
+        compiledScript: CompiledScript,
         script: SourceCode,
         configuration: ScriptCompilationConfiguration
     ) {
@@ -66,7 +67,7 @@ internal class FileBasedScriptCache(
 
                 val md5 = os.readUTF()
                 val info = os.readObject() as ScriptDescription
-                val jvmScript = os.readObject() as KJvmCompiledScript<*>
+                val jvmScript = os.readObject() as KJvmCompiledScript
 
                 Triple(md5, info, jvmScript)
             }

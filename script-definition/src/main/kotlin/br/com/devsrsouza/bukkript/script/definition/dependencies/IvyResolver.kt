@@ -19,19 +19,11 @@ import kotlin.script.experimental.api.*
 import kotlin.script.experimental.dependencies.ExternalDependenciesResolver
 import kotlin.script.experimental.dependencies.RepositoryCoordinates
 import kotlin.script.experimental.dependencies.impl.toRepositoryUrlOrNull
-import kotlin.script.experimental.dependencies.tryAddRepository
 
 class IvyResolver(
     val jarCacheDir: File?,
     val isSources: Boolean = false
 ) : ExternalDependenciesResolver {
-
-    private val ivyResolvers = arrayListOf<URLResolver>()
-
-    init {
-        // jcenter by default
-        tryAddRepository("https://jcenter.bintray.com")
-    }
 
     private fun String?.isValidParam() = this?.isNotBlank() ?: false
 
@@ -42,7 +34,11 @@ class IvyResolver(
     override fun acceptsRepository(repositoryCoordinates: RepositoryCoordinates): Boolean =
         repositoryCoordinates.toRepositoryUrlOrNull() != null
 
-    override suspend fun resolve(artifactCoordinates: String): ResultWithDiagnostics<List<File>> {
+    override suspend fun resolve(
+        artifactCoordinates: String,
+        options: ExternalDependenciesResolver.Options,
+        sourceCodeLocation: SourceCode.LocationWithId?
+    ): ResultWithDiagnostics<List<File>> {
 
         val artifactType = artifactCoordinates.substringAfterLast('@', "").trim()
         val stringCoordinates = if (artifactType.isNotEmpty()) artifactCoordinates.removeSuffix("@$artifactType") else artifactCoordinates
@@ -52,18 +48,28 @@ class IvyResolver(
                 resolveArtifact(
                     artifactId[0], artifactId[1], artifactId[2],
                     if (artifactId.size > 3) artifactId[3] else null,
-                    if (artifactType.isNotEmpty()) artifactType else null
+                    if (artifactType.isNotEmpty()) artifactType else null,
+                    options,
+                    sourceCodeLocation
                 )
             } catch (e: Exception) {
-                makeFailureResult(e.asDiagnostics())
+                makeFailureResult(e.asDiagnostics(locationWithId = sourceCodeLocation))
             }
         } else {
-            makeFailureResult("Unrecognized set of arguments to ivy resolver: $stringCoordinates")
+            makeFailureResult("Unrecognized set of arguments to ivy resolver: $stringCoordinates", sourceCodeLocation)
         }
     }
 
+    private val ivyResolvers = arrayListOf<URLResolver>()
+
     private fun resolveArtifact(
-        groupId: String, artifactName: String, revision: String, conf: String? = null, type: String? = null
+        groupId: String,
+        artifactName: String,
+        revision: String,
+        conf: String? = null,
+        type: String? = null,
+        options: ExternalDependenciesResolver.Options,
+        sourceCodeLocation: SourceCode.LocationWithId? = null
     ): ResultWithDiagnostics<List<File>> {
 
         if (ivyResolvers.isEmpty() || ivyResolvers.none { it.name == "central" }) {
@@ -109,10 +115,15 @@ class IvyResolver(
         depsDescriptor.addDependencyConfiguration("default", if(!isSources) "master,compile" else "sources")
         moduleDescriptor.addDependency(depsDescriptor)
 
+        val isTransitive = options.flag("transitive") != false
+
         val resolveOptions = ResolveOptions().apply {
             confs = arrayOf("default")
             log = LogOptions.LOG_QUIET
             isOutputReport = false
+            if (!isTransitive) {
+                this.isTransitive = false
+            }
         }
 
         //init resolve report
@@ -125,23 +136,28 @@ class IvyResolver(
         XmlModuleDescriptorWriter.write(moduleDescriptor, ivyFile)
         val report = ivy.resolve(ivyFile.toURI().toURL(), resolveOptions)
 
-        val diagnostics = report.allProblemMessages.map { it.asErrorDiagnostics() }
+        val diagnostics = report.allProblemMessages.map { it.asErrorDiagnostics(locationWithId = sourceCodeLocation) }
 
         return if (report.hasError()) makeFailureResult(diagnostics)
         else report.allArtifactsReports.map { it.localFile }.asSuccess(diagnostics)
     }
 
-    override fun addRepository(repositoryCoordinates: RepositoryCoordinates) {
+    override fun addRepository(
+        repositoryCoordinates: RepositoryCoordinates,
+        options: ExternalDependenciesResolver.Options,
+        sourceCodeLocation: SourceCode.LocationWithId?
+    ): ResultWithDiagnostics<Boolean> {
         val url = repositoryCoordinates.toRepositoryUrlOrNull()
-        if (url != null) {
-            ivyResolvers.add(
-                IBiblioResolver().apply {
-                    isM2compatible = true
-                    name = url.host
-                    root = url.toExternalForm()
-                }
-            )
-        }
+            ?: return false.asSuccess()
+
+        ivyResolvers.add(
+            IBiblioResolver().apply {
+                isM2compatible = true
+                name = url.host
+                root = url.toExternalForm()
+            }
+        )
+        return true.asSuccess()
     }
 
     companion object {

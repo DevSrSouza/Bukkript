@@ -8,7 +8,7 @@ import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.dependenciesFromClassContext
 import kotlin.script.experimental.jvm.jvm
 
-object BukkriptScriptCompilationConfiguration : ScriptCompilationConfiguration({
+class BukkriptScriptCompilationConfiguration : ScriptCompilationConfiguration({
     defaultImports(bukkitImports + bukkriptImports + kotlinBukkitAPICoreImports
             + kotlinBukkitAPIExposedImports + kotlinBukkitAPIPluginsImports
             + javaImports + kotlinCoroutinesImports

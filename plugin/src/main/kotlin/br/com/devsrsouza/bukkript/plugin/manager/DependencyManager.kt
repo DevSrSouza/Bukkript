@@ -8,15 +8,15 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
+import kotlin.script.experimental.api.valueOrNull
 import kotlin.script.experimental.dependencies.ExternalDependenciesResolver
 import kotlin.script.experimental.dependencies.maven.MavenDependenciesResolver
-import kotlin.script.experimental.dependencies.tryResolve
 
 class DependencyManager(
     override val plugin: BukkriptPlugin
 ) : LifecycleListener<BukkriptPlugin> {
 
-    private val kotlinVersion = "1.3.72"
+    private val kotlinVersion = "1.4.0"
 
     private val compilerDependencies = listOf(
         "org.jetbrains.kotlin:kotlin-scripting-jvm-host-embeddable:$kotlinVersion"
@@ -74,7 +74,7 @@ class DependencyManager(
         runBlocking {
             for (dependency in dependencies) {
                 info("Downloading dependency: $dependency")
-                val dependenciesFiles = tryResolve(dependency) ?: emptyList()
+                val dependenciesFiles = resolve(dependency).valueOrNull() ?: emptyList()
                 info("Downloaded dependencies: ${dependenciesFiles.map { it.nameWithoutExtension }}")
 
                 insertDependencyAtClassLoader(dependenciesFiles)

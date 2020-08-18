@@ -7,8 +7,6 @@ import br.com.devsrsouza.bukkript.script.definition.annotation.MavenRepository
 import br.com.devsrsouza.bukkript.script.definition.annotation.Script
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.definition.configuration.info
-import br.com.devsrsouza.bukkript.script.definition.error.DiagnosticResult
-import br.com.devsrsouza.bukkript.script.definition.error.requireOrFail
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath

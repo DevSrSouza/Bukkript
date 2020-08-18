@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.0"
 }
 
 dependencies {
@@ -11,7 +11,7 @@ dependencies {
     api("org.apache.ivy:ivy:2.5.0")
 
     compileOnly("org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
 
     val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
     val changing = Action<ExternalModuleDependency> { isChanging = true }

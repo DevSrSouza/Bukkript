@@ -67,7 +67,7 @@ class BukkriptScriptCompilerImpl(
 
         return runCatching {
             val compiledScript = compile(source, compilationConfiguration, hostConfiguration)
-                .valueOrThrow() as KJvmCompiledScript<*>
+                .valueOrThrow() as KJvmCompiledScript
 
             BukkriptCompiledScript(
                 scriptFile.bukkriptNameRelative(scriptDir),
@@ -92,7 +92,7 @@ class BukkriptScriptCompilerImpl(
         source: FileScriptSource,
         configuration: ScriptCompilationConfiguration,
         hostConfiguration: ScriptingHostConfiguration = defaultJvmScriptingHostConfiguration
-    ): ResultWithDiagnostics<CompiledScript<*>> {
+    ): ResultWithDiagnostics<CompiledScript> {
         val compiler = JvmScriptCompiler(hostConfiguration)
 
         return compiler(source, configuration)

@@ -9,11 +9,10 @@ import br.com.devsrsouza.bukkript.script.definition.isJar
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
-import java.util.concurrent.ConcurrentSkipListSet
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.dependencies.FileSystemDependenciesResolver
-import kotlin.script.experimental.dependencies.tryAddRepository
-import kotlin.script.experimental.dependencies.tryResolve
+import kotlin.script.experimental.dependencies.addRepository
+import kotlin.script.experimental.dependencies.impl.resolve
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
 
@@ -50,7 +49,7 @@ fun resolveScriptStaticDependencies(
                         .filter { it.isJar() }
 
                     for (jar in allPlugins + serverJar) {
-                        files += fileResolver.tryResolve(jar.absolutePath) ?: emptyList()
+                        files += fileResolver.resolve(jar.absolutePath, mapOf()).valueOrNull()  ?: emptyList()
                     }
                 }
 
@@ -58,17 +57,17 @@ fun resolveScriptStaticDependencies(
                 for ((fqn, repositories, artifacts) in baseDependencies) {
                     if (!isPackageAvailable(fqn)) {
                         for (repository in repositories) {
-                            ivyResolver.tryAddRepository(repository)
-                            sourcesResolver.tryAddRepository(repository)
+                            ivyResolver.addRepository(repository)
+                            sourcesResolver.addRepository(repository)
                         }
 
                         for (artifact in artifacts) {
                             // Adding the dependency only in a plugin folder was not available
                             if(pluginsFolder == null)
-                                files += ivyResolver.tryResolve(artifact) ?: emptyList()
+                                files += ivyResolver.resolve(artifact, mapOf()).valueOrNull() ?: emptyList()
 
                             // Adding the source codes
-                            sources += sourcesResolver.tryResolve(artifact) ?: emptyList()
+                            sources += sourcesResolver.resolve(artifact, mapOf()).valueOrNull() ?: emptyList()
                         }
                     }
                 }
@@ -109,8 +108,8 @@ fun resolveExternalDependencies(
     val sourcesResolver = IvyResolver(null, true)
 
     for(repository in repositories) {
-        ivyResolver.tryAddRepository(repository)
-        sourcesResolver.tryAddRepository(repository)
+        ivyResolver.addRepository(repository)
+        sourcesResolver.addRepository(repository)
     }
 
     val sources = mutableSetOf<File>()
@@ -122,7 +121,7 @@ fun resolveExternalDependencies(
         runBlocking {
             sources += dependencies.asFlow()
                 //.buffer(8)
-                .flatMapConcat { (sourcesResolver.tryResolve(it) ?: emptyList()).asFlow() }
+                .flatMapConcat { (sourcesResolver.resolve(it, mapOf()).valueOrNull() ?: emptyList()).asFlow() }
                 .toSet()
         }
     }
@@ -132,7 +131,7 @@ fun resolveExternalDependencies(
             // Downloading compiled dependencies
             dependencies.asFlow()
                 //.buffer(8)
-                .flatMapConcat { (ivyResolver.tryResolve(it) ?: emptyList()).asFlow() }
+                .flatMapConcat { (ivyResolver.resolve(it, mapOf()).valueOrNull() ?: emptyList()).asFlow() }
                 .toSet(),
             sources
         )
