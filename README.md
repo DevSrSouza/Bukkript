@@ -95,7 +95,7 @@ It will open an IntelliJ instance with the plugin installed for you.
 
 ## Hot recompilation
 
-![Preview](https://i.imgur.com/5eSNhBR.gif)
+![Preview](https://i.imgur.com/VCu1uNI.gif)
 
 ## Consider donate
 
