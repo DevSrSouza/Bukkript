@@ -89,7 +89,7 @@ transaction(database) {
 
 You should clone the [KotlinBukkitAPI Tooling](https://github.com/DevSrSouza/KotlinBukkitAPI-Tooling/) and run `./gradlew runIde`/
 
-It will open a IntelliJ with the plugin installed to you use.
+It will open an IntelliJ instance with the plugin installed for you.
 
 [![Preview](https://i.imgur.com/exlwVUs.gif)](https://github.com/DevSrSouza/KotlinBukkitAPI-Tooling)
 
