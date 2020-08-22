@@ -11,11 +11,14 @@ import kotlin.script.experimental.jvm.jvm
 class BukkriptScriptCompilationConfiguration : ScriptCompilationConfiguration({
     defaultImports(bukkitImports + bukkriptImports + kotlinBukkitAPICoreImports
             + kotlinBukkitAPIExposedImports + kotlinBukkitAPIPluginsImports
-            + javaImports + kotlinCoroutinesImports
+            + kotlinImports + javaImports + kotlinCoroutinesImports
     )
     jvm {
         dependenciesFromClassContext(BukkriptScriptCompilationConfiguration::class, wholeClasspath = true)
-        compilerOptions("-jvm-target", "1.8")
+        compilerOptions(
+            "-Xopt-in=kotlin.time.ExperimentalTime,kotlin.ExperimentalStdlibApi,kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-jvm-target", "1.8",
+        )
     }
     refineConfiguration {
         beforeCompiling(handler = ::resolveScriptStaticDependencies)

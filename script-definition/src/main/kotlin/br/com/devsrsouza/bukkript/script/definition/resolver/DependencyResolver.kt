@@ -5,6 +5,7 @@ import br.com.devsrsouza.bukkript.script.definition.dependencies.IvyResolver
 import br.com.devsrsouza.bukkript.script.definition.dependencies.SPIGOT_DEPENDENCY
 import br.com.devsrsouza.bukkript.script.definition.dependencies.baseDependencies
 import br.com.devsrsouza.bukkript.script.definition.IVY_CACHE_FOLDER
+import br.com.devsrsouza.bukkript.script.definition.dependencies.ignoredPluginDependencies
 import br.com.devsrsouza.bukkript.script.definition.findParentPluginFolder
 import br.com.devsrsouza.bukkript.script.definition.isJar
 import kotlinx.coroutines.flow.*
@@ -44,7 +45,9 @@ fun resolveScriptStaticDependencies(
                 if (pluginsFolder != null) {
                     val allPlugins = (pluginsFolder.listFiles() ?: emptyArray())
                         .filter { it.isJar() }
-                        .filterNot { it.name.contains("bukkript", ignoreCase = true) }
+                        .filterNot { plugin ->
+                            ignoredPluginDependencies.any { plugin.name.contains(it, ignoreCase = true) }
+                        }
 
                     val serverJar = (pluginsFolder.parentFile?.listFiles() ?: emptyArray())
                         .filter { it.isJar() }

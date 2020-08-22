@@ -39,7 +39,7 @@ val bukkitImports = listOf(
     "org.bukkit.util.*",
     "org.bukkit.util.io.*",
     "org.bukkit.util.noise.*",
-    "org.bukkit.util.permissions.*"
+    "org.bukkit.util.permissions.*",
 )
 val kotlinBukkitAPICoreImports = listOf(
     /* Architecture package not needed */
@@ -80,6 +80,7 @@ val kotlinBukkitAPICoreImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.text.*",
     "br.com.devsrsouza.kotlinbukkitapi.extensions.world.*",
+    "br.com.devsrsouza.kotlinbukkitapi.extensions.server.*",
 
     /* Flow Event ignored because already have a implementation at Bukkript */
 
@@ -88,7 +89,7 @@ val kotlinBukkitAPICoreImports = listOf(
 
     "br.com.devsrsouza.kotlinbukkitapi.utils.*",
     "br.com.devsrsouza.kotlinbukkitapi.utils.player.*",
-    "br.com.devsrsouza.kotlinbukkitapi.utils.time.*"
+    "br.com.devsrsouza.kotlinbukkitapi.utils.time.*",
 )
 
 val kotlinBukkitAPIPluginsImports = listOf(
@@ -98,24 +99,29 @@ val kotlinBukkitAPIPluginsImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.plugins.hologramapi.*",
     "br.com.devsrsouza.kotlinbukkitapi.plugins.dvdwplaceholderapi.*",
     "br.com.devsrsouza.kotlinbukkitapi.plugins.worldedit.*",
-    "br.com.devsrsouza.kotlinbukkitapi.plugins.viaversion.*"
+    "br.com.devsrsouza.kotlinbukkitapi.plugins.viaversion.*",
 )
 
 val kotlinBukkitAPIExposedImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.exposed.*",
-    "br.com.devsrsouza.kotlinbukkitapi.exposed.delegate.*"
+    "br.com.devsrsouza.kotlinbukkitapi.exposed.delegate.*",
 )
 
 val bukkriptImports = listOf(
     "br.com.devsrsouza.bukkript.script.definition.annotation.*",
     "br.com.devsrsouza.bukkript.script.definition.api.*",
-    "br.com.devsrsouza.bukkript.script.definition.api.architecture.*"
+    "br.com.devsrsouza.bukkript.script.definition.api.architecture.*",
+)
+
+val kotlinImports = listOf(
+    "kotlin.time.*",
+    "kotlin.math.*",
 )
 
 val javaImports = listOf(
     "java.util.*",
     "java.util.concurrent.*",
-    "java.io.*"
+    "java.io.*",
     //"java.lang.*",
 )
 
@@ -123,5 +129,5 @@ val kotlinCoroutinesImports = listOf(
     "kotlinx.coroutines.*",
     "kotlinx.coroutines.flow.*",
     "kotlinx.coroutines.channels.*",
-    "kotlinx.coroutines.selects.*"
+    "kotlinx.coroutines.selects.*",
 )
