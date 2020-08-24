@@ -1,5 +1,4 @@
 plugins {
-    id("com.github.johnrengelman.shadow") version "6.0.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
     id("me.bristermitten.pdm") version "0.0.21"
 }
@@ -19,7 +18,7 @@ dependencies {
 
 val t = tasks
 tasks {
-    shadowJar {
+    jar {
         dependsOn(t.pdm)
         archiveBaseName.set("Bukkript")
         archiveClassifier.set("")
