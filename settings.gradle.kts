@@ -1,6 +1,10 @@
 rootProject.name = "Bukkript"
 
-include("script-definition", "script-definition-embedded", "script-host", "plugin", "script-host-embedded", "cli")
+include(
+    "script-definition", "script-definition-embedded",
+    "script-host", "script-host-embedded",
+    "plugin"
+)
 
 pluginManagement {
     repositories {
