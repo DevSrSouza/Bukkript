@@ -8,7 +8,7 @@ subprojects {
     plugins.apply("maven-publish")
 
     group = "br.com.devsrsouza.bukkript"
-    version = "0.1.0-SNAPSHOT"
+    version = "0.1.1-SNAPSHOT"
 
     repositories {
         jcenter()

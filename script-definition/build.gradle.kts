@@ -4,21 +4,15 @@ dependencies {
     // script
     api(kotlin("scripting-jvm"))
     api(kotlin("scripting-dependencies"))
-    api("org.apache.ivy:ivy:2.5.0")
+    api(Dep.ivy)
 
-    compileOnly("org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT")
+    compileOnly(Dep.spigot)
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
 
-    val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
-    val changing = Action<ExternalModuleDependency> { isChanging = true }
-    listOf(
-        "br.com.devsrsouza.kotlinbukkitapi:core:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:exposed:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:plugins:$KOTLINBUKKITAPI_VERSION"
-    ).forEach {
-        compileOnly(it, changing)
-    }
+    compileOnly(Dep.kotlinBukkitAPI.core, changing)
+    compileOnly(Dep.kotlinBukkitAPI.exposed, changing)
+    compileOnly(Dep.kotlinBukkitAPI.plugins, changing)
+    compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 }
 
 configurations.all {

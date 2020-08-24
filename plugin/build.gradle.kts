@@ -1,50 +1,34 @@
 plugins {
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-}
-
-repositories {
-    maven("https://kotlin.bintray.com/kotlin-dependencies")
+    id("me.bristermitten.pdm") version "0.0.21"
 }
 
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
-    compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+    compileOnly(Dep.spigot)
 
-    implementation(project(":script-host"))
-    implementation(project(":script-definition"))
+    compileOnly(project(":script-host"))
+    compileOnly(project(":script-definition"))
 
-    implementation(kotlin("scripting-dependencies-maven") as String) {
-        isTransitive = true
-    }
+    compileOnly(Dep.kotlinBukkitAPI.core, changing)
+    compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
-    val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
-    val changing = Action<ExternalModuleDependency> { isChanging = true }
-    listOf(
-        "br.com.devsrsouza.kotlinbukkitapi:core:$KOTLINBUKKITAPI_VERSION",
-        "br.com.devsrsouza.kotlinbukkitapi:serialization:$KOTLINBUKKITAPI_VERSION"
-    ).forEach {
-        compileOnly(it, changing)
-    }
+    pdm("br.com.devsrsouza.bukkript:script-host-embedded:$version")
 }
 
+val t = tasks
 tasks {
     shadowJar {
+        dependsOn(t.pdm)
         archiveBaseName.set("Bukkript")
         archiveClassifier.set("")
-
-        dependencies {
-            this.exclude { dep ->
-                listOf(
-                    "kotlin-stdlib",
-                    "kotlinx-coroutines-core"
-                ).any {
-                    dep.moduleName.contains(it, ignoreCase = true)
-                }
-            }
-        }
     }
 }
+
+/*pdm {
+    outputDirectory = "Bukkript/.libs"
+}*/
 
 bukkit {
     name = "Bukkript"

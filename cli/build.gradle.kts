@@ -1,13 +1,10 @@
+/*
 plugins {
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
 dependencies {
-    api(project(":script-definition"))
-    api(kotlin("stdlib-jdk8"))
-
-    api(Dep.spigot)
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+    // TODO:
 }
 
 tasks {
@@ -22,4 +19,4 @@ publishing {
             shadow.component(this)
         }
     }
-}
+}*/
