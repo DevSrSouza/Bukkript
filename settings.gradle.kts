@@ -3,7 +3,7 @@ rootProject.name = "Bukkript"
 include(
     "script-definition", "script-definition-embedded",
     "script-host", "script-host-embedded",
-    "plugin"
+    "plugin", "plugin-isolated"
 )
 
 pluginManagement {

@@ -1,10 +1,12 @@
-package br.com.devsrsouza.bukkript.plugin.manager
+package br.com.devsrsouza.bukkript.plugin.isolated.manager
 
-import br.com.devsrsouza.bukkript.plugin.*
 import br.com.devsrsouza.bukkript.plugin.disable
-import br.com.devsrsouza.bukkript.plugin.manager.script.ScriptState
+import br.com.devsrsouza.bukkript.plugin.isolated.RetrieveScriptDefinitionException
+import br.com.devsrsouza.bukkript.plugin.isolated.ScriptFileDoesNotExistException
+import br.com.devsrsouza.bukkript.plugin.isolated.ScriptInvalidStateException
+import br.com.devsrsouza.bukkript.plugin.isolated.ScriptNotFoundException
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.script.ScriptState
 import br.com.devsrsouza.bukkript.plugin.watcher.watchFolder
-import br.com.devsrsouza.bukkript.script.definition.*
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImpl
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
@@ -12,8 +14,6 @@ import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions.plugi
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 import org.bukkit.entity.Player
 import java.util.concurrent.*
 import java.io.*

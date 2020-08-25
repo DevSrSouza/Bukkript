@@ -1,4 +1,4 @@
-package br.com.devsrsouza.bukkript.plugin.manager.script
+package br.com.devsrsouza.bukkript.plugin.isolated.manager.script
 
 import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript

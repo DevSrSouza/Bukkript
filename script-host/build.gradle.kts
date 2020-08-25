@@ -6,8 +6,6 @@ dependencies {
 
     api(kotlin("scripting-common"))
     api(kotlin("scripting-jvm-host"))
-    api(kotlin("scripting-compiler"))
-    api(kotlin("scripting-jvm-host"))
     api(kotlin("scripting-compiler-embeddable"))
 }
 

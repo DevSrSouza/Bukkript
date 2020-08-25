@@ -1,6 +1,6 @@
 plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-    id("me.bristermitten.pdm") version "0.0.21"
+    id("me.bristermitten.pdm") version "0.0.22"
 }
 
 dependencies {
@@ -13,6 +13,7 @@ dependencies {
     compileOnly(Dep.kotlinBukkitAPI.core, changing)
     compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
+    pdm("br.com.devsrsouza.bukkript:plugin-isolated:$version")
     pdm("br.com.devsrsouza.bukkript:script-host-embedded:$version")
 }
 

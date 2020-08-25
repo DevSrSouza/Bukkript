@@ -1,4 +1,4 @@
-package br.com.devsrsouza.bukkript.plugin.manager.logging
+package br.com.devsrsouza.bukkript.plugin.isolated.manager.logging
 
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import java.io.File

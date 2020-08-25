@@ -1,9 +1,9 @@
-package br.com.devsrsouza.bukkript.plugin.manager
+package br.com.devsrsouza.bukkript.plugin.isolated.manager
 
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
-import br.com.devsrsouza.bukkript.plugin.manager.logging.logFormatterInterceptor
-import br.com.devsrsouza.bukkript.plugin.manager.logging.LogToFileInterceptor
-import br.com.devsrsouza.bukkript.plugin.manager.logging.LogToPlayerInterceptor
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.logging.logFormatterInterceptor
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.logging.LogToFileInterceptor
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.logging.LogToPlayerInterceptor
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info

@@ -1,6 +1,9 @@
-package br.com.devsrsouza.bukkript.plugin
+package br.com.devsrsouza.bukkript.plugin.isolated
 
-import br.com.devsrsouza.bukkript.plugin.manager.ScriptManagerImpl.Companion.MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS
+import br.com.devsrsouza.bukkript.plugin.*
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.LoggingManager
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.ScriptManager
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.ScriptManagerImpl.Companion.MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.enum
@@ -8,7 +11,10 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.string
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import org.bukkit.ChatColor
 
-fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
+fun BukkriptPlugin.registerCommands(
+    scriptManager: ScriptManager,
+    loggingManager: LoggingManager
+) = command("bukkript", "bkkts") {
     permission = PERMISSION_BASE
 
     // utils

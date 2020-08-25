@@ -1,7 +1,7 @@
-package br.com.devsrsouza.bukkript.plugin.manager
+package br.com.devsrsouza.bukkript.plugin.isolated.manager
 
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
-import br.com.devsrsouza.bukkript.plugin.manager.script.ScriptState
+import br.com.devsrsouza.bukkript.plugin.isolated.manager.script.ScriptState
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import kotlinx.coroutines.Job
