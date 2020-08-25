@@ -11,14 +11,23 @@ import java.net.URLClassLoader
  */
 class HostClassLoader(
     val bukkriptPlugin: BukkriptPlugin,
+    val dependencies: List<File>,
     parent: ClassLoader
 ) : URLClassLoader(
-    emptyArray(),
+    dependencies.map { it.toURI().toURL() }.toTypedArray(),
     parent
 ) {
 
     private val isolatedLoaderClassName = "br.com.devsrsouza.bukkript.plugin.isolated.IsolationLoader"
     private val isolatedLoadMethodName = "load"
+
+    init {
+        // loading
+        val isolatedLoaderClass = Class.forName(isolatedLoaderClassName)
+        val loadMethod = isolatedLoaderClass.getMethod(isolatedLoadMethodName, BukkriptPlugin::class.java)
+
+        loadMethod.invoke(null, bukkriptPlugin)
+    }
 
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
         val loadedClass = findLoadedClass(name)
@@ -33,13 +42,5 @@ class HostClassLoader(
         }
 
         return loadedClass
-    }
-
-    fun initialize() {
-        // loading
-        val isolatedLoaderClass = Class.forName(isolatedLoaderClassName)
-        val loadMethod = isolatedLoaderClass.getMethod(isolatedLoadMethodName, BukkriptPlugin::class.java)
-
-        loadMethod.invoke(null, bukkriptPlugin)
     }
 }
