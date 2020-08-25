@@ -9,7 +9,7 @@ object IsolationLoader {
     @JvmStatic // easy java reflection
     fun load(plugin: BukkriptPlugin) = with(plugin) {
         val loggingManager = lifecycle(100) { LoggingManagerImpl(this) }
-        val scriptManager = lifecycle(90) { ScriptManagerImpl(this) }
+        val scriptManager = lifecycle(90) { ScriptManagerImpl(this, loggingManager) }
 
         registerCommands(scriptManager, loggingManager)
     }

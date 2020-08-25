@@ -1,4 +1,4 @@
-package br.com.devsrsouza.bukkript.plugin
+package br.com.devsrsouza.bukkript.plugin.isolated
 
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptLoadedScript

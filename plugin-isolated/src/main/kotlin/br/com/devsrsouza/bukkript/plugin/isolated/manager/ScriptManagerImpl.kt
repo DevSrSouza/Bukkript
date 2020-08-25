@@ -1,25 +1,29 @@
 package br.com.devsrsouza.bukkript.plugin.isolated.manager
 
-import br.com.devsrsouza.bukkript.plugin.disable
-import br.com.devsrsouza.bukkript.plugin.isolated.RetrieveScriptDefinitionException
-import br.com.devsrsouza.bukkript.plugin.isolated.ScriptFileDoesNotExistException
-import br.com.devsrsouza.bukkript.plugin.isolated.ScriptInvalidStateException
-import br.com.devsrsouza.bukkript.plugin.isolated.ScriptNotFoundException
+import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
+import br.com.devsrsouza.bukkript.plugin.isolated.*
 import br.com.devsrsouza.bukkript.plugin.isolated.manager.script.ScriptState
 import br.com.devsrsouza.bukkript.plugin.watcher.watchFolder
+import br.com.devsrsouza.bukkript.script.definition.BUKKRIPT_EXTENSION
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
+import br.com.devsrsouza.bukkript.script.definition.bukkriptNameRelative
+import br.com.devsrsouza.bukkript.script.definition.isBukkriptScript
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImpl
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions.pluginCoroutineScope
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
 import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.bukkit.entity.Player
 import java.util.concurrent.*
 import java.io.*
 
 class ScriptManagerImpl(
-    override val plugin: BukkriptPlugin
+    override val plugin: BukkriptPlugin,
+    val logger: LoggingManager
 ) : ScriptManager {
 
     companion object {
@@ -38,7 +42,7 @@ class ScriptManagerImpl(
             scriptDir,
             plugin::class.java.classLoader,
             ::getClassByName,
-            plugin.loggingManager::logScript
+            logger::logScript
         )
     }
 
@@ -46,8 +50,6 @@ class ScriptManagerImpl(
 
     // String(Script Name), Long(last time modified)
     private val recompileQueue: ConcurrentHashMap<String, Long> = ConcurrentHashMap()
-
-    private val logger get() = plugin.loggingManager
 
     override fun onPluginEnable() {
         discoveryAllScripts()
