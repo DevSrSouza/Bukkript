@@ -12,8 +12,8 @@ subprojects {
 
     repositories {
         jcenter()
-        maven ("https://dl.bintray.com/kotlin/kotlin-eap")
-        maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        maven("http://nexus.devsrsouza.com.br/repository/maven-public/") { name = "devsrsouza-nexus" }
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
     }

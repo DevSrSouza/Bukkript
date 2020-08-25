@@ -13,7 +13,6 @@ dependencies {
     compileOnly(Dep.kotlinBukkitAPI.core, changing)
     compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
-    pdm("br.com.devsrsouza.bukkript:plugin-isolated:$version")
     pdm("br.com.devsrsouza.bukkript:script-host-embedded:$version")
 }
 
