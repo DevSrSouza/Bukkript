@@ -14,17 +14,19 @@ class DependencyManager(
 
     private val isolatedDependency = "br.com.devsrsouza.bukkript:plugin-isolated:${plugin.description.version}"
 
-    private val dependencies: List<File>
     private val hostClassLoader: HostClassLoader
 
     init {
+        hostClassLoader = HostClassLoader(plugin, plugin::class.java.classLoader)
+
         val pdm = PDMBuilder(plugin)
+            .classLoader(hostClassLoader)
             .build()
         val dep = isolatedDependency.split(":")
         pdm.addRequiredDependency(SnapshotArtifact(dep[0], dep[1], dep[2]))
 
-        dependencies = pdm.downloadAllDependencies().join()
+        pdm.loadAllDependencies()
 
-        hostClassLoader = HostClassLoader(plugin, dependencies, plugin::class.java.classLoader)
+        hostClassLoader.initialize()
     }
 }

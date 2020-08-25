@@ -1,6 +1,6 @@
 plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-    id("me.bristermitten.pdm") version "0.0.22"
+    id("me.bristermitten.pdm") version "0.0.21"
 }
 
 dependencies {
