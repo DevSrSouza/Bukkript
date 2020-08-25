@@ -23,7 +23,7 @@ class HostClassLoader(
 
     init {
         // loading
-        val isolatedLoaderClass = Class.forName(isolatedLoaderClassName)
+        val isolatedLoaderClass = loadClass(isolatedLoaderClassName, true)
         val loadMethod = isolatedLoaderClass.getMethod(isolatedLoadMethodName, BukkriptPlugin::class.java)
 
         loadMethod.invoke(null, bukkriptPlugin)
