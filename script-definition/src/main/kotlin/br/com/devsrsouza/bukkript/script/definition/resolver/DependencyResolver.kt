@@ -1,8 +1,9 @@
 package br.com.devsrsouza.bukkript.script.definition.resolver
 
-import br.com.devsrsouza.bukkript.script.definition.configuration.classpathFromPlugins
+import br.com.devsrsouza.bukkript.script.definition.classpath.classpathFromPluginsByExcluding
 import br.com.devsrsouza.bukkript.script.definition.dependencies.SPIGOT_DEPENDENCY
 import br.com.devsrsouza.bukkript.script.definition.dependencies.baseDependencies
+import br.com.devsrsouza.bukkript.script.definition.dependencies.buildBaseDependencies
 import br.com.devsrsouza.bukkript.script.definition.dependencies.ignoredPluginDependencies
 import br.com.devsrsouza.bukkript.script.definition.findParentPluginFolder
 import br.com.devsrsouza.bukkript.script.definition.isJar
@@ -23,12 +24,13 @@ fun resolveScriptStaticDependencies(
 
     val configuration = ctx.compilationConfiguration.with {
 
-        // If spigot is not available at this time, this means that is server running at a server
+        val mavenResolver = MavenDependenciesResolver()
+
+        // If spigot is not available at this time, this means that is server running at a intellij
         if(!isPackageAvailable(SPIGOT_DEPENDENCY.fqnPackage)) {
 
             val scriptFile = ctx.script.finalFile
 
-            val mavenResolver = MavenDependenciesResolver()
             val fileResolver = FileSystemDependenciesResolver()
 
             val files = mutableListOf<File>()
@@ -80,7 +82,24 @@ fun resolveScriptStaticDependencies(
             ide.dependenciesSources.append(JvmDependency(sources))
         } else {
             // Is running on a server, then, add the hole classpath of the plugins here
-            updateClasspath(classpathFromPlugins())
+            updateClasspath(classpathFromPluginsByExcluding())
+
+            val buildDependencies = mutableListOf<File>()
+
+            // Resolve Ivy Static Dependencies
+            for ((fqn, repositories, artifacts) in buildBaseDependencies) {
+                for (repository in repositories) {
+                    mavenResolver.addRepository(repository)
+                }
+
+                runBlocking {
+                    for (artifact in artifacts) {
+                        buildDependencies += mavenResolver.resolve(artifact, mapOf()).valueOrNull() ?: emptyList()
+                    }
+                }
+            }
+
+            updateClasspath(buildDependencies)
         }
     }
 

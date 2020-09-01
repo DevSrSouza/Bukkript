@@ -42,5 +42,10 @@ val SPIGOT_DEPENDENCY = Dependency(
 val baseDependencies = listOf(
     KOTLINBUKKITAPI_DEPENDENCY,
     BUKKRIPT_DEPENDENCY,
-    SPIGOT_DEPENDENCY
+    SPIGOT_DEPENDENCY,
+)
+
+val buildBaseDependencies = listOf(
+    KOTLINBUKKITAPI_DEPENDENCY,
+    BUKKRIPT_DEPENDENCY,
 )
