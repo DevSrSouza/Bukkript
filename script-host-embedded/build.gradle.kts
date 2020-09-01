@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("com.github.johnrengelman.shadow")
 }
 
 repositories {
@@ -15,10 +15,14 @@ tasks {
     shadowJar {
         archiveClassifier.set("")
 
+        relocateKotlinBukkitAPI()
+        relocateBukkript()
+
         dependencies {
             this.exclude { dep ->
                 listOf(
                     "kotlin-stdlib",
+                    "kotlin-reflect",
                     "kotlinx-coroutines-core"
                 ).any {
                     dep.moduleName.contains(it, ignoreCase = true)

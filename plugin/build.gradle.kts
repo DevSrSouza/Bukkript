@@ -1,7 +1,7 @@
 plugins {
-    id("com.github.johnrengelman.shadow") version "6.0.0"
+    id("com.github.johnrengelman.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-    id("me.bristermitten.pdm") version "0.0.21"
+    id("me.bristermitten.pdm") version "0.0.26"
 }
 
 dependencies {
@@ -14,7 +14,7 @@ dependencies {
     compileOnly(Dep.kotlinBukkitAPI.core, changing)
     compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
-    pdm("br.com.devsrsouza.bukkript:script-host-embedded:$version")
+    pdm(project(":script-host-embedded"))
 }
 
 val t = tasks
@@ -23,12 +23,15 @@ tasks {
         dependsOn(t.pdm)
         archiveBaseName.set("Bukkript")
         archiveClassifier.set("")
+
+        relocateKotlinBukkitAPI()
+        relocateBukkript()
     }
 }
 
-/*pdm {
-    outputDirectory = "Bukkript/.libs"
-}*/
+pdm {
+
+}
 
 bukkit {
     name = "Bukkript"
