@@ -50,6 +50,9 @@ class ScriptManagerImpl(
     private val logger get() = plugin.loggingManager
 
     override fun onPluginEnable() {
+        // IMPORTANT TO MAVEN REPOSITORY CACHE
+        System.setProperty("user.home", File(CACHE_FOLDER).absolutePath)
+
         discoveryAllScripts()
 
         runBlocking {

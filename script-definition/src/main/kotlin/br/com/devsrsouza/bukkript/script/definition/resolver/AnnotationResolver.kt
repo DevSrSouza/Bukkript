@@ -2,8 +2,6 @@ package br.com.devsrsouza.bukkript.script.definition.resolver
 
 import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
 import br.com.devsrsouza.bukkript.script.definition.annotation.DependPlugin
-import br.com.devsrsouza.bukkript.script.definition.annotation.Maven
-import br.com.devsrsouza.bukkript.script.definition.annotation.MavenRepository
 import br.com.devsrsouza.bukkript.script.definition.annotation.Script
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.definition.configuration.info
@@ -28,9 +26,6 @@ fun resolveScriptAnnotation(
 
         val pluginDepends = mutableSetOf<String>()
 
-        val dependencies = mutableSetOf<String>()
-        val repositories = mutableSetOf<String>()
-
         for (annotation in annotations) {
             when (annotation) {
                 is Script -> {
@@ -41,16 +36,12 @@ fun resolveScriptAnnotation(
                 }
 
                 is DependPlugin -> pluginDepends.addAll(annotation.plugin)
-
-                is Maven -> dependencies.add(annotation.dependency)
-
-                is MavenRepository -> repositories.add(annotation.url)
             }
         }
 
         // Resolving/downloading external dependencies provided with annotations: adding to
         // classpath for compilation and to Description for be usaged in the Classloader.
-        val external = resolveExternalDependencies(ctx.script, repositories, dependencies)
+        val external = resolveExternalDependencies(ctx.script, annotations)
         val dependenciesFiles = external.compiled
 
         if(dependenciesFiles.isNotEmpty())

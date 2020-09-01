@@ -4,7 +4,7 @@ dependencies {
     // script
     api(kotlin("scripting-jvm"))
     api(kotlin("scripting-dependencies"))
-    api(Dep.ivy)
+    api(kotlin("scripting-dependencies-maven"))
 
     compileOnly(Dep.spigot)
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")

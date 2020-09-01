@@ -131,3 +131,8 @@ val kotlinCoroutinesImports = listOf(
     "kotlinx.coroutines.channels.*",
     "kotlinx.coroutines.selects.*",
 )
+
+val scriptingImports = listOf(
+    "kotlin.script.experimental.dependencies.DependsOn",
+    "kotlin.script.experimental.dependencies.Repository",
+)

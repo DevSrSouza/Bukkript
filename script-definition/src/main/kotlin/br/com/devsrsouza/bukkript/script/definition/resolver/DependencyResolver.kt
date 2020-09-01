@@ -1,22 +1,21 @@
 package br.com.devsrsouza.bukkript.script.definition.resolver
 
 import br.com.devsrsouza.bukkript.script.definition.configuration.classpathFromPlugins
-import br.com.devsrsouza.bukkript.script.definition.dependencies.IvyResolver
 import br.com.devsrsouza.bukkript.script.definition.dependencies.SPIGOT_DEPENDENCY
 import br.com.devsrsouza.bukkript.script.definition.dependencies.baseDependencies
-import br.com.devsrsouza.bukkript.script.definition.IVY_CACHE_FOLDER
 import br.com.devsrsouza.bukkript.script.definition.dependencies.ignoredPluginDependencies
 import br.com.devsrsouza.bukkript.script.definition.findParentPluginFolder
 import br.com.devsrsouza.bukkript.script.definition.isJar
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.script.experimental.api.*
-import kotlin.script.experimental.dependencies.FileSystemDependenciesResolver
-import kotlin.script.experimental.dependencies.addRepository
+import kotlin.script.experimental.dependencies.*
 import kotlin.script.experimental.dependencies.impl.resolve
+import kotlin.script.experimental.dependencies.maven.MavenDependenciesResolver
+import kotlin.script.experimental.dependencies.resolveFromAnnotations
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
+import kotlin.script.experimental.util.filterByAnnotationType
 
 fun resolveScriptStaticDependencies(
     ctx: ScriptConfigurationRefinementContext
@@ -29,8 +28,7 @@ fun resolveScriptStaticDependencies(
 
             val scriptFile = ctx.script.finalFile
 
-            val ivyResolver = IvyResolver(null)
-            val sourcesResolver = IvyResolver(null, true)
+            val mavenResolver = MavenDependenciesResolver()
             val fileResolver = FileSystemDependenciesResolver()
 
             val files = mutableListOf<File>()
@@ -61,17 +59,16 @@ fun resolveScriptStaticDependencies(
                 for ((fqn, repositories, artifacts) in baseDependencies) {
                     if (!isPackageAvailable(fqn)) {
                         for (repository in repositories) {
-                            ivyResolver.addRepository(repository)
-                            sourcesResolver.addRepository(repository)
+                            mavenResolver.addRepository(repository)
                         }
 
                         for (artifact in artifacts) {
                             // Adding the dependency only in a plugin folder was not available
                             if(pluginsFolder == null)
-                                files += ivyResolver.resolve(artifact, mapOf()).valueOrNull() ?: emptyList()
+                                files += mavenResolver.resolve(artifact, mapOf()).valueOrNull() ?: emptyList()
 
                             // Adding the source codes
-                            sources += sourcesResolver.resolve(artifact, mapOf()).valueOrNull() ?: emptyList()
+                            sources += mavenResolver.resolve(artifactAsSource(artifact), mapOf()).valueOrNull() ?: emptyList()
                         }
                     }
                 }
@@ -80,7 +77,6 @@ fun resolveScriptStaticDependencies(
 
             updateClasspath(files)
 
-            // TODO: Bukkript definition sources is missing, adding when it get a Maven repo.
             ide.dependenciesSources.append(JvmDependency(sources))
         } else {
             // Is running on a server, then, add the hole classpath of the plugins here
@@ -98,23 +94,12 @@ data class ExternalDependencies(
 
 fun resolveExternalDependencies(
     scriptSource: SourceCode,
-    repositories: Set<String>,
-    dependencies: Set<String>
+    annotations: List<Annotation>
 ): ExternalDependencies {
-    val scriptFile = scriptSource.finalFile
-
-    val pluginsFolder = scriptFile.findParentPluginFolder(10)
-    val cacheDir = pluginsFolder?.parentFile?.let { File(it, IVY_CACHE_FOLDER).apply { mkdirs() } }
 
     // If is running in the Server, use server internal server cache folder for the libraries
-    val ivyResolver = IvyResolver(cacheDir)
-    // If is running in the IntelliJ we will not need cache dir, and we can use the .ivy2
-    val sourcesResolver = IvyResolver(null, true)
-
-    for(repository in repositories) {
-        ivyResolver.addRepository(repository)
-        sourcesResolver.addRepository(repository)
-    }
+    // Cache dir will be applied in the plugin by setting user.home property
+    val mavenResolver = MavenDependenciesResolver()
 
     val sources = mutableSetOf<File>()
 
@@ -123,21 +108,70 @@ fun resolveExternalDependencies(
     if(!isPackageAvailable(SPIGOT_DEPENDENCY.fqnPackage)) {
         // Downloading sources for IntelliJ
         runBlocking {
-            sources += dependencies.asFlow()
-                //.buffer(8)
-                .flatMapConcat { (sourcesResolver.resolve(it, mapOf()).valueOrNull() ?: emptyList()).asFlow() }
-                .toSet()
+            sources += mavenResolver.resolveSourceFromAnnotations(annotations).valueOrThrow()
         }
     }
 
     return runBlocking {
         ExternalDependencies(
             // Downloading compiled dependencies
-            dependencies.asFlow()
-                //.buffer(8)
-                .flatMapConcat { (ivyResolver.resolve(it, mapOf()).valueOrNull() ?: emptyList()).asFlow() }
-                .toSet(),
+            mavenResolver.resolveFromAnnotations(annotations).valueOrThrow().toSet(),
             sources
         )
     }
+}
+
+private fun artifactAsSource(artifactsCoordinates: String): String {
+    return if(artifactsCoordinates.count { it == ':' } == 2) {
+        val lastColon = artifactsCoordinates.lastIndexOf(':')
+        artifactsCoordinates.toMutableList().apply { addAll(lastColon, ":jar:sources".toList()) }.joinToString("")
+    } else {
+        artifactsCoordinates
+    }
+}
+
+/**
+ * An extension function that configures repositories and resolves artifacts denoted by the [Repository] and [DependsOn] annotations
+ */
+suspend fun ExternalDependenciesResolver.resolveSourceFromScriptSourceAnnotations(
+    annotations: Iterable<ScriptSourceAnnotation<*>>
+): ResultWithDiagnostics<List<File>> {
+    val reports = mutableListOf<ScriptDiagnostic>()
+    annotations.forEach { (annotation, locationWithId) ->
+        when (annotation) {
+            is Repository -> {
+
+                for (coordinates in annotation.repositoriesCoordinates) {
+                    val added = addRepository(coordinates, ExternalDependenciesResolver.Options.Empty, locationWithId)
+                        .also { reports.addAll(it.reports) }
+                        .valueOr { return it }
+
+                    if (!added)
+                        return reports + makeFailureResult(
+                            "Unrecognized repository coordinates: $coordinates",
+                            locationWithId = locationWithId
+                        )
+                }
+            }
+            is DependsOn -> {}
+            else -> return reports + makeFailureResult("Unknown annotation ${annotation.javaClass}", locationWithId = locationWithId)
+        }
+    }
+
+    return reports + annotations.filterByAnnotationType<DependsOn>()
+        .flatMapSuccess { (annotation, locationWithId) ->
+            annotation.artifactsCoordinates.asIterable().flatMapSuccess { artifactCoordinates ->
+                resolve(artifactAsSource(artifactCoordinates), ExternalDependenciesResolver.Options.Empty, locationWithId)
+            }
+        }
+}
+
+/**
+ * An extension function that configures repositories and resolves artifacts denoted by the [Repository] and [DependsOn] annotations
+ */
+suspend fun ExternalDependenciesResolver.resolveSourceFromAnnotations(
+    annotations: Iterable<Annotation>
+): ResultWithDiagnostics<List<File>> {
+    val scriptSourceAnnotations = annotations.map { ScriptSourceAnnotation(it, null) }
+    return resolveSourceFromScriptSourceAnnotations(scriptSourceAnnotations)
 }

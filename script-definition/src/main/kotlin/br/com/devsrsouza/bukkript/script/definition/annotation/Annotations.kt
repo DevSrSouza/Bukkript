@@ -34,23 +34,3 @@ annotation class Import(
 annotation class DependPlugin(
     vararg val plugin: String
 )
-
-/**
- * Usage to Add a external dependency in your script.
- */
-@Target(AnnotationTarget.FILE)
-@Retention(AnnotationRetention.SOURCE)
-@Repeatable
-annotation class Maven(
-    val dependency: String
-)
-
-/**
- * Usage to Add a new maven repository to be resolved when using [Maven] annotation.
- */
-@Target(AnnotationTarget.FILE)
-@Retention(AnnotationRetention.SOURCE)
-@Repeatable
-annotation class MavenRepository(
-    val url: String
-)
