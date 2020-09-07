@@ -1,12 +1,13 @@
 plugins {
     id("com.github.johnrengelman.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-    id("me.bristermitten.pdm") version "0.0.26"
+    id("me.bristermitten.pdm") version "0.0.27"
 }
 
 dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
     compileOnly(Dep.spigot)
+    compileOnly(Dep.skedule)
 
     compileOnly(project(":script-host"))
     compileOnly(project(":script-definition"))
@@ -14,7 +15,8 @@ dependencies {
     compileOnly(Dep.kotlinBukkitAPI.core, changing)
     compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
-    pdm(project(":script-host-embedded"))
+    //pdm(project(":script-host-embedded"))
+    api(project(":script-host-embedded"))
 }
 
 val t = tasks
@@ -26,11 +28,23 @@ tasks {
 
         relocateKotlinBukkitAPI()
         relocateBukkript()
+
+        dependencies {
+            this.exclude { dep ->
+                listOf(
+                    "kotlin-stdlib",
+                    "kotlin-reflect",
+                    "kotlinx-coroutines-core"
+                ).any {
+                    dep.moduleName.contains(it, ignoreCase = true)
+                }
+            }
+        }
     }
 }
 
 pdm {
-
+    projectRepository = "http://nexus.devsrsouza.com.br/repository/maven-public/"
 }
 
 bukkit {

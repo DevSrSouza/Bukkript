@@ -6,6 +6,7 @@ import br.com.devsrsouza.bukkript.script.definition.bukkriptNameRelative
 import br.com.devsrsouza.bukkript.script.definition.configuration.info
 import br.com.devsrsouza.bukkript.script.host.cache.CachedScript
 import br.com.devsrsouza.bukkript.script.host.cache.FileBasedScriptCache
+import br.com.devsrsouza.bukkript.script.host.compiler.scripting.BukkriptJvmScriptCompiler
 import br.com.devsrsouza.bukkript.script.host.exception.BukkriptCompilationException
 import java.io.File
 import kotlin.script.experimental.api.*
@@ -41,12 +42,17 @@ class BukkriptScriptCompilerImpl(
 
         val source = FileScriptSource(scriptFile)
 
-        runCatching {
+        println(source)
+
+        val result = runCatching {
             compile(source, customConfiguration)
         }.onFailure {
+            it.printStackTrace()
             if(scriptDescriptionLoaded == null)
                 throw it
         }
+
+        println(result)
 
         return scriptDescriptionLoaded
     }

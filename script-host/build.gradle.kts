@@ -7,9 +7,10 @@ dependencies {
     api(kotlin("scripting-common"))
     api(kotlin("scripting-jvm-host"))
     api(kotlin("scripting-compiler-embeddable"))
+    //api(kotlin("scripting-compiler"))
 
-    api("org.ow2.asm:asm:8.0.1")
-    api("org.ow2.asm:asm-commons:8.0.1")
+    api(Dep.asm)
+    api(Dep.asmCommons)
 }
 
 val sources by tasks.registering(Jar::class) {

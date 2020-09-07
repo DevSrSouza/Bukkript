@@ -38,12 +38,19 @@ fun classpathFromPluginsByExcluding(): List<File> {
     return classpathFromPlugins()
         .filter(::isDependencyIgnored)
 }
-
-fun wholeClassloaderByExcluding(): List<File> {
+fun wholeClassloader(): List<File> {
     return scriptCompilationClasspathFromContext(
         classLoader = BukkriptScriptCompilationConfiguration::class.java.classLoader,
         wholeClasspath = true
-    ).filter(::isDependencyIgnored)
+    )
 }
 
-private fun isDependencyIgnored(file: File): Boolean = ignoredPluginDependencies.any { file.name.contains(it) }
+fun wholeClassloaderByExcluding(): List<File> {
+    return wholeClassloader().filterNot(::isDependencyIgnored)
+}
+
+private fun isDependencyIgnored(file: File): Boolean = ignoredPluginDependencies.any { file.name.contains(it, ignoreCase = true) }
+
+fun buildBaseDependencies(): List<File> {
+    return emptyList()
+}

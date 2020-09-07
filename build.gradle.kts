@@ -12,6 +12,7 @@ subprojects {
 
     repositories {
         jcenter()
+        mavenLocal()
         maven ("https://dl.bintray.com/kotlin/kotlin-eap")
         maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")

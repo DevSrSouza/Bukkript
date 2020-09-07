@@ -26,6 +26,8 @@ fun resolveScriptStaticDependencies(
 
         val mavenResolver = MavenDependenciesResolver()
 
+        println("22255656FUCKKKKKKKKKKKKKKKKk")
+
         // If spigot is not available at this time, this means that is server running at a intellij
         if(!isPackageAvailable(SPIGOT_DEPENDENCY.fqnPackage)) {
 
@@ -86,6 +88,8 @@ fun resolveScriptStaticDependencies(
 
             val buildDependencies = mutableListOf<File>()
 
+            println("resolvendo essa merda de build base dependencia!")
+
             // Resolve Ivy Static Dependencies
             for ((fqn, repositories, artifacts) in buildBaseDependencies) {
                 for (repository in repositories) {
@@ -98,6 +102,8 @@ fun resolveScriptStaticDependencies(
                     }
                 }
             }
+
+            println(buildDependencies)
 
             updateClasspath(buildDependencies)
         }
