@@ -7,7 +7,7 @@ object Dep {
     val bstats = "org.bstats:bstats-bukkit:1.7"
 
     object KotlinBukkitAPI {
-        private val version = "0.1.0-SNAPSHOT"
+        private val version = "0.2.0-SNAPSHOT"
         private val group = "br.com.devsrsouza.kotlinbukkitapi"
 
         val core = "$group:core:$version"
