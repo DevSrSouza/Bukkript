@@ -15,9 +15,6 @@ tasks {
     shadowJar {
         archiveClassifier.set("")
 
-        relocateKotlinBukkitAPI()
-        relocateBukkript()
-
         dependencies {
             this.exclude { dep ->
                 listOf(

@@ -1,10 +1,11 @@
 plugins {
     id("com.github.johnrengelman.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-    id("me.bristermitten.pdm") version "0.0.26"
+    id("me.bristermitten.pdm") version "0.0.28"
 }
 
 dependencies {
+    implementation(Dep.bstats)
     compileOnly(kotlin("stdlib-jdk8"))
     compileOnly(Dep.spigot)
 
@@ -24,13 +25,12 @@ tasks {
         archiveBaseName.set("Bukkript")
         archiveClassifier.set("")
 
-        relocateKotlinBukkitAPI()
-        relocateBukkript()
+        relocate("org.bstats", "br.com.devsrsouza.bukkript.bstats")
     }
 }
 
 pdm {
-
+    projectRepository = "http://nexus.devsrsouza.com.br/repository/maven-public/"
 }
 
 bukkit {

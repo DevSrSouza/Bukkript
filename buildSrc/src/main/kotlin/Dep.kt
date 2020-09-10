@@ -4,6 +4,8 @@ object Dep {
     val spigot = "org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT"
     val ivy = "org.apache.ivy:ivy:2.5.0"
 
+    val bstats = "org.bstats:bstats-bukkit:1.7"
+
     object KotlinBukkitAPI {
         private val version = "0.1.0-SNAPSHOT"
         private val group = "br.com.devsrsouza.kotlinbukkitapi"
