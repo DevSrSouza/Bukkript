@@ -15,6 +15,9 @@ dependencies {
     compileOnly(Dep.kotlinBukkitAPI.core, changing)
     compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
+    compileOnly(Dep.skedule)
+    compileOnly(Dep.coroutinesCore)
+
     pdm(project(":script-host-embedded"))
 }
 
