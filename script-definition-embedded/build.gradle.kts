@@ -12,7 +12,7 @@ dependencies {
     api(kotlin("scripting-dependencies"))
     api(kotlin("scripting-dependencies-maven"))
 
-    api(Dep.spigot)
+    api(Dep.bukkit)
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
 }
 
