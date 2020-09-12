@@ -6,8 +6,8 @@ data class Dependency(
     val artifacts: List<String>
 )
 
-private const val KOTLINBUKKITAPI_VERSION = "0.1.0-SNAPSHOT"
-private const val BUKKRIPT_VERSION = "0.1.0-SNAPSHOT"
+private const val KOTLINBUKKITAPI_VERSION = "0.2.0-SNAPSHOT"
+private const val BUKKRIPT_VERSION = "0.2.0-SNAPSHOT"
 
 val KOTLINBUKKITAPI_DEPENDENCY = Dependency(
     "br.com.devsrsouza.kotlinbukkitapi",
