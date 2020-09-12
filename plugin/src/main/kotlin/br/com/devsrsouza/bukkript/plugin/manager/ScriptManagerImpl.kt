@@ -172,6 +172,7 @@ class ScriptManagerImpl(
             ?: throw ScriptNotFoundException("Could not load the script $scriptName because it was not found.", scriptName)
 
         when(currentState) {
+            is ScriptState.Loaded,
             is ScriptState.Unloaded -> load(scriptName)
             is ScriptState.Discovered,
             is ScriptState.CompileFail,
@@ -241,9 +242,9 @@ class ScriptManagerImpl(
     }
 
     override fun recompile(scriptName: String) {
-        logger.logScript(scriptName, LogLevel.INFO, "Recompiling script.")
-
         val state = scripts[scriptName] ?: throw ScriptNotFoundException("Could not recompile the script $scriptName because it was not found.", scriptName)
+
+        logger.logScript(scriptName, LogLevel.INFO, "Recompiling script.")
 
         if(state is ScriptState.Loaded) {
             unload(scriptName)

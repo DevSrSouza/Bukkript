@@ -24,7 +24,11 @@ fun <T : Event> BukkriptScript.event(
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
     block: T.() -> Unit
-) = plugin.events { event(plugin, type, priority, ignoreCancelled, block) }
+) = plugin.events { event(plugin, type, priority, ignoreCancelled, block) }.also {
+    onDisable {
+        it.unregisterListener()
+    }
+}
 
 // event flow
 

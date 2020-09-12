@@ -21,6 +21,7 @@ tasks {
     shadowJar {
         dependsOn(pdm)
         archiveBaseName.set("Bukkript")
+        version += "-b${System.getenv("BUILD_NUMBER")}"
         archiveClassifier.set("")
 
         relocate("org.bstats", "br.com.devsrsouza.bukkript.bstats")
