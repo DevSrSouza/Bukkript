@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(project(":script-definition")) {
-        exclude("module" to "pdm")
+        exclude(mutableMapOf("module" to "pdm"))
     }
     api(kotlin("stdlib-jdk8"))
 
