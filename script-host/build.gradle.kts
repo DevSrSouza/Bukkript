@@ -4,9 +4,13 @@ dependencies {
 
     api(project(":script-definition"))
 
-    api(kotlin("scripting-common"))
-    api(kotlin("scripting-jvm-host"))
-    api(kotlin("scripting-compiler-embeddable"))
+    pdm(kotlin("scripting-common").toString(), excluding)
+    pdm(kotlin("scripting-jvm-host").toString(), excluding)
+    pdm(kotlin("scripting-compiler-embeddable").toString(), excluding)
+
+    compileOnly(kotlin("scripting-dependencies-maven").toString(), excluding)
+    compileOnly(kotlin("scripting-dependencies").toString(), excluding)
+    compileOnly(kotlin("scripting-jvm").toString(), excluding)
 }
 
 val sources by tasks.registering(Jar::class) {

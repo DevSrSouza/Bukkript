@@ -1,16 +1,19 @@
 plugins {
     kotlin("jvm") version "1.4.10"
     id("maven-publish")
+    id("me.bristermitten.pdm")
 }
 
 subprojects {
     plugins.apply("org.jetbrains.kotlin.jvm")
     plugins.apply("maven-publish")
+    plugins.apply("me.bristermitten.pdm")
 
     group = "br.com.devsrsouza.bukkript"
     version = "0.2.0-SNAPSHOT"
 
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
         maven ("https://dl.bintray.com/kotlin/kotlin-eap")

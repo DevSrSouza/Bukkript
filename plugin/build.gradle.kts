@@ -1,7 +1,6 @@
 plugins {
     id("com.github.johnrengelman.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
-    id("me.bristermitten.pdm") version "0.0.28"
 }
 
 dependencies {
@@ -9,22 +8,18 @@ dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
     compileOnly(Dep.spigot)
 
-    compileOnly(project(":script-host"))
-    compileOnly(project(":script-definition"))
+    api(project(":script-host"))
 
     compileOnly(Dep.kotlinBukkitAPI.core, changing)
     compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
 
     compileOnly(Dep.skedule)
     compileOnly(Dep.coroutinesCore)
-
-    pdm(project(":script-host-embedded"))
 }
 
-val t = tasks
 tasks {
     shadowJar {
-        dependsOn(t.pdm)
+        dependsOn(pdm)
         archiveBaseName.set("Bukkript")
         archiveClassifier.set("")
 

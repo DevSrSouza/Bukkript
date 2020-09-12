@@ -2,9 +2,9 @@ dependencies {
     compileOnly(kotlin("stdlib-jdk8"))
 
     // script
-    api(kotlin("scripting-jvm"))
-    api(kotlin("scripting-dependencies"))
-    api(kotlin("scripting-dependencies-maven"))
+    pdm(kotlin("scripting-jvm").toString(), excluding)
+    pdm(kotlin("scripting-dependencies").toString(), excluding)
+    pdm(kotlin("scripting-dependencies-maven").toString(), excluding)
 
     compileOnly(Dep.spigot)
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
