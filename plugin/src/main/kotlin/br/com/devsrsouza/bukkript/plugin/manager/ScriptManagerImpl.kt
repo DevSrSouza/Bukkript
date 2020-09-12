@@ -167,6 +167,18 @@ class ScriptManagerImpl(
         logger.logScript(scriptName, LogLevel.INFO, "Complete load the script.")
     }
 
+    override fun forceLoad(scriptName: String) {
+        val currentState = scripts[scriptName]
+            ?: throw ScriptNotFoundException("Could not load the script $scriptName because it was not found.", scriptName)
+
+        when(currentState) {
+            is ScriptState.Unloaded -> load(scriptName)
+            is ScriptState.Discovered,
+            is ScriptState.CompileFail,
+            is ScriptState.LoadFail -> recompile(scriptName)
+        }
+    }
+
     private fun compileAll(): List<Job> {
         info("Compiling all discovered scripts")
         return scripts.keys.map { compile(it) }
@@ -266,6 +278,13 @@ class ScriptManagerImpl(
             throw ScriptNotFoundException("Could not enable the hot recompilation for a unknown script.", scriptName)
 
         hotrecompileScripts.add(scriptName)
+    }
+
+    override fun disableHotRecompile(scriptName: String) {
+        if (!scripts.containsKey(scriptName))
+            throw ScriptNotFoundException("Could not enable the hot recompilation for a unknown script.", scriptName)
+
+        hotrecompileScripts.remove(scriptName)
     }
 
     override fun isHotRecompileEnable(scriptName: String): Boolean {

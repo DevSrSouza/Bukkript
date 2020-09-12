@@ -16,6 +16,8 @@ interface ScriptManager : LifecycleListener<BukkriptPlugin> {
 
     fun load(scriptName: String)
 
+    fun forceLoad(scriptName: String)
+
     fun isLoaded(scriptName: String): Boolean
 
     fun unload(scriptName: String)
@@ -27,6 +29,8 @@ interface ScriptManager : LifecycleListener<BukkriptPlugin> {
     fun lockLog(player: Player, scriptName: String)
 
     fun hotRecompile(scriptName: String)
+
+    fun disableHotRecompile(scriptName: String)
 
     fun isHotRecompileEnable(scriptName: String): Boolean
 

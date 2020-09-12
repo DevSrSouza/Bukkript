@@ -10,6 +10,7 @@ import org.bukkit.ChatColor
 
 fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
     permission = PERMISSION_BASE
+    permissionMessage = "&cYou don't have permission to use this command.".translateColor()
 
     // utils
     fun Executor<*>.checkScriptLoaded(scriptName: String) {
@@ -62,7 +63,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
         executor {
             val script = scriptName(0)
 
-            scriptManager.load(script)
+            scriptManager.forceLoad(script)
 
             sender.msg("$BUKKRIPT_PREFIX &eStart reload the script &a$script&e.".translateColor())
             // TODO: use a Flow to listen for the completion or the fail of the load.
@@ -166,10 +167,15 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
             executor {
                 val script = scriptName(0)
 
-                scriptManager.hotRecompile(script)
-                // TODO: also disable the hot recompilation
+                if(!scriptManager.isHotRecompileEnable(script)) {
+                    scriptManager.hotRecompile(script)
 
-                sender.msg("$BUKKRIPT_PREFIX &eYou enable the hot recompile for &a$script&e, when your script got change, it will recompile in $MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS second.".translateColor())
+                    sender.msg("$BUKKRIPT_PREFIX &eYou enable the hot recompile for &a$script&e, when your script got change, it will recompile in $MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS second.".translateColor())
+                } else {
+                    scriptManager.disableHotRecompile(script)
+
+                    sender.msg("$BUKKRIPT_PREFIX &eYou have disable the hot recompile for the script &a$script&e.")
+                }
             }
         }
     }
