@@ -13,7 +13,6 @@ subprojects {
     version = "0.2.0-SNAPSHOT"
 
     repositories {
-        mavenLocal()
         mavenCentral()
         jcenter()
         maven ("https://dl.bintray.com/kotlin/kotlin-eap")
