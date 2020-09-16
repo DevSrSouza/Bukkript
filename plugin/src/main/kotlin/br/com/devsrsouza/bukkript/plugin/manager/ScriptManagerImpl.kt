@@ -55,7 +55,8 @@ class ScriptManagerImpl(
 
         discoveryAllScripts()
 
-        runBlocking {
+        // loading in the first tick of the TASKs
+        pluginCoroutineScope.launch(BukkitDispatchers.SYNC) {
             compileAll().forEach {
                 it.join()
             }
