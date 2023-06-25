@@ -71,7 +71,7 @@ val kotlinBukkitAPICoreImports = listOf(
     "br.com.devsrsouza.kotlinbukkitapi.scoreboard.*",
 
     "br.com.devsrsouza.kotlinbukkitapi.extensions.*",
-    
+
     "br.com.devsrsouza.kotlinbukkitapi.coroutines.extensions.*",
 
     /* Flow Event ignored because already have an implementation at Bukkript */
@@ -107,7 +107,7 @@ val javaImports = listOf(
     "java.util.*",
     "java.util.concurrent.*",
     "java.io.*",
-    //"java.lang.*",
+    // "java.lang.*",
 )
 
 val kotlinCoroutinesImports = listOf(

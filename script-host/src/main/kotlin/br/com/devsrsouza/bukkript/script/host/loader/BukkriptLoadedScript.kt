@@ -11,5 +11,5 @@ data class BukkriptLoadedScript(
     val kclass: KClass<*>,
     val classLoader: ScriptClassloader,
     val compiledScript: BukkriptCompiledScript,
-    val dataFolder: File
+    val dataFolder: File,
 )

@@ -11,10 +11,10 @@ annotation class Script(
     val version: String = "",
     val logLevel: LogLevel = LogLevel.INFO,
     val author: String = "",
-    //val authors: Array<String> = [],
-    val website: String = ""
-    //val depend: Array<String> = [],
-    //val pluginDepend: Array<String> = []
+    // val authors: Array<String> = [],
+    val website: String = "",
+    // val depend: Array<String> = [],
+    // val pluginDepend: Array<String> = []
 )
 
 /**
@@ -23,7 +23,7 @@ annotation class Script(
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Import(
-    vararg val script: String
+    vararg val script: String,
 )
 
 /**
@@ -32,5 +32,5 @@ annotation class Import(
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class DependPlugin(
-    vararg val plugin: String
+    vararg val plugin: String,
 )

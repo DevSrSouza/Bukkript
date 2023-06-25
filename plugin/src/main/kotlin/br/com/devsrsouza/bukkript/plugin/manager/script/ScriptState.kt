@@ -7,21 +7,21 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.translateColor
 import java.io.File
 
 sealed class ScriptState(
-    val scriptName: String
+    val scriptName: String,
 ) {
 
     abstract fun stateDisplayName(): String
 
     // when the script is know that exists but is not compiled
     class Discovered(
-        scriptName: String
+        scriptName: String,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&7Discovered".translateColor()
     }
 
     // the first state when is loading a script and need to check if is no Valid cached script.
     class CheckingCache(
-        scriptName: String
+        scriptName: String,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&bChecking Cache".translateColor()
     }
@@ -29,21 +29,21 @@ sealed class ScriptState(
     class Compiling(
         scriptName: String,
         val scriptFile: File,
-        val description: ScriptDescription
+        val description: ScriptDescription,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&bCompiling".translateColor()
     }
 
     class Loading(
         scriptName: String,
-        val compiledScript: BukkriptCompiledScript
+        val compiledScript: BukkriptCompiledScript,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&bLoading".translateColor()
     }
 
     class Loaded(
         scriptName: String,
-        val loadedScript: BukkriptLoadedScript
+        val loadedScript: BukkriptLoadedScript,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&aLoaded".translateColor()
     }
@@ -51,7 +51,7 @@ sealed class ScriptState(
     // when the script is compiled but not loaded
     class Unloaded(
         scriptName: String,
-        val compiledScript: BukkriptCompiledScript
+        val compiledScript: BukkriptCompiledScript,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&eUnloaded".translateColor()
     }
@@ -59,7 +59,7 @@ sealed class ScriptState(
     // when is unloading the script
     class Unloading(
         scriptName: String,
-        val compiledScript: BukkriptCompiledScript
+        val compiledScript: BukkriptCompiledScript,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&bUnloading".translateColor()
     }
@@ -67,7 +67,7 @@ sealed class ScriptState(
     // when get a fail compilation
     class CompileFail(
         scriptName: String,
-        val error: String
+        val error: String,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&4Compile File".translateColor()
     }
@@ -75,7 +75,7 @@ sealed class ScriptState(
     // when catchs a exception while loading the script
     class LoadFail(
         scriptName: String,
-        val error: String
+        val error: String,
     ) : ScriptState(scriptName) {
         override fun stateDisplayName() = "&4Load Fail".translateColor()
     }

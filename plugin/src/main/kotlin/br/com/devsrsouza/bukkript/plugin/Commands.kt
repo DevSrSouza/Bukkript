@@ -26,8 +26,9 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
     // utils
     fun Executor<*>.checkScriptLoaded(scriptName: String) {
-        if(!scriptManager.isLoaded(scriptName))
+        if (!scriptManager.isLoaded(scriptName)) {
             fail("$BUKKRIPT_PREFIX &cThe specifed script file is not loaded or not exist.".translateColor())
+        }
     }
 
     executor {
@@ -35,7 +36,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
     }
 
     errorHandler {
-        when(it) {
+        when (it) {
             is BukkriptException -> sender.msg("$BUKKRIPT_PREFIX &4ERROR &c${it.message}".translateColor())
             else -> defaultErrorHandler(it)
         }
@@ -56,11 +57,12 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
                     .showText("Click".color(ChatColor.AQUA))
                     .suggestCommand("/bukkript SUB-COMMAND ${it.scriptName}")
 
-                if(scriptManager.isHotRecompileEnable(it.scriptName))
+                if (scriptManager.isHotRecompileEnable(it.scriptName)) {
                     msg + "*".color(ChatColor.DARK_RED).bold()
                         .showText("Hot recompilation enable".color(ChatColor.RED))
-                else
+                } else {
                     msg
+                }
             }
 
             sender.msg(scripts.joinToText(textOf("\n")))
@@ -143,7 +145,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
                     checkScriptLoaded(script)
 
-                    if(loggingManager.isListingLog(sender)) {
+                    if (loggingManager.isListingLog(sender)) {
                         sender.msg("$BUKKRIPT_PREFIX &eDisable the script &a$script &elog into your chat.".translateColor())
                         loggingManager.unlistenLog(sender, script)
                     } else {
@@ -161,7 +163,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
                     val logLevel = enum<LogLevel>(
                         1,
                         argMissing = textOf("$BUKKRIPT_PREFIX &cPlease, inform the Log Level &a${LogLevel.values().toList()}&c.".translateColor()),
-                        notFound = textOf("$BUKKRIPT_PREFIX &cThe Log Level specified was not found, try one of this &a${LogLevel.values().toList()}&c.".translateColor())
+                        notFound = textOf("$BUKKRIPT_PREFIX &cThe Log Level specified was not found, try one of this &a${LogLevel.values().toList()}&c.".translateColor()),
                     )
 
                     checkScriptLoaded(script)
@@ -179,7 +181,7 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
             executor {
                 val script = scriptName(0)
 
-                if(!scriptManager.isHotRecompileEnable(script)) {
+                if (!scriptManager.isHotRecompileEnable(script)) {
                     scriptManager.hotRecompile(script)
 
                     sender.msg("$BUKKRIPT_PREFIX &eYou enable the hot recompile for &a$script&e, when your script got change, it will recompile in $MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS second.".translateColor())
@@ -195,5 +197,5 @@ fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {
 
 private fun Executor<*>.scriptName(index: Int): String = string(
     index,
-    textOf("$BUKKRIPT_PREFIX &cPlease, inform the script name (case sensitive).".translateColor())
+    textOf("$BUKKRIPT_PREFIX &cPlease, inform the script name (case sensitive).".translateColor()),
 )

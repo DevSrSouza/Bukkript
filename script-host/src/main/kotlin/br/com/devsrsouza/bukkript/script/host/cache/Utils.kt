@@ -11,7 +11,7 @@ fun SourceCode.generateMD5(): String {
     return digest.digest().toHexString()
 }
 
-fun ByteArray.toHexString() : String {
+fun ByteArray.toHexString(): String {
     return this.joinToString("") {
         java.lang.String.format("%02x", it)
     }

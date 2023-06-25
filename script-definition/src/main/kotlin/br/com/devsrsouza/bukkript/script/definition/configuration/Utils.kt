@@ -9,8 +9,9 @@ import java.net.URLClassLoader
 private fun URL.toFileOrNull() = try {
     java.io.File(toURI().schemeSpecificPart)
 } catch (e: java.net.URISyntaxException) {
-    if (protocol != "file") null
-    else java.io.File(file)
+    if (protocol != "file") {
+        null
+    } else java.io.File(file)
 }
 
 private fun ClassLoader.urlsOrEmpty(): Array<URL> {

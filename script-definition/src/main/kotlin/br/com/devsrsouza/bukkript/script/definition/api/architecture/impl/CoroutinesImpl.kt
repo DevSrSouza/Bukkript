@@ -16,14 +16,13 @@ internal fun KotlinPlugin.getOrInsertBukkriptCoroutineLifecycle(): BukkriptCorou
     }
 }
 
-
 internal class BukkriptCoroutineLifecycle(
-    override val plugin: KotlinPlugin
+    override val plugin: KotlinPlugin,
 ) : LifecycleListener<KotlinPlugin> {
 
     inner class ScriptCoroutineScope(
         val job: Job,
-        val coroutineScope: CoroutineScope
+        val coroutineScope: CoroutineScope,
     ) {
         fun cancelJobs() = job.cancel()
     }
@@ -53,7 +52,6 @@ internal class BukkriptCoroutineLifecycle(
                 script.onDisable {
                     coroutineScopes.remove(script)?.cancelJobs()
                 }
-
             }.coroutineScope
     }
 
@@ -76,7 +74,7 @@ internal class BukkriptCoroutineLifecycle(
         val job = Job()
         return ScriptCoroutineScope(
             job,
-            CoroutineScope(BukkitDispatchers.SYNC + job)
+            CoroutineScope(BukkitDispatchers.SYNC + job),
         )
     }
 }

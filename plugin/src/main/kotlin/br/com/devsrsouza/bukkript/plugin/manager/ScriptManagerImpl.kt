@@ -1,25 +1,38 @@
 package br.com.devsrsouza.bukkript.plugin.manager
 
-import br.com.devsrsouza.bukkript.plugin.*
+import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
+import br.com.devsrsouza.bukkript.plugin.RetrieveScriptDefinitionException
+import br.com.devsrsouza.bukkript.plugin.ScriptFileDoesNotExistException
+import br.com.devsrsouza.bukkript.plugin.ScriptInvalidStateException
+import br.com.devsrsouza.bukkript.plugin.ScriptNotFoundException
 import br.com.devsrsouza.bukkript.plugin.disable
 import br.com.devsrsouza.bukkript.plugin.manager.script.ScriptState
 import br.com.devsrsouza.bukkript.plugin.watcher.watchFolder
-import br.com.devsrsouza.bukkript.script.definition.*
+import br.com.devsrsouza.bukkript.script.definition.BUKKRIPT_EXTENSION
+import br.com.devsrsouza.bukkript.script.definition.CACHE_FOLDER
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
+import br.com.devsrsouza.bukkript.script.definition.bukkriptNameRelative
+import br.com.devsrsouza.bukkript.script.definition.isBukkriptScript
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImpl
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
 import br.com.devsrsouza.kotlinbukkitapi.coroutines.BukkitDispatchers
 import br.com.devsrsouza.kotlinbukkitapi.coroutines.architecture.pluginCoroutineScope
 import br.com.devsrsouza.kotlinbukkitapi.extensions.info
 import br.com.devsrsouza.kotlinbukkitapi.utility.extensions.now
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.bukkit.entity.Player
-import java.util.concurrent.*
-import java.io.*
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentSkipListSet
 
 class ScriptManagerImpl(
-    override val plugin: BukkriptPlugin
+    override val plugin: BukkriptPlugin,
 ) : ScriptManager {
 
     companion object {
@@ -38,7 +51,7 @@ class ScriptManagerImpl(
             scriptDir,
             plugin::class.java.classLoader,
             ::getClassByName,
-            plugin.loggingManager::logScript
+            plugin.loggingManager::logScript,
         )
     }
 
@@ -81,15 +94,18 @@ class ScriptManagerImpl(
             scriptState = scripts[scriptName]
         }
 
-        if(scriptState == null)
+        if (scriptState == null) {
             throw ScriptNotFoundException("Could not compile the script $scriptName because was not found", scriptName)
+        }
 
         // if the state is not discovered state is probably already loaded or unloaded in the Plugin.
-        if(
-            scriptState !is ScriptState.Discovered
-            && scriptState !is ScriptState.CompileFail
-            && scriptState !is ScriptState.LoadFail
-        ) throw ScriptInvalidStateException("The script is currently is unloaded or loaded and could not compile again.", scriptState::class.java.simpleName)
+        if (
+            scriptState !is ScriptState.Discovered &&
+            scriptState !is ScriptState.CompileFail &&
+            scriptState !is ScriptState.LoadFail
+        ) {
+            throw ScriptInvalidStateException("The script is currently is unloaded or loaded and could not compile again.", scriptState::class.java.simpleName)
+        }
 
         return pluginCoroutineScope.launch(Dispatchers.Default) {
             logger.logScript(scriptName, LogLevel.INFO, "Starting the compilation process.")
@@ -101,7 +117,7 @@ class ScriptManagerImpl(
             logger.logScript(
                 scriptName,
                 LogLevel.DEBUG,
-                "Retrieved cache information from the script: is cached: ${cachedScript != null} & is valid: ${cachedScript?.isValid == true}"
+                "Retrieved cache information from the script: is cached: ${cachedScript != null} & is valid: ${cachedScript?.isValid == true}",
             )
 
             scripts.put(scriptName, ScriptState.CheckingCache(scriptName))
@@ -110,7 +126,7 @@ class ScriptManagerImpl(
                 logger.logScript(
                     scriptName,
                     LogLevel.INFO,
-                    "Found a compiled valid script cached, skipping compilation."
+                    "Found a compiled valid script cached, skipping compilation.",
                 )
                 cachedScript.compiled
             } else {
@@ -172,12 +188,14 @@ class ScriptManagerImpl(
         val currentState = scripts[scriptName]
             ?: throw ScriptNotFoundException("Could not load the script $scriptName because it was not found.", scriptName)
 
-        when(currentState) {
+        when (currentState) {
             is ScriptState.Loaded,
-            is ScriptState.Unloaded -> load(scriptName)
+            is ScriptState.Unloaded,
+            -> load(scriptName)
             is ScriptState.Discovered,
             is ScriptState.CompileFail,
-            is ScriptState.LoadFail -> recompile(scriptName)
+            is ScriptState.LoadFail,
+            -> recompile(scriptName)
             else -> {}
         }
     }
@@ -248,7 +266,7 @@ class ScriptManagerImpl(
 
         logger.logScript(scriptName, LogLevel.INFO, "Recompiling script.")
 
-        if(state is ScriptState.Loaded) {
+        if (state is ScriptState.Loaded) {
             unload(scriptName)
         }
 
@@ -277,15 +295,17 @@ class ScriptManagerImpl(
     }
 
     override fun hotRecompile(scriptName: String) {
-        if (!scripts.containsKey(scriptName))
+        if (!scripts.containsKey(scriptName)) {
             throw ScriptNotFoundException("Could not enable the hot recompilation for a unknown script.", scriptName)
+        }
 
         hotrecompileScripts.add(scriptName)
     }
 
     override fun disableHotRecompile(scriptName: String) {
-        if (!scripts.containsKey(scriptName))
+        if (!scripts.containsKey(scriptName)) {
             throw ScriptNotFoundException("Could not enable the hot recompilation for a unknown script.", scriptName)
+        }
 
         hotrecompileScripts.remove(scriptName)
     }
@@ -297,14 +317,16 @@ class ScriptManagerImpl(
     // retrieve all scripts files in put into de scripts
     override fun discoveryAllScripts() {
         for (scriptName in listScriptsFromFolder()) {
-            if (!scripts.containsKey(scriptName))
+            if (!scripts.containsKey(scriptName)) {
                 scripts.put(scriptName, ScriptState.Discovered(scriptName))
+            }
         }
     }
 
     private fun discoveryScript(scriptName: String) {
-        if (scripts.containsKey(scriptName))
+        if (scripts.containsKey(scriptName)) {
             throw ScriptInvalidStateException("The script $scriptName was already discovered.", scriptName)
+        }
 
         val scriptFile = File(scriptDir, "$scriptName.$BUKKRIPT_EXTENSION")
 
@@ -319,8 +341,9 @@ class ScriptManagerImpl(
         for (value in scripts.values.filterIsInstance<ScriptState.Loaded>()) {
             val findClass = value.loadedScript.classLoader.findClass(name, false)
 
-            if (findClass != null)
+            if (findClass != null) {
                 return findClass
+            }
         }
 
         return null

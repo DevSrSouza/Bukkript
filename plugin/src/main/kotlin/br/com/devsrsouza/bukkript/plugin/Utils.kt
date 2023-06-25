@@ -7,7 +7,6 @@ internal fun BukkriptLoadedScript.disable() {
     script.disable()
 }
 
-
 internal fun BukkriptScript.disable() {
     onDisableListeners.forEach { it() }
 }

@@ -13,14 +13,14 @@ typealias RemoveRegistryFunction = () -> Unit
 @KotlinScript(
     displayName = "Bukkript script",
     fileExtension = BUKKRIPT_EXTENSION,
-    compilationConfiguration = BukkriptScriptCompilationConfiguration::class
+    compilationConfiguration = BukkriptScriptCompilationConfiguration::class,
 )
 abstract class BukkriptScript(
     val plugin: KotlinPlugin,
     val description: ScriptDescription,
     val dataFolder: File,
     val scriptName: String,
-    val log: (LogLevel, message: String) -> Unit
+    val log: (LogLevel, message: String) -> Unit,
 ) {
 
     private val _onDisableListeners = mutableListOf<() -> Unit>()

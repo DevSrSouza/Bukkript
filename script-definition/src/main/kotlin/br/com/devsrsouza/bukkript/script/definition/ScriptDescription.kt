@@ -1,7 +1,6 @@
 package br.com.devsrsouza.bukkript.script.definition
 
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
-import java.io.File
 import java.io.Serializable
 
 data class ScriptDescription(
@@ -10,5 +9,5 @@ data class ScriptDescription(
     val website: String,
     val pluginDependencies: Set<String>,
     var logLevel: LogLevel, // Mutable for tooling!
-    val dependenciesFiles: Set<String>
+    val dependenciesFiles: Set<String>,
 ) : Serializable

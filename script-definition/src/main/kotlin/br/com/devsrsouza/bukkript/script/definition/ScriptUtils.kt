@@ -17,10 +17,10 @@ fun File.isJar() = extension == "jar"
 
 fun File.findParentPluginFolder(depth: Int): File? {
     var current: File? = parentFile
-    for(i in 0 until depth) {
-        if(current == null) return null
+    for (i in 0 until depth) {
+        if (current == null) return null
 
-        if(
+        if (
             current.name == "plugins" &&
             current.list()?.any { it.contains("Bukkript") } == true
         ) {
@@ -32,4 +32,3 @@ fun File.findParentPluginFolder(depth: Int): File? {
 
     return null
 }
-

@@ -16,14 +16,14 @@ import kotlin.reflect.KClass
 inline fun <reified T : Event> BukkriptScript.event(
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
-    noinline block: T.() -> Unit
+    noinline block: T.() -> Unit,
 ) = event(T::class, priority, ignoreCancelled, block)
 
 fun <T : Event> BukkriptScript.event(
     type: KClass<T>,
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
-    block: T.() -> Unit
+    block: T.() -> Unit,
 ) = plugin.events { event(plugin, type, priority, ignoreCancelled, block) }.also {
     onDisable {
         it.unregisterListener()
@@ -35,14 +35,14 @@ fun <T : Event> BukkriptScript.event(
 inline fun <reified T : Event> BukkriptScript.eventFlow(
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = false
+    ignoreCancelled: Boolean = false,
 ): Flow<T> = eventFlow<T>(T::class, assign, priority, ignoreCancelled)
 
 fun <T : Event> BukkriptScript.eventFlow(
     type: KClass<T>,
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = false
+    ignoreCancelled: Boolean = false,
 ): Flow<T> {
     val channel = Channel<T>(Channel.CONFLATED)
     val listener = plugin.events {}
@@ -62,7 +62,7 @@ fun <T : Event> BukkriptScript.eventFlow(
         ignoreCancelled,
         channel,
         listener,
-        assignListener
+        assignListener,
     ).onCompletion {
         listener.unregisterListener()
         assignListener.unregisterListener()
@@ -71,4 +71,3 @@ fun <T : Event> BukkriptScript.eventFlow(
 
     return flow
 }
-

@@ -31,7 +31,6 @@ fun BukkriptScript.onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCo
 
 // Set
 
-
 fun BukkriptScript.onlinePlayerSetOf() = plugin.onlinePlayerSetOf()
     .also {
         onDisable { it.unregisterListener() }
@@ -49,7 +48,6 @@ fun BukkriptScript.onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCol
         }
 
 // Map
-
 
 fun <V> BukkriptScript.onlinePlayerMapOf() = plugin.onlinePlayerMapOf<V>()
     .also {

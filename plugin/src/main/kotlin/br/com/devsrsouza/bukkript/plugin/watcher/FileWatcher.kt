@@ -1,14 +1,15 @@
 package br.com.devsrsouza.bukkript.plugin.watcher
 
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Path
-import java.nio.file.StandardWatchEventKinds.*
+import java.nio.file.StandardWatchEventKinds.ENTRY_CREATE
+import java.nio.file.StandardWatchEventKinds.ENTRY_DELETE
+import java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY
 import java.nio.file.WatchService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -44,9 +45,9 @@ fun watchFolder(path: Path): Flow<FileEvent> {
                     val key = watchService.poll(5, TimeUnit.SECONDS) ?: continue
                     val path = key.watchable() as Path
 
-                    for(event in key.pollEvents()) {
+                    for (event in key.pollEvents()) {
                         val file = path.resolve(event.context() as Path).toFile()
-                        when(event.kind()) {
+                        when (event.kind()) {
                             ENTRY_CREATE -> channel.trySendBlocking(FileEvent.Create(file))
                             ENTRY_MODIFY -> channel.trySendBlocking(FileEvent.Modify(file))
                             ENTRY_DELETE -> channel.trySendBlocking(FileEvent.Delete(file))
@@ -62,7 +63,7 @@ fun watchFolder(path: Path): Flow<FileEvent> {
 
         awaitClose {
             watchThread.unregisterWatcher()
-            if(watchThread.isAlive) watchThread.interrupt()
+            if (watchThread.isAlive) watchThread.interrupt()
         }
     }
 }

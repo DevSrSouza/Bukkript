@@ -8,10 +8,10 @@ typealias ClassProvider = (name: String) -> Class<*>?
 class ScriptClassloader(
     val classProvider: ClassProvider,
     parent: ClassLoader,
-    dependenciesFiles: Set<File>
+    dependenciesFiles: Set<File>,
 ) : URLClassLoader(
     dependenciesFiles.map { it.toURI().toURL() }.toTypedArray(),
-    parent
+    parent,
 ) {
 
     override fun findClass(name: String): Class<*>? {
@@ -21,15 +21,14 @@ class ScriptClassloader(
     fun findClass(name: String, checkGlobal: Boolean): Class<*>? {
         var clazz: Class<*>? = null
 
-        if(checkGlobal) {
+        if (checkGlobal) {
             clazz = classProvider(name)
         }
 
-        if(clazz == null) {
+        if (clazz == null) {
             clazz = runCatching { super.findClass(name) }.getOrNull()
         }
 
         return clazz
     }
-
 }

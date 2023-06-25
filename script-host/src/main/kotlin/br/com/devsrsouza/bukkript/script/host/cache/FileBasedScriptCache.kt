@@ -4,7 +4,6 @@ import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
 import br.com.devsrsouza.bukkript.script.definition.bukkritNameRelative
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import java.io.File
-import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import kotlin.script.experimental.api.CompiledScript
@@ -17,25 +16,25 @@ import kotlin.script.experimental.jvm.impl.KJvmCompiledScript
 internal class FileBasedScriptCache(
     val scriptDir: File,
     val cacheDir: File,
-    scriptDescription: ScriptDescription?
+    scriptDescription: ScriptDescription?,
 ) : CompiledJvmScriptsCache {
     var scriptInfo = scriptDescription
         private set
 
     override fun get(
         script: SourceCode,
-        scriptCompilationConfiguration: ScriptCompilationConfiguration
+        scriptCompilationConfiguration: ScriptCompilationConfiguration,
     ): CompiledScript? {
         val fileSource = script as FileScriptSource
 
         val cached = findCacheScript(fileSource) ?: return null
 
-        if(!cached.isValid) {
+        if (!cached.isValid) {
             cached.cacheFile.delete()
             return null
         } else {
             // TODO: migrate to a proper log system
-            //println("Loading cache of ${script.file.scriptName(cacheDir)}.")
+            // println("Loading cache of ${script.file.scriptName(cacheDir)}.")
             return cached.compiled.compiled
         }
     }
@@ -43,7 +42,7 @@ internal class FileBasedScriptCache(
     override fun store(
         compiledScript: CompiledScript,
         script: SourceCode,
-        configuration: ScriptCompilationConfiguration
+        configuration: ScriptCompilationConfiguration,
     ) {
         val file = getCacheFileForScript(script as FileScriptSource)
         file.outputStream().use { fs ->
@@ -53,11 +52,10 @@ internal class FileBasedScriptCache(
                 os.writeObject(compiledScript)
             }
         }
-
     }
 
     fun findCacheScript(
-        script: FileScriptSource
+        script: FileScriptSource,
     ): CachedScript? {
         val cacheFile = getCacheFileForScript(script).takeIf { it.exists() }
             ?: return null
@@ -80,19 +78,19 @@ internal class FileBasedScriptCache(
                 script.bukkritNameRelative(scriptDir),
                 script,
                 jvmScript,
-                description
-            )
+                description,
+            ),
         )
     }
 
     private fun getCacheFileForScript(script: FileScriptSource) = File(
         cacheDir,
-        script.bukkritNameRelative(scriptDir).replace("/", ".")
+        script.bukkritNameRelative(scriptDir).replace("/", "."),
     )
 
     private fun isValid(
         script: SourceCode,
-        md5: String
+        md5: String,
     ): Boolean {
         return script.generateMD5() == md5
     }

@@ -5,12 +5,22 @@ import br.com.devsrsouza.bukkript.script.definition.annotation.DependPlugin
 import br.com.devsrsouza.bukkript.script.definition.annotation.Script
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.definition.configuration.info
-import kotlin.script.experimental.api.*
+import kotlin.script.experimental.api.ResultWithDiagnostics
+import kotlin.script.experimental.api.ScriptCollectedData
+import kotlin.script.experimental.api.ScriptCompilationConfiguration
+import kotlin.script.experimental.api.ScriptConfigurationRefinementContext
+import kotlin.script.experimental.api.ScriptDiagnostic
+import kotlin.script.experimental.api.asSuccess
+import kotlin.script.experimental.api.dependenciesSources
+import kotlin.script.experimental.api.foundAnnotations
+import kotlin.script.experimental.api.ide
+import kotlin.script.experimental.api.makeFailureResult
+import kotlin.script.experimental.api.with
 import kotlin.script.experimental.jvm.JvmDependency
 import kotlin.script.experimental.jvm.updateClasspath
 
 fun resolveScriptAnnotation(
-    ctx: ScriptConfigurationRefinementContext
+    ctx: ScriptConfigurationRefinementContext,
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
     val annotations = ctx.collectedData?.get(ScriptCollectedData.foundAnnotations)
         ?.takeIf { it.isNotEmpty() } ?: return ctx.compilationConfiguration.asSuccess()
@@ -18,7 +28,6 @@ fun resolveScriptAnnotation(
     val reports = mutableListOf<ScriptDiagnostic>()
 
     val configuration = ctx.compilationConfiguration.with {
-
         var version = "Unknown"
         var author = "Unknown"
         var website = "None"
@@ -44,8 +53,9 @@ fun resolveScriptAnnotation(
         val external = resolveExternalDependencies(ctx.script, annotations)
         val dependenciesFiles = external.compiled
 
-        if(dependenciesFiles.isNotEmpty())
+        if (dependenciesFiles.isNotEmpty()) {
             updateClasspath(dependenciesFiles)
+        }
 
         info(
             ScriptDescription(
@@ -54,16 +64,16 @@ fun resolveScriptAnnotation(
                 website,
                 pluginDepends,
                 logLevel,
-                dependenciesFiles.map { it.absolutePath }.toSet()
-            )
+                dependenciesFiles.map { it.absolutePath }.toSet(),
+            ),
         )
 
-        if(external.sources.isNotEmpty()) {
+        if (external.sources.isNotEmpty()) {
             ide.dependenciesSources.append(JvmDependency(external.sources.toList()))
         }
     }
 
-    return if(reports.isEmpty()) {
+    return if (reports.isEmpty()) {
         configuration.asSuccess()
     } else {
         makeFailureResult(reports)

@@ -8,7 +8,7 @@ inline fun BukkriptScript.menu(
     displayName: String,
     lines: Int,
     cancelOnClick: Boolean = true,
-    block: MenuDSL.() -> Unit
+    block: MenuDSL.() -> Unit,
 ): MenuDSL = plugin.menu(displayName, lines, cancelOnClick, block).also {
     onDisable {
         for (player in it.viewers.keys)

@@ -14,7 +14,7 @@ class LogToFileInterceptor(val logFolder: File) {
             .apply {
                 parentFile.mkdirs()
 
-                if(!exists()) createNewFile()
+                if (!exists()) createNewFile()
             }
             .appendText("$date $message\n")
 

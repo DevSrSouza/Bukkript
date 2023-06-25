@@ -13,5 +13,4 @@ interface BukkriptScriptCompiler {
     suspend fun compile(scriptFile: File, description: ScriptDescription): BukkriptCompiledScript
 
     suspend fun getCachedScript(scriptFile: File): CachedScript?
-
 }

@@ -1,9 +1,9 @@
 package br.com.devsrsouza.bukkript.plugin.manager
 
 import br.com.devsrsouza.bukkript.plugin.BukkriptPlugin
-import br.com.devsrsouza.bukkript.plugin.manager.logging.logFormatterInterceptor
 import br.com.devsrsouza.bukkript.plugin.manager.logging.LogToFileInterceptor
 import br.com.devsrsouza.bukkript.plugin.manager.logging.LogToPlayerInterceptor
+import br.com.devsrsouza.bukkript.plugin.manager.logging.logFormatterInterceptor
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.kotlinbukkitapi.extensions.info
 import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
@@ -14,10 +14,10 @@ class LoggingManagerImpl(override val plugin: BukkriptPlugin) : LoggingManager {
 
     private data class Interceptor(
         val priority: Int,
-        val interceptor: (scriptName: String, LogLevel, message: String) -> String?
+        val interceptor: (scriptName: String, LogLevel, message: String) -> String?,
     ) : Comparable<Interceptor> {
         override fun compareTo(
-            other: Interceptor
+            other: Interceptor,
         ): Int = other.priority.compareTo(priority)
     }
 
@@ -25,14 +25,16 @@ class LoggingManagerImpl(override val plugin: BukkriptPlugin) : LoggingManager {
 
     override fun logScript(scriptName: String, level: LogLevel, message: String) {
         val newMessage = interceptors.sortedDescending().fold(message as String?) { current, interceptor ->
-            if(current != null)
+            if (current != null) {
                 interceptor.interceptor(scriptName, level, current)
-            else
+            } else {
                 null
+            }
         }
 
-        if(newMessage != null)
+        if (newMessage != null) {
             plugin.info(newMessage)
+        }
     }
 
     override fun intercept(priority: Int, interceptor: (scriptName: String, LogLevel, message: String) -> String?) {
@@ -63,5 +65,4 @@ class LoggingManagerImpl(override val plugin: BukkriptPlugin) : LoggingManager {
         intercept(1, logToFileInterceptor::interceptor)
         intercept(2, logToPlayerInterceptor::interceptor)
     }
-
 }

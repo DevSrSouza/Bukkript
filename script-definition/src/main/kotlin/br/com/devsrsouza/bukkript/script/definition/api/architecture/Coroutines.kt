@@ -13,6 +13,7 @@ import org.bukkit.entity.Player
  */
 val BukkriptScript.scriptCoroutineScope: CoroutineScope
     get() = plugin.getOrInsertBukkriptCoroutineLifecycle().getScriptCoroutineScope(this)
+
 /**
  * A CoroutineScope that trigger in the Main Thread of Bukkit by default.
  *

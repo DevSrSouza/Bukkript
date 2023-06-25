@@ -26,7 +26,7 @@ class BukkriptPlugin : KotlinPlugin() {
     }
 
     private fun checkServerVersion() {
-        if(server.version.contains("craftbukkit", ignoreCase = true)) {
+        if (server.version.contains("craftbukkit", ignoreCase = true)) {
             repeat(5) {
                 error(ChatColor.RED + SERVER_NOT_SUPPORTED_MESSAGE)
             }

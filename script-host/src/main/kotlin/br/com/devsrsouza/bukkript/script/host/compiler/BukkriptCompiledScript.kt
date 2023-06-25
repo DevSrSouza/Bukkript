@@ -8,5 +8,5 @@ data class BukkriptCompiledScript(
     val scriptName: String,
     val source: FileScriptSource,
     val compiled: KJvmCompiledScript,
-    val description: ScriptDescription
+    val description: ScriptDescription,
 )
