@@ -1,56 +1,51 @@
 plugins {
-    id("com.github.johnrengelman.shadow")
-    id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
+    id(libs.plugins.bukkript.build.get().pluginId)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.pluginYml)
 }
 
 dependencies {
-    implementation(Dep.bstats)
-    compileOnly(kotlin("stdlib-jdk8"))
-    compileOnly(Dep.spigot)
-
-    api(project(":script-host"))
-
-    compileOnly(Dep.kotlinBukkitAPI.core, changing)
-    compileOnly(Dep.kotlinBukkitAPI.serialization, changing)
+    compileOnly(libs.spigot.api)
+    
+    implementation(libs.bstats)
+    
+    implementation(libs.coroutines)
+    
+    implementation(projects.scriptHost) {
+        // Excluding aether already available at Spigot latest versions
+        exclude("org.apache.maven.resolver")
+        exclude("org.apache.maven.wagon")
+        exclude("org.apache.maven.shared")
+        exclude("org.apache.maven")
+    }
+    
+    implementation(libs.kotlinbukkitapi.coroutines)
+    implementation(libs.kotlinbukkitapi.utility)
+    implementation(libs.kotlinbukkitapi.architecture)
+    implementation(libs.kotlinbukkitapi.extensions)
+    implementation(libs.kotlinbukkitapi.exposed)
+    implementation(libs.kotlinbukkitapi.commandLegacy)
+    implementation(libs.kotlinbukkitapi.menu)
+    implementation(libs.kotlinbukkitapi.scoreboardLegacy)
 }
 
 tasks {
     shadowJar {
-        dependsOn(pdm)
         archiveBaseName.set("Bukkript")
-        version += "-b${System.getenv("BUILD_NUMBER")}"
+        val commitId = "git rev-parse --short=8 HEAD".runCommand(workingDir = rootDir)
+        version = "$version-b$commitId"
         archiveClassifier.set("")
-
+        
         relocate("org.bstats", "br.com.devsrsouza.bukkript.bstats")
     }
-}
-
-pdm {
-    projectRepository = "http://nexus.devsrsouza.com.br/repository/maven-public/"
 }
 
 bukkit {
     name = "Bukkript"
     main = "br.com.devsrsouza.bukkript.plugin.BukkriptPlugin"
     author = "DevSrSouza"
-    website = "devsrsouza.com.br"
-    depend = listOf("KotlinBukkitAPI")
-
+    website = "github.com.br/DevSrSouza"
+    
     description = "Bukkript Scripting."
 }
 
-val sources by tasks.registering(Jar::class) {
-    baseName = project.name
-    classifier = "sources"
-    version = null
-    from(sourceSets.main.get().allSource)
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["kotlin"])
-            artifact(sources.get())
-        }
-    }
-}

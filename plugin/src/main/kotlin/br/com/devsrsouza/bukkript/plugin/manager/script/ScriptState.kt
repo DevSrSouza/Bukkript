@@ -3,7 +3,7 @@ package br.com.devsrsouza.bukkript.plugin.manager.script
 import br.com.devsrsouza.bukkript.script.definition.ScriptDescription
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptCompiledScript
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptLoadedScript
-import br.com.devsrsouza.kotlinbukkitapi.extensions.text.translateColor
+import br.com.devsrsouza.kotlinbukkitapi.extensions.translateColor
 import java.io.File
 
 sealed class ScriptState(

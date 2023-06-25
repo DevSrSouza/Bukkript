@@ -8,10 +8,10 @@ import br.com.devsrsouza.bukkript.script.definition.*
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
 import br.com.devsrsouza.bukkript.script.host.compiler.BukkriptScriptCompilerImpl
 import br.com.devsrsouza.bukkript.script.host.loader.BukkriptScriptLoaderImpl
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions.pluginCoroutineScope
-import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
-import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
-import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
+import br.com.devsrsouza.kotlinbukkitapi.coroutines.BukkitDispatchers
+import br.com.devsrsouza.kotlinbukkitapi.coroutines.architecture.pluginCoroutineScope
+import br.com.devsrsouza.kotlinbukkitapi.extensions.info
+import br.com.devsrsouza.kotlinbukkitapi.utility.extensions.now
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.bukkit.entity.Player
@@ -178,16 +178,17 @@ class ScriptManagerImpl(
             is ScriptState.Discovered,
             is ScriptState.CompileFail,
             is ScriptState.LoadFail -> recompile(scriptName)
+            else -> {}
         }
     }
 
     private fun compileAll(): List<Job> {
-        info("Compiling all discovered scripts")
+        plugin.info("Compiling all discovered scripts")
         return scripts.keys.map { compile(it) }
     }
 
     private fun loadAllUnloaded() {
-        info("Loading all unloaded scripts")
+        plugin.info("Loading all unloaded scripts")
         for ((scriptName, state) in scripts) {
             if (state is ScriptState.Unloaded) {
                 load(state)
@@ -221,7 +222,7 @@ class ScriptManagerImpl(
     private fun unloadAll() {
         val loadedScripts = scripts.values.filterIsInstance<ScriptState.Loaded>()
 
-        info("Unloading all loaded scripts: ${loadedScripts.joinToString { it.scriptName }}")
+        plugin.info("Unloading all loaded scripts: ${loadedScripts.joinToString { it.scriptName }}")
 
         for (loaded in loadedScripts) {
             unload(loaded)

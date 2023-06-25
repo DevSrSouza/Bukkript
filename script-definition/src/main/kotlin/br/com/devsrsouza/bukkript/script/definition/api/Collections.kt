@@ -1,8 +1,16 @@
 package br.com.devsrsouza.bukkript.script.definition.api
 
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
-import br.com.devsrsouza.kotlinbukkitapi.collections.*
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterListener
+import br.com.devsrsouza.kotlinbukkitapi.extensions.unregisterListener
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.OnExpireCallback
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.OnExpireMapCallback
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.WhenPlayerQuitCollectionCallback
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.WhenPlayerQuitMapCallback
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.expirationListOf
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.expirationMapOf
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerListOf
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerSetOf
 import org.bukkit.entity.Player
 
 // Online player collections

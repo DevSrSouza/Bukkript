@@ -5,8 +5,8 @@ import br.com.devsrsouza.bukkript.plugin.manager.logging.logFormatterInterceptor
 import br.com.devsrsouza.bukkript.plugin.manager.logging.LogToFileInterceptor
 import br.com.devsrsouza.bukkript.plugin.manager.logging.LogToPlayerInterceptor
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
-import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
-import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.info
+import br.com.devsrsouza.kotlinbukkitapi.extensions.info
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
 import org.bukkit.entity.Player
 import java.io.File
 
@@ -32,7 +32,7 @@ class LoggingManagerImpl(override val plugin: BukkriptPlugin) : LoggingManager {
         }
 
         if(newMessage != null)
-            info(newMessage)
+            plugin.info(newMessage)
     }
 
     override fun intercept(priority: Int, interceptor: (scriptName: String, LogLevel, message: String) -> String?) {

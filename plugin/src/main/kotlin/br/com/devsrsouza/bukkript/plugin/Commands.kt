@@ -2,10 +2,22 @@ package br.com.devsrsouza.bukkript.plugin
 
 import br.com.devsrsouza.bukkript.plugin.manager.ScriptManagerImpl.Companion.MINIMUM_MODIFY_TIME_TO_RECOMPILE_SECONDS
 import br.com.devsrsouza.bukkript.script.definition.api.LogLevel
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.enum
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.string
-import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
+import br.com.devsrsouza.kotlinbukkitapi.command.Executor
+import br.com.devsrsouza.kotlinbukkitapi.command.arguments.enum
+import br.com.devsrsouza.kotlinbukkitapi.command.arguments.string
+import br.com.devsrsouza.kotlinbukkitapi.command.command
+import br.com.devsrsouza.kotlinbukkitapi.command.defaultErrorHandler
+import br.com.devsrsouza.kotlinbukkitapi.command.fail
+import br.com.devsrsouza.kotlinbukkitapi.command.sendSubCommandsList
+import br.com.devsrsouza.kotlinbukkitapi.extensions.bold
+import br.com.devsrsouza.kotlinbukkitapi.extensions.color
+import br.com.devsrsouza.kotlinbukkitapi.extensions.joinToText
+import br.com.devsrsouza.kotlinbukkitapi.extensions.msg
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plus
+import br.com.devsrsouza.kotlinbukkitapi.extensions.showText
+import br.com.devsrsouza.kotlinbukkitapi.extensions.suggestCommand
+import br.com.devsrsouza.kotlinbukkitapi.extensions.textOf
+import br.com.devsrsouza.kotlinbukkitapi.extensions.translateColor
 import org.bukkit.ChatColor
 
 fun BukkriptPlugin.registerCommands() = command("bukkript", "bkkts") {

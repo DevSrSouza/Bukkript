@@ -41,55 +41,40 @@ val bukkitImports = listOf(
     "org.bukkit.util.noise.*",
     "org.bukkit.util.permissions.*",
 )
+
+// TODO: update it
 val kotlinBukkitAPICoreImports = listOf(
     /* Architecture package not needed */
-    "br.com.devsrsouza.kotlinbukkitapi.collections.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utility.collections.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utility.extensions.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utility.types.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utility.collections.*",
+    "br.com.devsrsouza.kotlinbukkitapi.utility.utils.*",
     /* Controller package not needed */
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.*",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments.*",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.KCommand",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorBlock",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.TabCompleter",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.TabCompleterBlock",
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorPlayerBlock",
+    "br.com.devsrsouza.kotlinbukkitapi.command.*",
+    "br.com.devsrsouza.kotlinbukkitapi.command.arguments.*",
+    "br.com.devsrsouza.kotlinbukkitapi.command.KCommand",
+    "br.com.devsrsouza.kotlinbukkitapi.command.ExecutorBlock",
+    "br.com.devsrsouza.kotlinbukkitapi.command.Executor",
+    "br.com.devsrsouza.kotlinbukkitapi.command.CommandException",
+    "br.com.devsrsouza.kotlinbukkitapi.command.TabCompleter",
+    "br.com.devsrsouza.kotlinbukkitapi.command.TabCompleterBlock",
+    "br.com.devsrsouza.kotlinbukkitapi.command.ExecutorPlayerBlock",
 
+    "br.com.devsrsouza.kotlinbukkitapi.menu.*",
+    "br.com.devsrsouza.kotlinbukkitapi.menu.slot.*",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.*",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.*",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.*",
     "br.com.devsrsouza.kotlinbukkitapi.dsl.menu.slot.*",
 
-    "br.com.devsrsouza.kotlinbukkitapi.dsl.scoreboard.*",
+    "br.com.devsrsouza.kotlinbukkitapi.scoreboard.*",
 
     "br.com.devsrsouza.kotlinbukkitapi.extensions.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.block.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.bungeecord.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.command.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.configuration.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.entity.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.event.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.inventory.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.item.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.location.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.permission.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.player.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.text.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.world.*",
-    "br.com.devsrsouza.kotlinbukkitapi.extensions.server.*",
+    
+    "br.com.devsrsouza.kotlinbukkitapi.coroutines.extensions.*",
 
-    /* Flow Event ignored because already have a implementation at Bukkript */
-
-    "br.com.devsrsouza.kotlinbukkitapi.menu.*",
-    "br.com.devsrsouza.kotlinbukkitapi.menu.slot.*",
-
-    "br.com.devsrsouza.kotlinbukkitapi.utils.*",
-    "br.com.devsrsouza.kotlinbukkitapi.utils.player.*",
-    "br.com.devsrsouza.kotlinbukkitapi.utils.time.*",
+    /* Flow Event ignored because already have an implementation at Bukkript */
 )
 
 val kotlinBukkitAPIPluginsImports = listOf(

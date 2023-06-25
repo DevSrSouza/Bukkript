@@ -1,9 +1,12 @@
 package br.com.devsrsouza.bukkript.script.definition.api
 
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.ExecutorBlock
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
-import br.com.devsrsouza.kotlinbukkitapi.extensions.command.unregister
+import br.com.devsrsouza.kotlinbukkitapi.command.CommandBuilderBlock
+import br.com.devsrsouza.kotlinbukkitapi.command.CommandDSL
+import br.com.devsrsouza.kotlinbukkitapi.command.ExecutorBlock
+import br.com.devsrsouza.kotlinbukkitapi.command.simpleCommand
+import br.com.devsrsouza.kotlinbukkitapi.command.command
+import br.com.devsrsouza.kotlinbukkitapi.extensions.unregister
 import org.bukkit.command.CommandSender
 
 fun BukkriptScript.simpleCommand(

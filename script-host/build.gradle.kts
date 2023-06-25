@@ -1,30 +1,18 @@
+plugins {
+    id(libs.plugins.bukkript.build.get().pluginId)
+    //alias(libs.plugins.maven)
+}
+
 dependencies {
-    compileOnly(kotlin("stdlib-jdk8"))
-    compileOnly(Dep.spigot)
-
-    api(project(":script-definition"))
-
-    pdm(kotlin("scripting-common").toString(), excluding)
-    pdm(kotlin("scripting-jvm-host").toString(), excluding)
-    pdm(kotlin("scripting-compiler-embeddable").toString(), excluding)
-
-    compileOnly(kotlin("scripting-dependencies-maven").toString(), excluding)
-    compileOnly(kotlin("scripting-dependencies").toString(), excluding)
-    compileOnly(kotlin("scripting-jvm").toString(), excluding)
-}
-
-val sources by tasks.registering(Jar::class) {
-    baseName = project.name
-    classifier = "sources"
-    version = null
-    from(sourceSets.main.get().allSource)
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-            artifact(sources.get())
-        }
-    }
+    compileOnly(libs.spigot.api)
+    
+    api(projects.scriptDefinition)
+    
+    implementation(kotlin("scripting-common"))
+    implementation(kotlin("scripting-jvm-host"))
+    implementation(kotlin("scripting-compiler-embeddable"))
+    
+    implementation(kotlin("scripting-jvm"))
+    implementation(kotlin("scripting-dependencies"))
+    implementation(kotlin("scripting-dependencies-maven"))
 }

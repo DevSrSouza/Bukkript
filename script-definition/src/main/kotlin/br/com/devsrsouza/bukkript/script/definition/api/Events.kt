@@ -1,10 +1,10 @@
 package br.com.devsrsouza.bukkript.script.definition.api
 
 import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.events
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterListener
-import br.com.devsrsouza.kotlinbukkitapi.flow.*
+import br.com.devsrsouza.kotlinbukkitapi.coroutines.flow.eventFlow
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event
+import br.com.devsrsouza.kotlinbukkitapi.extensions.events
+import br.com.devsrsouza.kotlinbukkitapi.extensions.unregisterListener
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onCompletion

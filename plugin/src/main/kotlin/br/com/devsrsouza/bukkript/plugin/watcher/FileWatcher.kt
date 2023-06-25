@@ -2,6 +2,7 @@ package br.com.devsrsouza.bukkript.plugin.watcher
 
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
@@ -46,9 +47,9 @@ fun watchFolder(path: Path): Flow<FileEvent> {
                     for(event in key.pollEvents()) {
                         val file = path.resolve(event.context() as Path).toFile()
                         when(event.kind()) {
-                            ENTRY_CREATE -> channel.sendBlocking(FileEvent.Create(file))
-                            ENTRY_MODIFY -> channel.sendBlocking(FileEvent.Modify(file))
-                            ENTRY_DELETE -> channel.sendBlocking(FileEvent.Delete(file))
+                            ENTRY_CREATE -> channel.trySendBlocking(FileEvent.Create(file))
+                            ENTRY_MODIFY -> channel.trySendBlocking(FileEvent.Modify(file))
+                            ENTRY_DELETE -> channel.trySendBlocking(FileEvent.Delete(file))
                         }
                     }
 

@@ -1,10 +1,9 @@
 package br.com.devsrsouza.bukkript.plugin
 
-import br.com.devsrsouza.bukkript.plugin.manager.DependencyManager
 import br.com.devsrsouza.bukkript.plugin.manager.LoggingManagerImpl
 import br.com.devsrsouza.bukkript.plugin.manager.ScriptManagerImpl
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
-import br.com.devsrsouza.kotlinbukkitapi.extensions.text.plus
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plus
 import org.bstats.bukkit.Metrics
 import org.bukkit.ChatColor
 
@@ -12,7 +11,6 @@ const val BSTATS_PLUGIN_ID = 8819
 
 class BukkriptPlugin : KotlinPlugin() {
 
-    val dependencyManager = lifecycle(110) { DependencyManager(this) }
     val loggingManager = lifecycle(100) { LoggingManagerImpl(this) }
     val scriptManager = lifecycle(90) { ScriptManagerImpl(this) }
 

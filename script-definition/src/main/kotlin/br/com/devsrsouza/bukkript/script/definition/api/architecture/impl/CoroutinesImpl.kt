@@ -4,8 +4,8 @@ import br.com.devsrsouza.bukkript.script.definition.BukkriptScript
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getOrInsertGenericLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
-import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
+import br.com.devsrsouza.kotlinbukkitapi.coroutines.BukkitDispatchers
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import org.bukkit.entity.Player
