@@ -20,7 +20,7 @@ class BukkriptBuildPlugin : Plugin<Project> {
 
             plugins.withType<KotlinBasePlugin> {
                 extensions.configure<KotlinJvmProjectExtension> {
-                    jvmToolchain(8) // TODO: upgrade to 11?
+                    jvmToolchain(17) // TODO: upgrade to 11?
                 }
                 tasks.withType<KotlinCompile> {
                     kotlinOptions.freeCompilerArgs = listOf("-Xcontext-receivers")

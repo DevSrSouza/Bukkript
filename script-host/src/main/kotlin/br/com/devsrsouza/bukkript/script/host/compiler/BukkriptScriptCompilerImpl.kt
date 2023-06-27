@@ -16,6 +16,7 @@ import kotlin.script.experimental.api.valueOrThrow
 import kotlin.script.experimental.api.with
 import kotlin.script.experimental.host.FileScriptSource
 import kotlin.script.experimental.host.ScriptingHostConfiguration
+import kotlin.script.experimental.host.configurationDependencies
 import kotlin.script.experimental.host.with
 import kotlin.script.experimental.jvm.compilationCache
 import kotlin.script.experimental.jvm.defaultJvmScriptingHostConfiguration
@@ -32,10 +33,17 @@ class BukkriptScriptCompilerImpl(
     override suspend fun retrieveDescriptor(scriptFile: File): ScriptDescription? {
         var scriptDescriptionLoaded: ScriptDescription? = null
 
+        println("Tentando fazer o retrieveDescriptor antes de realmente compilar rs rs rs")
         val customConfiguration =
             createJvmCompilationConfigurationFromTemplate<BukkriptScript>().with {
                 refineConfiguration {
+                    println("O refineConfiguration foi de comes e executes?")
+//                    beforeParsing {
+//                        println("Oh no before parsing foi chamado corretamente")
+//                        return@beforeParsing ResultWithDiagnostics.Success(it.compilationConfiguration)
+//                    }
                     beforeCompiling { context ->
+                        println("beforeCompiling refine mother fucker")
                         val info = context.compilationConfiguration[ScriptCompilationConfiguration.info]!!
 
                         scriptDescriptionLoaded = info
@@ -48,8 +56,11 @@ class BukkriptScriptCompilerImpl(
         val source = FileScriptSource(scriptFile)
 
         runCatching {
-            compile(source, customConfiguration)
+            println("Tentando fazer aquela compilacao!")
+            compile(source, customConfiguration).valueOrThrow()
+            println("Aquela compilacao foi de OKAY")
         }.onFailure {
+            println("Aquela compilacao foi de comes e bebes")
             if (scriptDescriptionLoaded == null) {
                 throw it
             }
@@ -69,6 +80,7 @@ class BukkriptScriptCompilerImpl(
             jvm {
                 compilationCache(cache)
             }
+            this.configurationDependencies
         }
 
         return runCatching {

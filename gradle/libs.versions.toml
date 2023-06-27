@@ -3,7 +3,7 @@ plugin-ktlint = "3.15.0"
 plugin-maven = "0.22.0"
 plugin-dependency-graph = "0.7.0"
 plugin-shadow = "8.1.1"
-kotlin = "1.8.20"
+kotlin = "1.8.22"
 
 coroutines = "1.7.1"
 kodein = "7.20.1"
@@ -16,6 +16,7 @@ junit = "5.8.2"
 
 # minecraft
 spigot = "1.20.1-R0.1-SNAPSHOT"
+paper = "1.20-R0.1-SNAPSHOT"
 kotlinbukkitapi = "1.0.0-SNAPSHOT"
 pluginYml = "0.6.0"
 bstats = "3.0.2"
@@ -33,12 +34,18 @@ hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "ktxSerialization" }
 
+maven-resolver-transportHttp = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version = "1.9.13" }
+maven-resolver-connectorBasic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version = "1.9.13" }
+
+# tests
+
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 
 # minecraft
 
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 
@@ -63,7 +70,8 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ktlint = { id = "org.jmailen.kotlinter", version.ref = "plugin-ktlint"}
 dependencyGraph = { id = "com.vanniktech.dependency.graph.generator", version.ref = "plugin-dependency-graph" }
 maven = { id = "com.vanniktech.maven.publish", version.ref = "plugin-maven" }
-pluginYml = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYml" }
+pluginYml-bukkit = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYml" }
+pluginYml-paper = { id = "net.minecrell.plugin-yml.paper", version.ref = "pluginYml" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "plugin-shadow" }
 
 bukkript-build = { id = "bukkript.build" }

@@ -1,5 +1,6 @@
 package br.com.devsrsouza.bukkript.plugin
 
+import br.com.devsrsouza.bukkript.plugin.libraryresolver.SpigotLibraryLoader
 import br.com.devsrsouza.bukkript.plugin.manager.LoggingManagerImpl
 import br.com.devsrsouza.bukkript.plugin.manager.ScriptManagerImpl
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
@@ -15,6 +16,10 @@ class BukkriptPlugin : KotlinPlugin() {
     val scriptManager = lifecycle(90) { ScriptManagerImpl(this) }
 
     internal lateinit var metrics: Metrics private set
+
+    override fun onPluginLoad() {
+        SpigotLibraryLoader.loadOrIgnore()
+    }
 
     override fun onPluginEnable() {
         registerCommands()

@@ -5,20 +5,20 @@ plugins {
 
 dependencies {
     compileOnly(libs.spigot.api)
-    
-    implementation(kotlin("scripting-jvm"))
-    implementation(kotlin("scripting-dependencies"))
-    implementation(kotlin("scripting-dependencies-maven"))
-    
-    implementation(libs.coroutines)
-    
-    implementation(libs.kotlinbukkitapi.coroutines)
-    implementation(libs.kotlinbukkitapi.utility)
-    implementation(libs.kotlinbukkitapi.architecture)
-    implementation(libs.kotlinbukkitapi.extensions)
-    implementation(libs.kotlinbukkitapi.exposed)
-    implementation(libs.kotlinbukkitapi.commandLegacy)
-    implementation(libs.kotlinbukkitapi.menu)
-    implementation(libs.kotlinbukkitapi.scoreboardLegacy)
+
+    compileOnly(kotlin("scripting-jvm"))
+    compileOnly(kotlin("scripting-dependencies"))
+    compileOnly(kotlin("scripting-dependencies-maven"))
+
+    compileOnly(libs.coroutines)
+
+    compileOnly(libs.kotlinbukkitapi.coroutines)
+    compileOnly(libs.kotlinbukkitapi.utility)
+    compileOnly(libs.kotlinbukkitapi.architecture)
+    compileOnly(libs.kotlinbukkitapi.extensions)
+    compileOnly(libs.kotlinbukkitapi.exposed)
+    compileOnly(libs.kotlinbukkitapi.commandLegacy)
+    compileOnly(libs.kotlinbukkitapi.menu)
+    compileOnly(libs.kotlinbukkitapi.scoreboardLegacy)
     //implementation(libs.kotlinbukkitapi.serialization) TODO: support Ktx Serialization at scripts
 }

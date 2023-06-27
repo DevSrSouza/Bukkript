@@ -22,6 +22,7 @@ import kotlin.script.experimental.jvm.updateClasspath
 fun resolveScriptAnnotation(
     ctx: ScriptConfigurationRefinementContext,
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
+    println("resolvendo as merdas das anotacoes: resolveScriptAnnotation")
     val annotations = ctx.collectedData?.get(ScriptCollectedData.foundAnnotations)
         ?.takeIf { it.isNotEmpty() } ?: return ctx.compilationConfiguration.asSuccess()
 

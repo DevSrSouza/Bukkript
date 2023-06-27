@@ -39,6 +39,7 @@ import kotlin.script.experimental.util.filterByAnnotationType
 fun resolveScriptStaticDependencies(
     ctx: ScriptConfigurationRefinementContext,
 ): ResultWithDiagnostics<ScriptCompilationConfiguration> {
+    println("Comecei a resolver dependencia a script: resolveScriptStaticDependencies")
     val configuration = ctx.compilationConfiguration.with {
         // If spigot is not available at this time, this means that is server running at a server
         if (!isPackageAvailable(SPIGOT_DEPENDENCY.fqnPackage)) {

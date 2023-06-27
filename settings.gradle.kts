@@ -8,14 +8,15 @@ pluginManagement {
     }
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        mavenCentral()
-        maven("https://repo.papermc.io/repository/maven-public/")
-        maven("https://raw.githubusercontent.com/KotlinMinecraft/KotlinBukkitAPI-Repository/main")
-    }
-}
+// plugin-yml plugin does not support this way of repositories
+//dependencyResolutionManagement {
+//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+//    repositories {
+//        mavenCentral()
+//        maven("https://repo.papermc.io/repository/maven-public/")
+//        maven("https://raw.githubusercontent.com/KotlinMinecraft/KotlinBukkitAPI-Repository/main")
+//    }
+//}
 
 rootProject.name = "Bukkript"
 
