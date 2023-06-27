@@ -10,7 +10,6 @@ plugins {
 dependencies {
     compileOnly(libs.spigot.api)
     compileOnly(libs.paper.api)
-    compileOnly(files("/Users/gabriel/opensource/minecraft/minecraft-server/versions/1.20.1/paper-1.20.1.jar"))
     compileOnly(libs.maven.resolver.transportHttp)
     compileOnly(libs.maven.resolver.connectorBasic)
 
